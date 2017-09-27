@@ -1,6 +1,6 @@
 
 #Combine data for one date
-setwd("~/Forest_Ecology/Met_Station_Data/6.23.17") #Set working directory to data file location
+setwd("~/Forest_Ecology/Met_Station_Data/2017-09-19") #Set working directory to data file location
 A1 <- read.csv(dir(pattern = "^Rollinson_A1"), skip = 1, na.strings=c("-888.9")) #read in data file, change error terms to NA
 B5 <- read.csv(dir(pattern = "^Rollinson_B5"), skip = 1, na.strings=c("-888.9")) #read in data file, change error terms to NA
 C6 <- read.csv(dir(pattern = "^Rollinson_C6"), skip = 1, na.strings=c("-888.9")) #read in data file, change error terms to NA
@@ -15,7 +15,6 @@ C6[,1] <- "C6" #Make first column the plot ID
 D1[,1] <- "D1" #Make first column the plot ID
 
 all_plots <- rbind.data.frame(A1, B5, C6, D1) #Combine all plots into same dataframe
-all_plots <- rbind.data.frame(B5, C6, D1) #Temporary
 
 colnames(all_plots) <- c("Plot", "Date_Time", "Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity") #Change column names
 
@@ -26,7 +25,7 @@ write.csv(all_plots, file = csv_name) #Write CSV to current directory
 
 
 #Add to prexisting compilation CSV
-setwd("~/Forest_Ecology/Met_Station_Data/6.23.17") #Set working directory to most recent combination CSV location
+setwd("~/Forest_Ecology/Met_Station_Data/2017-09-19") #Set working directory to most recent combination CSV location
 add_plot <- read.csv(dir(pattern = "^Met_Stations")) #read in most recent combination CSV data file
 
 setwd("..") #set working directory to parent folder where compilation CSV is located
