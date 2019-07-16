@@ -1,3 +1,6 @@
+*.Rhistory
+2017-12-15/
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
