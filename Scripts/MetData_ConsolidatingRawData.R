@@ -114,7 +114,8 @@ all_plots = select(all_plots, -1, -2)
 colnames(all_plots)
 
 
-#Writing .csv of consolidated data
-csv_name <- sprintf("Met_Stations_%s%s", obs_date, ".csv") #Create filename
-write.csv(all_plots, file = "Met_Stations_") #Write CSV to current directory
+#Writing .csv of compiled/consolidated data
+st=format(Sys.time(), "%Y-%m-%d")
+filename <- paste("Met_Stations_Compiled_",st, ".csv", sep = "")
+write.csv(all_plots, file = filename) #Write CSV to current directory
 

@@ -10,7 +10,7 @@ met.all <- read.csv("Met_Stations_Single_Plots.csv")
 met.all <- met.all[,2:ncol(met.all)]
 
 met.all[!is.na(met.all$Soil_Temp) & (met.all$Soil_Temp< -888 | met.all$Soil_Temp>999), "Soil_Temp"] <- NA
-met.all[!is.na(met.all$Soil_Moisture) & (met.all$Soil_Moisture< -0.1| met.all$Soil_Moisture>1), "Soil_Moisture"] <- NA
+met.all[!is.na(met.all$Soil_Moisture) & (met.all$Soil_Moisture< -0.5| met.all$Soil_Moisture>1), "Soil_Moisture"] <- NA
 met.all[!is.na(met.all$PAR) & (met.all$PAR< -888 | met.all$PAR>999), "PAR"] <- NA
 met.all[!is.na(met.all$Air_Temp) & (met.all$Air_Temp< -888 | met.all$Air_Temp>999), "Air_Temp"] <- NA
 met.all[!is.na(met.all$Relative_Humidity) & (met.all$Relative_Humidity< -888 | met.all$Relative_Humidity>999), "Relative_Humidity"] <- NA
