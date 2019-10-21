@@ -21,15 +21,21 @@ U134 <-read_bulk(directory = "Rollinson_U134", extension = ".csv", header = TRUE
 colnames(B127)
 #Renaming columns produced by old and new Hoboware:
 colnames(B127) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
-                    "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","Air_Temp_B", "Relative_Humidity_B","PAR_B", "PAR_C", "Time6", "Soil_Temp_C", "Air_Temp_C") #Change column names for B127
+                    "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","Air_Temp_B", "Relative_Humidity_B","PAR_B", "PAR_C", "Time6", "Soil_Temp_C", "Air_Temp_C")#Change column names for B127
+#Consolidating columns of Fahrenheit temperature and then converting it to Celcius
+B127.convert <- B127 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
+                                Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
+                                Soil_Temp_Y = ((Soil_Temp_X-32)*(5/9)), 
+                                Air_Temp_Y = ((Air_Temp_X-32)*(5/9))) 
+
 #Consolidating redundant columns:
-B127.mod <- B127 %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
-                       Soil_Temp = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
-                       Air_Temp = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
+B127.mod <- B127.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
                        Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                        Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                        PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A),
-                       PAR = ifelse(is.na(PAR_A), PAR_C, PAR_A))
+                       PAR = ifelse(is.na(PAR_A), PAR_C, PAR_A),
+                       Soil_Temp = ifelse(is.na(Soil_Temp_Y), Soil_Temp_C, Soil_Temp_Y),
+                       Air_Temp = ifelse(is.na(Air_Temp_Y), Air_Temp_C, Air_Temp_Y))
 #Adding in plot name:
 B127.mod $ PlotName <- "B127"
 #Checking columns to delete are correct for next lines
