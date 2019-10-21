@@ -2,7 +2,7 @@ library(readbulk)
 library(dplyr)
 
 #BZ Desktop
-setwd("C:/Users/BZumwalde/Desktop/ForestEcology_R/Met_Stations/Data_raw_inputs/Single_Plots")
+#setwd("C:/Users/BZumwalde/Desktop/ForestEcology_R/Met_Stations/Data_raw_inputs/Single_Plots")
 
 #Loading in all .csv files for each plot
 B127 <-read_bulk(directory = "Rollinson_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
