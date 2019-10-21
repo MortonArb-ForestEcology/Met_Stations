@@ -21,7 +21,7 @@ U134 <-read_bulk(directory = "Rollinson_U134", extension = ".csv", header = TRUE
 colnames(B127)
 #Renaming columns produced by old and new Hoboware:
 colnames(B127) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
-                    "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","Air_Temp_B", "Relative_Humidity_B","PAR_B", "PAR_C", "Time6") #Change column names for B127
+                    "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","Air_Temp_B", "Relative_Humidity_B","PAR_B", "PAR_C", "Time6", "Soil_Temp_C", "Air_Temp_C") #Change column names for B127
 #Consolidating redundant columns:
 B127.mod <- B127 %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
                        Soil_Temp = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
