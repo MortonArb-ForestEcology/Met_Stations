@@ -26,6 +26,7 @@ colnames(B127) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR
 #Consolidating columns of Fahrenheit temperature and then converting it to Celcius
 B127.convert <- B127 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
+                                PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
                                 Soil_Temp_Y = ((Soil_Temp_X-32)*(5/9)), 
                                 Air_Temp_Y = ((Air_Temp_X-32)*(5/9))) 
 
@@ -34,7 +35,6 @@ B127.mod <- B127.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(
                        Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                        Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                        PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A),
-                       PAR = ifelse(is.na(PAR_A), PAR_C, PAR_A),
                        Soil_Temp = ifelse(is.na(Soil_Temp_Y), Soil_Temp_C, Soil_Temp_Y),
                        Air_Temp = ifelse(is.na(Air_Temp_Y), Air_Temp_C, Air_Temp_Y))
 #Adding in plot name:
@@ -126,3 +126,27 @@ st=format(Sys.time(), "%Y-%m-%d")
 filename <- paste("Met_Stations_Compiled_",st, ".csv", sep = "")
 write.csv(all_plots, file = filename) #Write CSV to current directory
 
+#-----------------------------------#
+
+#If using a single plot instead of consolidating them all#
+
+one_plot <- "plotname"
+
+obs_date <- strsplit(getwd(), split = "/")
+obs_date <- obs_date[[1]][length(obs_date[[1]])]
+one_plot$Time6 <- strptime(one_plot$Time6, format="%m/%d/%y %I:%M:%S %p")
+one_plot$Time5 <- strptime(one_plot$Time5, format="%m/%d/%y %I:%M:%S %p")
+one_plot$Date_Time <- one_plot$Time5
+one_plot[is.na(one_plot$Date_Time),"Date_Time"] <- one_plot[is.na(one_plot$Date_Time),"Time6"] + 60*60
+summary(one_plot)
+#Getting rid of extra time5 and time6 columns in front
+one_plot = select(one_plot, -1, -2)
+colnames(one_plot)
+
+#Getting rid of redundant dates of data collection#
+one_plot <- one_plot[!duplicated(one_plot[c('Date_Time')]),]
+
+#Writing .csv of compiled/consolidated data
+st=format(Sys.time(), "%Y-%m-%d")
+filename <- paste("Met_Stations_Plotname_",st, ".csv", sep = "")
+write.csv(one_plot, file = filename) #Write CSV to current directory
