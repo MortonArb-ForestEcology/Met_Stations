@@ -2,7 +2,7 @@ library(readbulk)
 library(dplyr)
 
 #BZ Desktop
-#setwd("C:/Users/BZumwalde/Desktop/ForestEcology_R/Met_Stations/Data_raw_inputs/Single_Plots")
+#setwd("G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots")
 
 #Loading in all .csv files for each plot
 B127 <-read_bulk(directory = "Rollinson_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
@@ -21,7 +21,8 @@ U134 <-read_bulk(directory = "Rollinson_U134", extension = ".csv", header = TRUE
 colnames(B127)
 #Renaming columns produced by old and new Hoboware:
 colnames(B127) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
-                    "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","Air_Temp_B", "Relative_Humidity_B","PAR_B", "PAR_C", "Time6", "Soil_Temp_C", "Air_Temp_C")#Change column names for B127
+                    "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","Air_Temp_B", "Relative_Humidity_B","PAR_B", "PAR_C", "Time6", 
+                    "Soil_Temp_C", "Air_Temp_C")#Change column names for B127
 #Consolidating columns of Fahrenheit temperature and then converting it to Celcius
 B127.convert <- B127 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
@@ -41,7 +42,7 @@ B127.mod $ PlotName <- "B127"
 #Checking columns to delete are correct for next lines
 colnames(B127.mod)
 #Deleting columns before "Time6"
-B127.df <- subset(B127.mod, select = -c(1,1:15))
+B127.df <- subset(B127.mod, select = c(16,23:29))
 
 #--------------------------------#
 
@@ -115,7 +116,7 @@ all_plots$Time5 <- strptime(all_plots$Time5, format="%m/%d/%y %I:%M:%S %p")
 all_plots$Date_Time <- all_plots$Time5
 all_plots[is.na(all_plots$Date_Time),"Date_Time"] <- all_plots[is.na(all_plots$Date_Time),"Time6"] + 60*60
 summary(all_plots)
-#Getting rid of extra row in front
+#Getting rid of extra time5 and time6 columns in front
 all_plots = select(all_plots, -1, -2)
 colnames(all_plots)
 
