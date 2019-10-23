@@ -156,6 +156,9 @@ Date.min <- paste(Date.year,"-", Date.month, "-01 01:30:55", sep="")
 Date.max <- paste(Date.year,"-", Date.month, "-31 23:18:55", sep="")
 one_plot.mon <- subset(one_plot, Date_Time >= as.POSIXlt(Date.min) & Date_Time <= as.POSIXlt(Date.max))
 
+#Rounding the times to be on the hour so filling missing dates doesnt require hardcoding
+one_plot.mon <- one_plot.mon %>% mutate(Date_check = round.POSIXt(Date_Time , units=c("hours")))
+
 #Adding in missing times so missing data can be seen
 ts <- seq.POSIXt(as.POSIXct(Date.min, '%m/%d/%y %I:%M:%S %p'), 
                  as.POSIXct(Date.max, '%m/%d/%y %I:%M:%S %p'), by="hour")
