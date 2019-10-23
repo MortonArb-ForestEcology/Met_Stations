@@ -5,12 +5,17 @@ library(dplyr)
 library(lubridate)
 library(tidyr)
 
-#setwd("G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots")
+#Setting File paths
+path.personal <- "C:/Users/lfitzpatrick"
+path.data <- "/GitHub/Clones/Met_Stations/Data_raw_inputs/Single_Plots"
+path.met <- paste(path.personal, path.data, sep="")
+path.out <- paste(path.personal, "/GitHub/Clones/Met_Stations/Data_clean", sep="")
+setwd(path.met)
 
 #--------------------------------#
 
 #Consolidating B127 data
-B127 <-read_bulk(directory = "B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+B127 <-read_bulk(directory = "Rollinson_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 colnames(B127)
 ####Fixing redundant column names produced by updating HOBOware program which adds data logger and SN's in headers####
 #Renaming columns produced by old and new Hoboware:
@@ -33,12 +38,12 @@ B127.mod <- B127.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(
                                     PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A),
                                     Soil_Temp = ifelse(is.na(Soil_Temp_Y), Soil_Temp_C, Soil_Temp_Y),
                                     Air_Temp = ifelse(is.na(Air_Temp_Y), Air_Temp_C, Air_Temp_Y))
-#Adding in plot name:
-B127.mod $ PlotName <- "B127"
+Plot.title <- "B127"
+B127.mod $ PlotName <- Plot.title
 #Checking columns to delete are correct for next lines
 colnames(B127.mod)
 #Deleting columns before "Time6"
-B127.df <- subset(B127.mod, select = c(16,23:29))
+one_plot <- subset(B127.mod, select = c(16,23:29))
 
 #-------------------------------------#
 #Consolidating N115 data#
@@ -63,10 +68,10 @@ N115.mod <- N115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(
                             Soil_Moisture = ifelse(is.na(Soil_Moisture_Y), Soil_Moisture_C, Soil_Moisture_Y),
                             Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                             PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
-                            
-N115.mod $ PlotName <- "N115"
+Plot.title <- "N115"                            
+N115.mod $ PlotName <- Plot.title
 colnames(N115.mod)
-N115.df <- subset(N115.mod, select = c(16,23:29))
+one_plot <- subset(N115.mod, select = c(16,23:29))
 
 #--------------------------------#
 
@@ -91,10 +96,10 @@ HH115.mod <- HH115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.characte
                               Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                               Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                               PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
-
-HH115.mod $ PlotName <- "HH115"
+Plot.title <- "HH115"
+HH115.mod $ PlotName <- Plot.title
 colnames(HH115.mod)
-HH115.df <- subset(HH115.mod, select = -c(1,1:17))
+one_plot <- subset(HH115.mod, select = -c(1,1:17))
 #-------------------------------------#
 
 
@@ -119,15 +124,14 @@ U134.mod <- U134.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(
                             Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                             Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                             PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
-U134.mod $ PlotName <- "U134"
+Plot.title <- "U134"
+U134.mod $ PlotName <- Plot.title
 colnames(U134.mod)
-U134.df <- subset(U134.mod, select = c(24:31))
+one_plot <- subset(U134.mod, select = c(24:31))
 
 #--------------------------------#
 
 #Consolidating the plot and fixing redundacies in Time
-one_plot <- U134.df
-
 #Addressing daylight saving times issue (Time6 + Time5)
 obs_date <- strsplit(getwd(), split = "/")
 obs_date <- obs_date[[1]][length(obs_date[[1]])]
@@ -162,6 +166,6 @@ one_plot.mon['Date_Time'] <- lapply(one_plot.mon['Date_Time'], as.POSIXct)
 one_plot.final <- full_join(time_fill, one_plot.mon)
 
 #Writing .csv of monthly data
-filename <- paste("B127","-", Date.year, "-", Date.month, "-", ".csv", sep = "")
-write.csv(one_plot.final, file = filename) #Write CSV to current directory
+filename <- paste(Plot.title,"-", Date.year, "-", Date.month, ".csv", sep = "")
+write.csv(one_plot.final, file.path(path.out,  file = filename)) #Write CSV to current directory
 
