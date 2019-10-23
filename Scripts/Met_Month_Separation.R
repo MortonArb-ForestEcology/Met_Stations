@@ -28,8 +28,10 @@ colnames(B127) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR
 B127.convert <- B127 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                 PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
-                                Soil_Temp_Y = ((Soil_Temp_X-32)*(5/9)), 
-                                Air_Temp_Y = ((Air_Temp_X-32)*(5/9))) 
+                                Soil_Temp_X = ifelse((Soil_Temp_X > -800), Soil_Temp_X ,(Soil_Temp_X * -1)),
+                                Air_Temp_X = ifelse((Air_Temp_X > -800), Air_Temp_X, (Air_Temp_X * -1)),
+                                Soil_Temp_Y = ifelse(Soil_Temp_X > 800, Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
+                                Air_Temp_Y = ifelse(Air_Temp_X > 800, Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
 
 #Consolidating redundant columns:
 B127.mod <- B127.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
@@ -45,7 +47,32 @@ colnames(B127.mod)
 #Deleting columns before "Time6"
 B127.df <- subset(B127.mod, select = c(16,23:29))
 
+#-------------------------------------#
+#Consolidating N115 data#
+colnames(N115)
+colnames(N115) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
+                    "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B", "PAR_C", "Time6", 
+                    "Soil_Temp_C", "Air_Temp_C") #Change column names for N115
+#Consolidating columns of Fahrenheit temperature and then converting it to Celcius
+N115.convert <- N115 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
+                                Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
+                                PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
+                                Soil_Temp_X = ifelse((Soil_Temp_X > -800), Soil_Temp_X ,(Soil_Temp_X * -1)),
+                                Air_Temp_X = ifelse((Air_Temp_X > -800), Air_Temp_X, (Air_Temp_X * -1)),
+                                Soil_Temp_Y = ifelse((Soil_Temp_X > 800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
+                                Air_Temp_Y = ifelse((Air_Temp_X > 800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
 
+#Consolidating redundant columns:
+N115.mod <- N115 %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
+                            Soil_Temp = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
+                            Air_Temp = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
+                            Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
+                            Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
+                            PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
+                            
+N115.mod $ PlotName <- "N115"
+colnames(N115.mod)
+N115.df <- subset(N115.mod, select = -c(1,1:15))
 #-------------------------------------#
 
 #Consolidating the plot and fixing redundacies in Time

@@ -27,8 +27,11 @@ colnames(B127) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR
 B127.convert <- B127 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                 PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
-                                Soil_Temp_Y = ((Soil_Temp_X-32)*(5/9)), 
-                                Air_Temp_Y = ((Air_Temp_X-32)*(5/9))) 
+                                Soil_Temp_X = ifelse((Soil_Temp_X > -800), Soil_Temp_X ,(Soil_Temp_X * -1)),
+                                Air_Temp_X = ifelse((Air_Temp_X > -800), Air_Temp_X, (Air_Temp_X * -1)),
+                                Soil_Temp_Y = ifelse(Soil_Temp_X > 800, Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
+                                Air_Temp_Y = ifelse(Air_Temp_X > 800, Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
+                            
 
 #Consolidating redundant columns:
 B127.mod <- B127.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
