@@ -3,6 +3,7 @@
 library(readbulk)
 library(dplyr)
 library(lubridate)
+library(tidyr)
 
 #setwd("G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots")
 
@@ -48,7 +49,7 @@ B127.df <- subset(B127.mod, select = c(16,23:29))
 #-------------------------------------#
 
 #Consolidating the plot and fixing redundacies in Time
-one_plot <- "plotname"
+one_plot <- B127.df
 
 #Addressing daylight saving times issue (Time6 + Time5)
 obs_date <- strsplit(getwd(), split = "/")
@@ -70,10 +71,20 @@ one_plot <- one_plot[!duplicated(one_plot[c('Date_Time')]),]
 
 Date.year <- "2017"
 Date.month <- "07"
+Date.min <- paste(Date.year,"-", Date.month, "-01 01:30:55", sep="")
+Date.max <- paste(Date.year,"-", Date.month, "-31 23:18:55", sep="")
+one_plot.mon <- subset(one_plot, Date_Time >= as.POSIXlt(Date.min) & Date_Time <= as.POSIXlt(Date.max))
 
-Date.min <- paste(Date.year,"-", Date.month, "-01", sep="")
-Date.max <- paste(Date.year,"-", Date.month, "-31", sep="")
+#Adding in missing times so missing data can be seen
+ts <- seq.POSIXt(as.POSIXct(Date.min, '%m/%d/%y %I:%M:%S %p'), 
+                 as.POSIXct(Date.max, '%m/%d/%y %I:%M:%S %p'), by="hour")
+ts <- seq.POSIXt(as.POSIXlt(Date.min), as.POSIXlt(Date.max), by="hour")
+ts <- as.POSIXct(ts,'%m/%d/%y %I:%M:%S %p')
+time_fill <- data.frame(Date_Time=ts)
+one_plot.mon['Date_Time'] <- lapply(one_plot.mon['Date_Time'], as.POSIXct) 
+one_plot.final <- full_join(time_fill, one_plot.mon)
 
-one_plot.mon <- one_plot %>% filter(Date_Time >= as.Date(Date.min) 
-                                   & Date_Time <= as.Date(Date.max))
+#Writing .csv of monthly data
+filename <- paste("B127","-", Date.year, "-", Date.month, "-", ".csv", sep = "")
+write.csv(one_plot.final, file = filename) #Write CSV to current directory
 
