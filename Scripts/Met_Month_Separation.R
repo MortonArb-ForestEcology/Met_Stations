@@ -98,7 +98,7 @@ HH115.mod <- HH115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.characte
 Plot.title <- "HH115"
 HH115.mod $ Plot_Name <- Plot.title
 colnames(HH115.mod)
-one_plot <- subset(HH115.mod, select = -c(1,1:17))
+one_plot <- subset(HH115.mod, select = -c(1,1:19))
 #-------------------------------------#
 
 
