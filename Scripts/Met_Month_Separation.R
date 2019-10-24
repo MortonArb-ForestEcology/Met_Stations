@@ -9,7 +9,6 @@ library(tidyr)
 path.personal <- "C:/Users/lfitzpatrick"
 path.data <- "/GitHub/Clones/Met_Stations/Data_raw_inputs/Single_Plots"
 path.met <- paste(path.personal, path.data, sep="")
-path.out <- paste(path.personal, "/GitHub/Clones/Met_Stations/Data_clean", sep="")
 setwd(path.met)
 
 #--------------------------------#
@@ -39,7 +38,7 @@ B127.mod <- B127.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(
                                     Soil_Temp = ifelse(is.na(Soil_Temp_Y), Soil_Temp_C, Soil_Temp_Y),
                                     Air_Temp = ifelse(is.na(Air_Temp_Y), Air_Temp_C, Air_Temp_Y))
 Plot.title <- "B127"
-B127.mod $ PlotName <- Plot.title
+B127.mod $ Plot_Name <- Plot.title
 #Checking columns to delete are correct for next lines
 colnames(B127.mod)
 #Deleting columns before "Time6"
@@ -47,7 +46,7 @@ one_plot <- subset(B127.mod, select = c(16,23:29))
 
 #-------------------------------------#
 #Consolidating N115 data#
-N115 <-read_bulk(directory = "N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+N115 <-read_bulk(directory = "Rollinson_N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 colnames(N115)
 colnames(N115) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
                     "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B", "PAR_C", "Time6", 
@@ -63,20 +62,20 @@ N115.convert <- N115 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Te
 
 #Consolidating redundant columns:
 N115.mod <- N115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
-                            Soil_Temp = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
+                            Soil_Temp = ifelse(is.na(Soil_Temp_Y), Soil_Temp_C, Soil_Temp_Y),
                             Air_Temp = ifelse(is.na(Air_Temp_Y), Air_Temp_C, Air_Temp_Y),
-                            Soil_Moisture = ifelse(is.na(Soil_Moisture_Y), Soil_Moisture_C, Soil_Moisture_Y),
+                            Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                             Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                             PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
 Plot.title <- "N115"                            
-N115.mod $ PlotName <- Plot.title
+N115.mod $ Plot_Name <- Plot.title
 colnames(N115.mod)
 one_plot <- subset(N115.mod, select = c(16,23:29))
 
 #--------------------------------#
 
 #Consolidating HH115 data
-HH115 <-read_bulk(directory = "HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+HH115 <-read_bulk(directory = "Rollinson_HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 colnames(HH115)
 colnames(HH115) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name",
                      "Time6_A", "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B","Time6_B", "PAR_C") #Change column names for HH115
@@ -97,14 +96,14 @@ HH115.mod <- HH115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.characte
                               Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                               PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
 Plot.title <- "HH115"
-HH115.mod $ PlotName <- Plot.title
+HH115.mod $ Plot_Name <- Plot.title
 colnames(HH115.mod)
 one_plot <- subset(HH115.mod, select = -c(1,1:17))
 #-------------------------------------#
 
 
 #Consolidating U134 data
-U134 <-read_bulk(directory = "U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+U134 <-read_bulk(directory = "Rollinson_U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 colnames(U134)
 colnames(U134) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
                     "Time6_A", "Time5_B", "Soil_Temp_B", "Air_Temp_B", "Relative_Humidity_B","PAR_B", "Soil_Moisture_B","PAR_C", "Time6_B",
@@ -125,7 +124,7 @@ U134.mod <- U134.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(
                             Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                             PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
 Plot.title <- "U134"
-U134.mod $ PlotName <- Plot.title
+U134.mod $ Plot_Name <- Plot.title
 colnames(U134.mod)
 one_plot <- subset(U134.mod, select = c(24:31))
 
@@ -165,6 +164,13 @@ time_fill <- data.frame(Date_Check=ts)
 one_plot['Date_Check'] <- lapply(one_plot['Date_Check'], as.POSIXct) 
 one_plot.loop <- full_join(time_fill, one_plot)
 one_plot.loop$Date_Time = NULL
+
+#Arranging the columns so they are standard across plots
+one_plot.loop <- one_plot.loop[c("PlotName", "Date_Check", "Soil_Moisture", "Relative_Humidity",
+                                 "PAR", "Soil_Temp", "Air_Temp")]
+
+#Setting the path out to be in the corresponding folder
+path.out <- paste(path.personal, "/GitHub/Clones/Met_Stations/Data_clean/", Plot.title, sep="")
 
 # Seperating by chosen year and month values
 month.check = 0
