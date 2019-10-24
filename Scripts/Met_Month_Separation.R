@@ -162,22 +162,23 @@ one_plot['Date_Check'] <- lapply(one_plot['Date_Check'], as.POSIXct)
 one_plot.loop <- full_join(time_fill, one_plot)
 
 # Seperating by chosen year and month values
-month.check = 5
+month.check = 0
 rows=1
 for (i in rows:nrow(one_plot.loop)){
-  month.extract <- one_plot.loop[i, "Date_Check"]
-  if (!is.na(month.extract)){
-    if (month(month.extract) != month.check){
+  Date.month <- one_plot.loop[i, "Date_Check"]
+  month.extract <- month(Date.month)
+  if (!is.na(one_plot.loop[ ,1])){
+    if (month.extract != month.check){
       if(month.extract == 1 | month.extract == 3 | month.extract == 5 | 
          month.extract == 7 | month.extract == 8 | month.extract == 10 | month.extract == 12){
         last.day = "31" 
       } else if(month.extract == 4 | month.extract == 6 | month.extract == 9 | month.extract == 11){
         last.day = "30"
       } else if(month.extract == 2) {last.day = "28"}
-      Date.min <- paste(year(month.extract), "-", month.check, "-01 00:00:00", sep="")
-      Date.max <- paste(year(month.extract), "-", month.check, "-", last.day, "23:59:59", sep="")
+      Date.min <- paste(year(Date.month), "-", month.extract, "-01 00:00:00", sep="")
+      Date.max <- paste(year(Date.month), "-", month.extract, "-", last.day, "23:59:59", sep="")
       one_plot.final <- subset(one_plot.loop, Date_Check >= as.POSIXlt(Date.min) & Date_Check <= as.POSIXlt(Date.max))
-      filename <- paste(Plot.title,"-", year(month.extract), "-", month.check, ".csv", sep = "")
+      filename <- paste(Plot.title,"-", year(Date.month), "-", month.extract, ".csv", sep = "")
       write.csv(one_plot.final, file.path(path.out,  file = filename))
       rows = rows + nrow(one_plot.final)
       if(month.check == 12) month.check = 1 else(month.check = (month.check + 1))
