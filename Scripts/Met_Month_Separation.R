@@ -153,13 +153,18 @@ one_plot <- one_plot[!duplicated(one_plot[c('Date_Time')]),]
 one_plot <- transform(one_plot, Date_Check = round.POSIXt(Date_Time, units = c("hours")))
 
 #Adding in missing times so missing data can be seen
-ts <- seq.POSIXt(as.POSIXct(Date.min, '%m/%d/%y %I:%M:%S %p'), 
-                 as.POSIXct(Date.max, '%m/%d/%y %I:%M:%S %p'), by="hour")
-ts <- seq.POSIXt(as.POSIXlt(Date.min), as.POSIXlt(Date.max), by="hour")
+#Defining the first and last date
+Date.first <- one_plot[1,8]
+Date.last <- one_plot[nrow(one_plot), 8]
+#Creating a sequence in between the dates and filling in gaps
+ts <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'), 
+                 as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
+ts <- seq.POSIXt(as.POSIXlt(Date.first), as.POSIXlt(Date.last), by="hour")
 ts <- as.POSIXct(ts,'%m/%d/%y %I:%M:%S %p')
 time_fill <- data.frame(Date_Check=ts)
 one_plot['Date_Check'] <- lapply(one_plot['Date_Check'], as.POSIXct) 
 one_plot.loop <- full_join(time_fill, one_plot)
+one_plot.loop$Date_Time = NULL
 
 # Seperating by chosen year and month values
 month.check = 0
@@ -167,7 +172,7 @@ rows=1
 for (i in rows:nrow(one_plot.loop)){
   Date.month <- one_plot.loop[i, "Date_Check"]
   month.extract <- month(Date.month)
-  if (!is.na(one_plot.loop[ ,1])){
+  if (!is.na(month.extract)){
     if (month.extract != month.check){
       if(month.extract == 1 | month.extract == 3 | month.extract == 5 | 
          month.extract == 7 | month.extract == 8 | month.extract == 10 | month.extract == 12){
@@ -176,19 +181,12 @@ for (i in rows:nrow(one_plot.loop)){
         last.day = "30"
       } else if(month.extract == 2) {last.day = "28"}
       Date.min <- paste(year(Date.month), "-", month.extract, "-01 00:00:00", sep="")
-      Date.max <- paste(year(Date.month), "-", month.extract, "-", last.day, "23:59:59", sep="")
+      Date.max <- paste(year(Date.month), "-", month.extract, "-", last.day, " 23:59:59", sep="")
       one_plot.final <- subset(one_plot.loop, Date_Check >= as.POSIXlt(Date.min) & Date_Check <= as.POSIXlt(Date.max))
       filename <- paste(Plot.title,"-", year(Date.month), "-", month.extract, ".csv", sep = "")
-      write.csv(one_plot.final, file.path(path.out,  file = filename))
+      write.csv(one_plot.final, file.path(path.out,  file = filename), row.names = FALSE)
       rows = rows + nrow(one_plot.final)
       if(month.check == 12) month.check = 1 else(month.check = (month.check + 1))
     }
   }
 } 
-#Removing the extra row caused by rounding
-one_plot.final <- one_plot.final[-1,]
-one_plot.final$Date_Time = NULL
-#Writing .csv of monthly data
-filename <- paste(Plot.title,"-", Date.year, "-", Date.month, ".csv", sep = "")
-write.csv(one_plot.loop, file.path(path.out,  file = filename)) #Write CSV to current directory
-
