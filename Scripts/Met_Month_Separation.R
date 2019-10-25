@@ -166,8 +166,14 @@ one_plot.loop <- full_join(time_fill, one_plot)
 one_plot.loop$Date_Time = NULL
 
 #Arranging the columns so they are standard across plots
-one_plot.loop <- one_plot.loop[c("PlotName", "Date_Check", "Soil_Moisture", "Relative_Humidity",
+one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Check", "Soil_Moisture", "Relative_Humidity",
                                  "PAR", "Soil_Temp", "Air_Temp")]
+#Marking NA values as NA
+one_plot.loop[!is.na(one_plot.loop$Soil_Temp) & (one_plot.loop$Soil_Temp< -888 | one_plot.loop$Soil_Temp>999), "Soil_Temp"] <- NA
+one_plot.loop[!is.na(one_plot.loop$Soil_Moisture) & (one_plot.loop$Soil_Moisture< -0.5| one_plot.loop$Soil_Moisture>1), "Soil_Moisture"] <- NA
+one_plot.loop[!is.na(one_plot.loop$PAR) & (one_plot.loop$PAR< -888 | one_plot.loop$PAR>999), "PAR"] <- NA
+one_plot.loop[!is.na(one_plot.loop$Air_Temp) & (one_plot.loop$Air_Temp< -888 | one_plot.loop$Air_Temp>999), "Air_Temp"] <- NA
+one_plot.loop[!is.na(one_plot.loop$Relative_Humidity) & (one_plot.loop$Relative_Humidity< -888 | one_plot.loop$Relative_Humidity>999), "Relative_Humidity"] <- NA
 
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.personal, "/GitHub/Clones/Met_Stations/Data_clean/", Plot.title, sep="")
