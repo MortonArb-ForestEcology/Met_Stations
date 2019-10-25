@@ -33,3 +33,17 @@ for (i in rows:nrow(one_plot.loop)){
     }
   }
 }
+#Resetting directory to work with created files. Can probably be softcoded
+setwd(path.out)
+
+plot.year <- read.csv(filename)
+plot.sum <- stack(plot.year[,c("Soil_Moisture", "Relative_Humidity", "PAR", "Soil_Temp", "Air_Temp")])
+names(plot.sum) <- c("values", "var")
+plot.sum[,c("Plot_Name", "Date_Check")] <- plot.year[,c("Plot_Name", "Date_Check")]
+summary(plot.sum)
+
+#Initial plot to just view the data as is
+ggplot(plot.sum, aes(x = Date_Check, y = values)) +
+  facet_wrap(~var, scales="free_y") +
+  geom_line(aes(color=Plot_Name)) +
+  theme_bw()
