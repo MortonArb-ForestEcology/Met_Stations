@@ -78,15 +78,14 @@ one_plot <- subset(N115.mod, select = c(16,23:29))
 HH115 <-read_bulk(directory = "Rollinson_HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 colnames(HH115)
 colnames(HH115) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name",
-                     "Time6_A", "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B","Time6_B", "PAR_C") #Change column names for HH115
+                     "Time6_A", "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B","Time6_B", "PAR_C", "Soil_Temp_C", "Air_Temp_C") #Change column names for HH115
 HH115.convert <- HH115 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
-                                PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B))
-#This conversion is currently unneeded as it has no celsius values yet
-                                #Soil_Temp_X = ifelse((Soil_Temp_X > -800), Soil_Temp_X ,(Soil_Temp_X * -1)),
-                                #Air_Temp_X = ifelse((Air_Temp_X > -800), Air_Temp_X, (Air_Temp_X * -1)),
-                                #Soil_Temp_Y = ifelse((Soil_Temp_X > 800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
-                                #Air_Temp_Y = ifelse((Air_Temp_X > 800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
+                                PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
+                                Soil_Temp_X = ifelse((Soil_Temp_X > -800), Soil_Temp_X ,(Soil_Temp_X * -1)),
+                                Air_Temp_X = ifelse((Air_Temp_X > -800), Air_Temp_X, (Air_Temp_X * -1)),
+                                Soil_Temp_Y = ifelse((Soil_Temp_X > 800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
+                                Air_Temp_Y = ifelse((Air_Temp_X > 800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
 #This will also need to be changed once celsius 
 HH115.mod <- HH115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
                               Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
@@ -98,7 +97,7 @@ HH115.mod <- HH115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.characte
 Plot.title <- "HH115"
 HH115.mod $ Plot_Name <- Plot.title
 colnames(HH115.mod)
-one_plot <- subset(HH115.mod, select = -c(1,1:19))
+one_plot <- subset(HH115.mod, select = -c(1,1:23))
 #-------------------------------------#
 
 
