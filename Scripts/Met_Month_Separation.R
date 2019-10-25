@@ -7,7 +7,7 @@ library(tidyr)
 
 #Setting File paths
 path.personal <- "C:/Users/lfitzpatrick"
-path.data <- "/GitHub/Clones/Met_Stations/Data_raw_inputs/Single_Plots"
+path.data <- "/GitHub/Met_Stations/Data_raw_inputs/Single_Plots"
 path.met <- paste(path.personal, path.data, sep="")
 setwd(path.met)
 
@@ -176,7 +176,7 @@ one_plot.loop[!is.na(one_plot.loop$Air_Temp) & (one_plot.loop$Air_Temp< -888 | o
 one_plot.loop[!is.na(one_plot.loop$Relative_Humidity) & (one_plot.loop$Relative_Humidity< -888 | one_plot.loop$Relative_Humidity>999), "Relative_Humidity"] <- NA
 
 #Setting the path out to be in the corresponding folder
-path.out <- paste(path.personal, "/GitHub/Clones/Met_Stations/Data_clean/", Plot.title, sep="")
+path.out <- paste(path.personal, "/GitHub/Met_Stations/Data_clean/", Plot.title, sep="")
 
 # Seperating by chosen year and month values
 month.check = 0
@@ -192,7 +192,7 @@ for (i in rows:nrow(one_plot.loop)){
       } else if(month.extract == 4 | month.extract == 6 | month.extract == 9 | month.extract == 11){
         last.day = "30"
       } else if(month.extract == 2) {last.day = "28"}
-      month.file <- ifelse(length(month.extract ==2), month.extract, paste("0", month.extract, sep=""))
+      month.file <- ifelse(nchar(month.extract) == 2, month.extract, paste("0", month.extract, sep=""))
       Date.min <- paste(year(Date.month), "-", month.extract, "-01 00:00:00", sep="")
       Date.max <- paste(year(Date.month), "-", month.extract, "-", last.day, " 23:59:59", sep="")
       one_plot.final <- subset(one_plot.loop, Date_Check >= as.POSIXlt(Date.min) & Date_Check <= as.POSIXlt(Date.max))
