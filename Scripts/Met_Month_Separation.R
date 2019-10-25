@@ -176,7 +176,7 @@ one_plot.loop[!is.na(one_plot.loop$Air_Temp) & (one_plot.loop$Air_Temp< -888 | o
 one_plot.loop[!is.na(one_plot.loop$Relative_Humidity) & (one_plot.loop$Relative_Humidity< -888 | one_plot.loop$Relative_Humidity>999), "Relative_Humidity"] <- NA
 
 #Setting the path out to be in the corresponding folder
-path.out <- paste(path.personal, "/GitHub/Met_Stations/Data_clean/", Plot.title, sep="")
+path.out <- paste(path.personal, "/GitHub/Met_Stations/Data_clean/Rollinson_", Plot.title, sep="")
 
 # Seperating by chosen year and month values
 month.check = 0
