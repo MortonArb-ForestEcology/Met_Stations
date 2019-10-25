@@ -192,10 +192,11 @@ for (i in rows:nrow(one_plot.loop)){
       } else if(month.extract == 4 | month.extract == 6 | month.extract == 9 | month.extract == 11){
         last.day = "30"
       } else if(month.extract == 2) {last.day = "28"}
+      month.file <- ifelse(length(month.extract ==2), month.extract, paste("0", month.extract, sep=""))
       Date.min <- paste(year(Date.month), "-", month.extract, "-01 00:00:00", sep="")
       Date.max <- paste(year(Date.month), "-", month.extract, "-", last.day, " 23:59:59", sep="")
       one_plot.final <- subset(one_plot.loop, Date_Check >= as.POSIXlt(Date.min) & Date_Check <= as.POSIXlt(Date.max))
-      filename <- paste(Plot.title,"-", year(Date.month), "-", month.extract, ".csv", sep = "")
+      filename <- paste(Plot.title,"-", year(Date.month), "-", month.file, ".csv", sep = "")
       write.csv(one_plot.final, file.path(path.out,  file = filename), row.names = FALSE)
       rows = rows + nrow(one_plot.final)
       if(month.check == 12) month.check = 1 else(month.check = (month.check + 1))
