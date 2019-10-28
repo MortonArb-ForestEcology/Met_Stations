@@ -1,4 +1,4 @@
-"Plot_Name","Date_Check","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
+"Plot_Name","Date_Time","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
 "N115",2017-08-01 00:00:00,NA,NA,1.2,NA,NA
 "N115",2017-08-01 01:00:00,NA,NA,1.2,NA,NA
 "N115",2017-08-01 02:00:00,NA,NA,1.2,NA,NA

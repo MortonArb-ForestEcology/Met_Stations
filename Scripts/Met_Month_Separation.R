@@ -135,20 +135,20 @@ obs_date <- strsplit(getwd(), split = "/")
 obs_date <- obs_date[[1]][length(obs_date[[1]])]
 one_plot$Time6 <- strptime(one_plot$Time6, format="%m/%d/%y %I:%M:%S %p")
 one_plot$Time5 <- strptime(one_plot$Time5, format="%m/%d/%y %I:%M:%S %p")
-one_plot$Date_Time <- one_plot$Time5
-one_plot[is.na(one_plot$Date_Time),"Date_Time"] <- one_plot[is.na(one_plot$Date_Time),"Time6"] + 60*60
+one_plot$Date_Check <- one_plot$Time5
+one_plot[is.na(one_plot$Date_Check),"Date_Check"] <- one_plot[is.na(one_plot$Date_Check),"Time6"] + 60*60
 summary(one_plot)
 #Getting rid of extra time5 and time6 columns in front
 one_plot = select(one_plot, -1, -2)
 colnames(one_plot)
 
 #Getting rid of redundant dates of data collection#
-one_plot <- one_plot[!duplicated(one_plot[c('Date_Time')]),]
+one_plot <- one_plot[!duplicated(one_plot[c('Date_Check')]),]
 
 #------------------------------------#
 
 #Rounding the times to be on the hour so filling missing dates doesnt require hardcoding
-one_plot <- transform(one_plot, Date_Check = round.POSIXt(Date_Time, units = c("hours")))
+one_plot <- transform(one_plot, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
 #Adding in missing times so missing data can be seen
 #Defining the first and last date
@@ -159,13 +159,13 @@ ts <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'),
                  as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
 ts <- seq.POSIXt(as.POSIXlt(Date.first), as.POSIXlt(Date.last), by="hour")
 ts <- as.POSIXct(ts,'%m/%d/%y %I:%M:%S %p')
-time_fill <- data.frame(Date_Check=ts)
-one_plot['Date_Check'] <- lapply(one_plot['Date_Check'], as.POSIXct) 
+time_fill <- data.frame(Date_Time=ts)
+one_plot['Date_Time'] <- lapply(one_plot['Date_Time'], as.POSIXct) 
 one_plot.loop <- full_join(time_fill, one_plot)
-one_plot.loop$Date_Time = NULL
+one_plot.loop$Date_Check = NULL
 
 #Arranging the columns so they are standard across plots
-one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Check", "Soil_Moisture", "Relative_Humidity",
+one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Relative_Humidity",
                                  "PAR", "Soil_Temp", "Air_Temp")]
 #Marking NA values as NA
 one_plot.loop[!is.na(one_plot.loop$Soil_Temp) & (one_plot.loop$Soil_Temp< -888 | one_plot.loop$Soil_Temp>999), "Soil_Temp"] <- NA
@@ -181,7 +181,7 @@ path.out <- paste(path.personal, "/GitHub/Met_Stations/Data_clean/Rollinson_", P
 month.check = 0
 rows=1
 for (i in rows:nrow(one_plot.loop)){
-  Date.month <- one_plot.loop[i, "Date_Check"]
+  Date.month <- one_plot.loop[i, "Date_Time"]
   month.extract <- month(Date.month)
   if (!is.na(month.extract)){
     if (month.extract != month.check){
@@ -194,7 +194,7 @@ for (i in rows:nrow(one_plot.loop)){
       month.file <- ifelse(nchar(month.extract) == 2, month.extract, paste("0", month.extract, sep=""))
       Date.min <- paste(year(Date.month), "-", month.extract, "-01 00:00:00", sep="")
       Date.max <- paste(year(Date.month), "-", month.extract, "-", last.day, " 23:59:59", sep="")
-      one_plot.final <- subset(one_plot.loop, Date_Check >= as.POSIXlt(Date.min) & Date_Check <= as.POSIXlt(Date.max))
+      one_plot.final <- subset(one_plot.loop, Date_Time >= as.POSIXlt(Date.min) & Date_Time <= as.POSIXlt(Date.max))
       filename <- paste(Plot.title,"-", year(Date.month), "-", month.file, ".csv", sep = "")
       write.csv(one_plot.final, file.path(path.out,  file = filename), row.names = FALSE)
       rows = rows + nrow(one_plot.final)

@@ -19,13 +19,13 @@ path.out <- paste(path.personal, "/GitHub/Met_Stations/Data_clean/Rollinson_", P
 year.check = 2016
 rows=1
 for (i in rows:nrow(one_plot.loop)){
-  Date.year <- one_plot.loop[i, "Date_Check"]
+  Date.year <- one_plot.loop[i, "Date_Time"]
   year.extract <- year(Date.year)
   if (!is.na(year.extract)){
     if (year.extract != year.check){
       Date.min <- paste(year.extract, "-01-01 00:00:00", sep="")
       Date.max <- paste(year.extract, "-12-31", " 23:59:59", sep="")
-      one_plot.final <- subset(one_plot.loop, Date_Check >= as.POSIXlt(Date.min) & Date_Check <= as.POSIXlt(Date.max))
+      one_plot.final <- subset(one_plot.loop, Date_Time >= as.POSIXlt(Date.min) & Date_Time <= as.POSIXlt(Date.max))
       filename <- paste(Plot.title,"-", year.extract, ".csv", sep = "")
       write.csv(one_plot.final, file.path(path.out,  file = filename), row.names = FALSE)
       rows = rows + nrow(one_plot.final)
@@ -37,13 +37,20 @@ for (i in rows:nrow(one_plot.loop)){
 setwd(path.out)
 
 plot.year <- read.csv(filename)
-plot.sum <- stack(plot.year[,c("Soil_Moisture", "Relative_Humidity", "PAR", "Soil_Temp", "Air_Temp")])
-names(plot.sum) <- c("values", "var")
-plot.sum[,c("Plot_Name", "Date_Check")] <- plot.year[,c("Plot_Name", "Date_Check")]
-summary(plot.sum)
+
+str(plot.year)
+plot.year$Date_Time <- as.POSIXct(plot.year$Date_Time)
+summary(plot.year)
+
+# Changing data to a "long" format that ggplot likes
+plot.stack <- stack(plot.year[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
+names(plot.stack) <- c("values", "var")
+plot.stack[,c("Date_Time")] <- plot.year[,c("Date_Time")]
+summary(plot.stack)
 
 #Initial plot to just view the data as is
-ggplot(plot.sum, aes(x = Date_Check, y = values)) +
+ggplot(plot.stack, aes(x = Date_Time, y = values)) +
   facet_wrap(~var, scales="free_y") +
-  geom_line(aes(color=Plot_Name)) +
+  geom_line() +
   theme_bw()
+

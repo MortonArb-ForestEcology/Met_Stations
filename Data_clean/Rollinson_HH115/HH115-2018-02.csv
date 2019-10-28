@@ -1,4 +1,4 @@
-"Plot_Name","Date_Check","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
+"Plot_Name","Date_Time","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
 "HH115",2018-02-01 00:00:00,0.1579,74.4,1.2,0.907222222222224,1.77777777777778
 "HH115",2018-02-01 01:00:00,0.1586,73.8,1.2,0.880000000000002,0.880000000000002
 "HH115",2018-02-01 02:00:00,0.1586,76.4,1.2,0.880000000000002,0.24611111111111

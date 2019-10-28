@@ -1,4 +1,4 @@
-"Plot_Name","Date_Check","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
+"Plot_Name","Date_Time","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
 "B127",2017-11-01 00:00:00,0.2719,72.8,1.2,8.02,2.04722222222222
 "B127",2017-11-01 01:00:00,0.2719,72.1,1.2,7.97,1.99388888888889
 "B127",2017-11-01 02:00:00,0.2719,72.3,1.2,7.945,1.94

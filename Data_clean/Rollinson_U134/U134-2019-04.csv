@@ -1,4 +1,4 @@
-"Plot_Name","Date_Check","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
+"Plot_Name","Date_Time","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
 "U134",2019-04-01 00:00:00,0.192,66.9,1.2,3.32722222222222,-2.10222222222222
 "U134",2019-04-01 01:00:00,0.1928,69.3,1.2,3.195,-3.065
 "U134",2019-04-01 02:00:00,0.1928,73.9,1.2,3.08888888888889,-3.98611111111111

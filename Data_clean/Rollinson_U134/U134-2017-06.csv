@@ -1,4 +1,4 @@
-"Plot_Name","Date_Check","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
+"Plot_Name","Date_Time","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
 "U134",2017-06-15 14:00:00,0.1456,61.9,241.2,18.2472222222222,27.6277777777778
 "U134",2017-06-15 15:00:00,0.1485,59.3,48.7,18.2238888888889,28.27
 "U134",2017-06-15 16:00:00,0.1506,59.5,11.2,18.3188888888889,27.85

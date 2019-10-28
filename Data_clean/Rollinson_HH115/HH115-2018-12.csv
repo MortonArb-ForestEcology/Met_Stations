@@ -1,4 +1,4 @@
-"Plot_Name","Date_Check","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
+"Plot_Name","Date_Time","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
 NA,2018-12-01 00:00:00,NA,NA,NA,NA,NA
 NA,2018-12-01 01:00:00,NA,NA,NA,NA,NA
 NA,2018-12-01 02:00:00,NA,NA,NA,NA,NA

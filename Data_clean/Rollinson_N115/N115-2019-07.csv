@@ -1,4 +1,4 @@
-"Plot_Name","Date_Check","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
+"Plot_Name","Date_Time","Soil_Moisture","Relative_Humidity","PAR","Soil_Temp","Air_Temp"
 "N115",2019-07-01 00:00:00,0.1681,99.5,1.2,19.0077777777778,20.5072222222222
 "N115",2019-07-01 01:00:00,0.1666,99.9,1.2,18.985,20.6027777777778
 "N115",2019-07-01 02:00:00,0.1652,100,1.2,18.9611111111111,20.2927777777778
