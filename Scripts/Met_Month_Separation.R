@@ -89,15 +89,15 @@ HH115.convert <- HH115 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_
 #This will also need to be changed once celsius 
 HH115.mod <- HH115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
                               Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
-                              Soil_Temp = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
-                              Air_Temp = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
+                              Soil_Temp = ifelse(is.na(Soil_Temp_Y), Soil_Temp_C, Soil_Temp_Y),
+                              Air_Temp = ifelse(is.na(Air_Temp_Y), Air_Temp_C, Air_Temp_Y),
                               Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                               Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                               PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
 Plot.title <- "HH115"
 HH115.mod $ Plot_Name <- Plot.title
 colnames(HH115.mod)
-one_plot <- subset(HH115.mod, select = -c(1,1:23))
+one_plot <- subset(HH115.mod, select = c(24:31))
 #-------------------------------------#
 
 
