@@ -167,4 +167,6 @@ one_plot.loop[!is.na(one_plot.loop$Relative_Humidity) & (one_plot.loop$Relative_
 
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.met, "Data_Clean/", Plot.title, sep="")
+filename <- paste(Plot.title, ".csv", sep = "")
+write.csv(one_plot.loop, file.path(path.out,  file = filename), row.names = FALSE)
 
