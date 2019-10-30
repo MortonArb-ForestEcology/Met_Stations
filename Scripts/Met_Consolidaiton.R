@@ -8,13 +8,13 @@ library(tidyr)
 #Setting File paths
 path.personal <- "C:/Users/lfitzpatrick"
 path.data <- "/GitHub/Met_Stations/Data_raw_inputs/Single_Plots"
-path.met <- paste(path.personal, path.data, sep="")
+path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 setwd(path.met)
 
 #--------------------------------#
 
 #Consolidating B127 data
-B127 <-read_bulk(directory = "Rollinson_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+B127 <-read_bulk(directory = "B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 colnames(B127)
 ####Fixing redundant column names produced by updating HOBOware program which adds data logger and SN's in headers####
 #Renaming columns produced by old and new Hoboware:
@@ -46,7 +46,7 @@ one_plot <- subset(B127.mod, select = c(16,23:29))
 
 #-------------------------------------#
 #Consolidating N115 data#
-N115 <-read_bulk(directory = "Rollinson_N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+N115 <-read_bulk(directory = "N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 colnames(N115)
 colnames(N115) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
                     "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B", "PAR_C", "Time6", 
@@ -75,7 +75,7 @@ one_plot <- subset(N115.mod, select = c(16,23:29))
 #--------------------------------#
 
 #Consolidating HH115 data
-HH115 <-read_bulk(directory = "Rollinson_HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+HH115 <-read_bulk(directory = "HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 colnames(HH115)
 colnames(HH115) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name",
                      "Time6_A", "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B","Time6_B", "PAR_C", "Soil_Temp_C", "Air_Temp_C") #Change column names for HH115
@@ -102,7 +102,7 @@ one_plot <- subset(HH115.mod, select = c(24:31))
 
 
 #Consolidating U134 data
-U134 <-read_bulk(directory = "Rollinson_U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+U134 <-read_bulk(directory = "U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 colnames(U134)
 colnames(U134) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
                     "Time6_A", "Time5_B", "Soil_Temp_B", "Air_Temp_B", "Relative_Humidity_B","PAR_B", "Soil_Moisture_B","PAR_C", "Time6_B",
@@ -145,7 +145,6 @@ colnames(one_plot)
 #Getting rid of redundant dates of data collection#
 one_plot <- one_plot[!duplicated(one_plot[c('Date_Check')]),]
 
-#------------------------------------#
 
 #Rounding the times to be on the hour so filling missing dates doesnt require hardcoding
 one_plot <- transform(one_plot, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
@@ -175,30 +174,5 @@ one_plot.loop[!is.na(one_plot.loop$Air_Temp) & (one_plot.loop$Air_Temp< -888 | o
 one_plot.loop[!is.na(one_plot.loop$Relative_Humidity) & (one_plot.loop$Relative_Humidity< -888 | one_plot.loop$Relative_Humidity>999), "Relative_Humidity"] <- NA
 
 #Setting the path out to be in the corresponding folder
-path.out <- paste(path.personal, "/GitHub/Met_Stations/Data_clean/Rollinson_", Plot.title, sep="")
+path.out <- paste(path.met, "Data_Clean/", Plot.title, sep="")
 
-# Seperating by chosen year and month values
-month.check = 0
-rows=1
-for (i in rows:nrow(one_plot.loop)){
-  Date.month <- one_plot.loop[i, "Date_Time"]
-  month.extract <- month(Date.month)
-  if (!is.na(month.extract)){
-    if (month.extract != month.check){
-      if(month.extract == 1 | month.extract == 3 | month.extract == 5 | 
-         month.extract == 7 | month.extract == 8 | month.extract == 10 | month.extract == 12){
-        last.day = "31" 
-      } else if(month.extract == 4 | month.extract == 6 | month.extract == 9 | month.extract == 11){
-        last.day = "30"
-      } else if(month.extract == 2) {last.day = "28"}
-      month.file <- ifelse(nchar(month.extract) == 2, month.extract, paste("0", month.extract, sep=""))
-      Date.min <- paste(year(Date.month), "-", month.extract, "-01 00:00:00", sep="")
-      Date.max <- paste(year(Date.month), "-", month.extract, "-", last.day, " 23:59:59", sep="")
-      one_plot.final <- subset(one_plot.loop, Date_Time >= as.POSIXlt(Date.min) & Date_Time <= as.POSIXlt(Date.max))
-      filename <- paste(Plot.title,"-", year(Date.month), "-", month.file, ".csv", sep = "")
-      write.csv(one_plot.final, file.path(path.out,  file = filename), row.names = FALSE)
-      rows = rows + nrow(one_plot.final)
-      if(month.check == 12) month.check = 1 else(month.check = (month.check + 1))
-    }
-  }
-} 
