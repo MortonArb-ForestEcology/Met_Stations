@@ -25,10 +25,8 @@ colnames(B127) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR
 B127.convert <- B127 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                 PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
-                                Soil_Temp_X = ifelse((Soil_Temp_X > -800), Soil_Temp_X ,(Soil_Temp_X * -1)),
-                                Air_Temp_X = ifelse((Air_Temp_X > -800), Air_Temp_X, (Air_Temp_X * -1)),
-                                Soil_Temp_Y = ifelse(Soil_Temp_X > 800, Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
-                                Air_Temp_Y = ifelse(Air_Temp_X > 800, Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
+                                Soil_Temp_Y = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
+                                Air_Temp_Y = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9))))
 
 #Consolidating redundant columns:
 B127.mod <- B127.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
@@ -55,10 +53,8 @@ colnames(N115) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR
 N115.convert <- N115 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                 PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
-                                Soil_Temp_X = ifelse((Soil_Temp_X > -800), Soil_Temp_X ,(Soil_Temp_X * -1)),
-                                Air_Temp_X = ifelse((Air_Temp_X > -800), Air_Temp_X, (Air_Temp_X * -1)),
-                                Soil_Temp_Y = ifelse((Soil_Temp_X > 800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
-                                Air_Temp_Y = ifelse((Air_Temp_X > 800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
+                                Soil_Temp_Y = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
+                                Air_Temp_Y = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
 
 #Consolidating redundant columns:
 N115.mod <- N115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
@@ -82,10 +78,8 @@ colnames(HH115) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PA
 HH115.convert <- HH115 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                 PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
-                                Soil_Temp_X = ifelse((Soil_Temp_X > -800), Soil_Temp_X ,(Soil_Temp_X * -1)),
-                                Air_Temp_X = ifelse((Air_Temp_X > -800), Air_Temp_X, (Air_Temp_X * -1)),
-                                Soil_Temp_Y = ifelse((Soil_Temp_X > 800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
-                                Air_Temp_Y = ifelse((Air_Temp_X > 800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
+                                Soil_Temp_Y = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
+                                Air_Temp_Y = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
 #This will also need to be changed once celsius 
 HH115.mod <- HH115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
                               Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
@@ -110,10 +104,8 @@ colnames(U134) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR
 U134.convert <- U134 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                 PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
-                                Soil_Temp_X = ifelse((Soil_Temp_X > -800), Soil_Temp_X ,(Soil_Temp_X * -1)),
-                                Air_Temp_X = ifelse((Air_Temp_X > -800), Air_Temp_X, (Air_Temp_X * -1)),
-                                Soil_Temp_Y = ifelse((Soil_Temp_X > 800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
-                                Air_Temp_Y = ifelse((Air_Temp_X > 800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
+                                Soil_Temp_Y = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
+                                Air_Temp_Y = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
 
 U134.mod <- U134.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
                             Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
