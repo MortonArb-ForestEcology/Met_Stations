@@ -165,8 +165,27 @@ one_plot.loop[!is.na(one_plot.loop$PAR) & (one_plot.loop$PAR< -888 | one_plot.lo
 one_plot.loop[!is.na(one_plot.loop$Air_Temp) & (one_plot.loop$Air_Temp< -888 | one_plot.loop$Air_Temp>999), "Air_Temp"] <- NA
 one_plot.loop[!is.na(one_plot.loop$Relative_Humidity) & (one_plot.loop$Relative_Humidity< -888 | one_plot.loop$Relative_Humidity>999), "Relative_Humidity"] <- NA
 
+#Removing date added to end of year files
+one_plot.loop <- one_plot.loop[-nrow(one_plot.loop),]
+
+#Removing duplicates from multiple measures or Daylight Savings
+rows = 2
+for (i in rows:nrow(one_plot.loop)){
+  Date.double <- one_plot.loop[i, "Date_Time"]
+  Date.lag <- one_plot.loop[i - 1, "Date_Time"]
+  if (Date.double == Date.lag){
+    one_plot.loop %>% transform(Soil_Moisture = (Soil_Moisture + lag(Soil_Moisture))/2,
+                                Relative_Humidity = (Relative_Humidity + lag(Relative_Humidity))/2,
+                                PAR = (PAR + lag(PAR))/2,
+                                Soil_Temp = (Soil_Temp + lag(Soil_Temp))/2,
+                                Air_Temp = (Air_Temp + lag(Air_Temp))/2)
+    one_plot.loop <- one_plot.loop[-c(rows),]
+                              }
+  rows = rows+1
+}
+
+
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.met, "Data_Clean/", Plot.title, sep="")
 filename <- paste(Plot.title, ".csv", sep = "")
 write.csv(one_plot.loop, file.path(path.out,  file = filename), row.names = FALSE)
-

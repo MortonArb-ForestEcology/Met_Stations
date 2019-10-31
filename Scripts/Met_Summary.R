@@ -16,7 +16,7 @@ plot.month <- one_plot.month
 plot.2017 <- read.csv(paste(Plot.title, "-2017", ".csv", sep=""))
 plot.2018 <- read.csv(paste(Plot.title, "-2018", ".csv", sep=""))
 plot.2019 <- read.csv(paste(Plot.title, "-2019",".csv", sep=""))
-plot.all <- one_plot.loop
+plot.all <- read.csv(paste(Plot.title, ".csv", sep=""))
 
 #Creats a short table of Date and Temp to be checked for first and last frost
 frost.check <- subset(plot.2019, select = c(2,7))
