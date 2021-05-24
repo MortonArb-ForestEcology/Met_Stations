@@ -73,6 +73,11 @@ one_plot <- subset(N115.mod, select = c(16,23:29))
 #Consolidating HH115 data
 HH115 <-read_bulk(directory = "HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 colnames(HH115)
+
+#Currently removing the 1 day of measurements every second that I accidentally recorded
+#Will talk to Christy about how best to use
+HH115 <- HH115[HH115$File != "Rollinson_HH115_2020-08-27.csv", (1:19)]
+
 colnames(HH115) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name",
                      "Time6_A", "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B","Time6_B", "PAR_C", "Soil_Temp_C", "Air_Temp_C") #Change column names for HH115
 HH115.convert <- HH115 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
@@ -120,11 +125,13 @@ colnames(U134.mod)
 one_plot <- subset(U134.mod, select = c(24:31))
 
 #--------------------------------#
+#After running one of the above plots you run these lines.
+#I wil fix this to be a loop in some way down the line
+
+
 
 #Consolidating the plot and fixing redundacies in Time
 #Addressing daylight saving times issue (Time6 + Time5)
-obs_date <- strsplit(getwd(), split = "/")
-obs_date <- obs_date[[1]][length(obs_date[[1]])]
 one_plot$Time6 <- strptime(one_plot$Time6, format="%m/%d/%y %I:%M:%S %p")
 one_plot$Time5 <- strptime(one_plot$Time5, format="%m/%d/%y %I:%M:%S %p")
 one_plot$Date_Check <- one_plot$Time5
