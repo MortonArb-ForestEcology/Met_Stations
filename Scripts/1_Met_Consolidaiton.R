@@ -40,7 +40,7 @@ B127.mod $ Plot_Name <- Plot.title
 #Checking columns to delete are correct for next lines
 colnames(B127.mod)
 #Deleting columns before "Time6"
-one_plot <- subset(B127.mod, select = c(16,23:29))
+one_plot <- subset(B127.mod, select = c("Time5", "Time6", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-------------------------------------#
 #Consolidating N115 data#
@@ -66,7 +66,7 @@ N115.mod <- N115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(
 Plot.title <- "N115"                            
 N115.mod $ Plot_Name <- Plot.title
 colnames(N115.mod)
-one_plot <- subset(N115.mod, select = c(16,23:29))
+one_plot <- subset(N115.mod, select = c("Time5", "Time6", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #--------------------------------#
 
@@ -96,7 +96,7 @@ HH115.mod <- HH115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.characte
 Plot.title <- "HH115"
 HH115.mod $ Plot_Name <- Plot.title
 colnames(HH115.mod)
-one_plot <- subset(HH115.mod, select = c(24:31))
+one_plot <- subset(HH115.mod, select = c("Time5", "Time6", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 #-------------------------------------#
 
 
@@ -122,7 +122,7 @@ U134.mod <- U134.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(
 Plot.title <- "U134"
 U134.mod $ Plot_Name <- Plot.title
 colnames(U134.mod)
-one_plot <- subset(U134.mod, select = c(24:31))
+one_plot <- subset(U134.mod, select = c("Time5", "Time6", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #--------------------------------#
 #After running one of the above plots you run these lines.
@@ -138,7 +138,7 @@ one_plot$Date_Check <- one_plot$Time5
 one_plot[is.na(one_plot$Date_Check),"Date_Check"] <- one_plot[is.na(one_plot$Date_Check),"Time6"] + 60*60
 summary(one_plot)
 #Getting rid of extra time5 and time6 columns in front
-one_plot = select(one_plot, -1, -2)
+one_plot = select(one_plot, -"Time5", -"Time6")
 colnames(one_plot)
 
 #Getting rid of redundant dates of data collection#
