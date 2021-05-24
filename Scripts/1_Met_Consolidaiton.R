@@ -150,8 +150,8 @@ one_plot <- transform(one_plot, Date_Time = round.POSIXt(Date_Check, units = c("
 
 #Adding in missing times so missing data can be seen
 #Defining the first and last date
-Date.first <- one_plot[1,8]
-Date.last <- one_plot[nrow(one_plot), 8]
+Date.first <- one_plot[1,"Date_Time"]
+Date.last <- one_plot[nrow(one_plot), "Date_Time"]
 #Creating a sequence in between the dates and filling in gaps
 ts <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'), 
                  as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
@@ -176,6 +176,7 @@ one_plot.loop[!is.na(one_plot.loop$Relative_Humidity) & (one_plot.loop$Relative_
 one_plot.loop <- one_plot.loop[-nrow(one_plot.loop),]
 
 #Removing duplicates from multiple measures or Daylight Savings
+#I'm starting to think this is unneccessary/taken care of by earlier steps but am not confident enough to remove yet
 rows = 2
 for (i in rows:nrow(one_plot.loop)){
   Date.double <- one_plot.loop[i, "Date_Time"]
@@ -190,7 +191,6 @@ for (i in rows:nrow(one_plot.loop)){
                               }
   rows = rows+1
 }
-
 
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.met, "Data_Clean/", Plot.title, sep="")
