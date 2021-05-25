@@ -6,8 +6,6 @@ library(lubridate)
 library(tidyr)
 
 #Setting File paths
-path.personal <- "C:/Users/lfitzpatrick"
-path.data <- "/GitHub/Met_Stations/Data_raw_inputs/Single_Plots"
 path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 setwd(path.met)
 
@@ -143,8 +141,8 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot <- comb_plot[comb_plot$Plot_Name == PLOT,]
   #Consolidating the plot and fixing redundacies in Time
   #Addressing daylight saving times issue (Time6 + Time5)
-  one_plot$Time6 <- strptime(one_plot$Time6, format="%m/%d/%y %I:%M:%S %p")
-  one_plot$Time5 <- strptime(one_plot$Time5, format="%m/%d/%y %I:%M:%S %p")
+  one_plot$Time6 <- as.POSIXct(strptime(one_plot$Time6, format="%m/%d/%y %I:%M:%S %p"))
+  one_plot$Time5 <- as.POSIXct(strptime(one_plot$Time5, format="%m/%d/%y %I:%M:%S %p"))
   one_plot$Date_Check <- one_plot$Time5
   one_plot[is.na(one_plot$Date_Check),"Date_Check"] <- one_plot[is.na(one_plot$Date_Check),"Time6"] + 60*60
   summary(one_plot)
@@ -155,18 +153,17 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   #Getting rid of redundant dates of data collection#
   one_plot <- one_plot[!duplicated(one_plot[c('Date_Check')]),]
   
-  
   #Rounding the times to be on the hour so filling missing dates doesnt require hardcoding
   one_plot <- transform(one_plot, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
   
   #Adding in missing times so missing data can be seen
   #Defining the first and last date
-  Date.first <- one_plot[1,"Date_Time"]
-  Date.last <- one_plot[nrow(one_plot), "Date_Time"]
+  Date.first <- min(as.Date(one_plot$Date_Check), na.rm = T)
+  Date.last <- max(as.Date(one_plot$Date_Check) + 1, na.rm = T)
   #Creating a sequence in between the dates and filling in gaps
   ts <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'), 
                    as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
-  ts <- seq.POSIXt(as.POSIXlt(Date.first), as.POSIXlt(Date.last), by="hour")
+  ts <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
   ts <- as.POSIXct(ts,'%m/%d/%y %I:%M:%S %p')
   time_fill <- data.frame(Date_Time=ts)
   one_plot['Date_Time'] <- lapply(one_plot['Date_Time'], as.POSIXct) 
@@ -187,9 +184,8 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot.loop <- one_plot.loop[-nrow(one_plot.loop),]
   
   #Removing duplicates from multiple measures or Daylight Savings
-  #I'm starting to think this is unneccessary/taken care of by earlier steps but am not confident enough to remove yet
-  rows = 2
-  for (i in rows:nrow(one_plot.loop)){
+  rows <- nrow(one_plot.loop)
+  for (i in 2:rows){
     Date.double <- one_plot.loop[i, "Date_Time"]
     Date.lag <- one_plot.loop[i - 1, "Date_Time"]
     if (Date.double == Date.lag){
@@ -198,9 +194,8 @@ for(PLOT in unique(comb_plot$Plot_Name)){
                                   PAR = (PAR + lag(PAR))/2,
                                   Soil_Temp = (Soil_Temp + lag(Soil_Temp))/2,
                                   Air_Temp = (Air_Temp + lag(Air_Temp))/2)
-      one_plot.loop <- one_plot.loop[-c(rows),]
-                                }
-    rows = rows+1
+      #one_plot.loop <- one_plot.loop[-c(i),]
+    }
   }
   
   #Setting the path out to be in the corresponding folder
