@@ -16,29 +16,54 @@ B127 <-read_bulk(directory = "B127", extension = ".csv", header = TRUE, skip=1, 
 colnames(B127)
 ####Fixing redundant column names produced by updating HOBOware program which adds data logger and SN's in headers####
 #Renaming columns produced by old and new Hoboware:
-colnames(B127) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
+#Variable ON stands for onset and represents the data we get from onset.
+colnames(B127) <- c("Time1", "W/m² Solar Radiation", "mm Precipitation", "Lightning Activity",  "km Lightning Distance", 
+                    "Wind Direction",	"m/s Wind Speed", "m/s Gust Speed", "Air_Temp_ON", "kPa Vapor Pressure",	"kPa Atmospheric Pressure",	
+                    "X-axis Level",  "Y-axis Level", "mm/h Max Precip Rate",	"°C RH Sensor Temp",	 "kPa VPD",	"Soil_Moisture_ON", 
+                    "Soil_Temp_ON",	"% Battery Percent", "mV Battery Voltage","kPa Reference Pressure",	"°C Logger Temperature",
+  
+                    "File_Name", "Time2", "Time3",
+                    
+                    #Hoboware sensors and data columns
+                    #Variable A-C are used for the same variable but different loggers
+                    "Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", 
                     "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","Air_Temp_B", "Relative_Humidity_B","PAR_B", "PAR_C", "Time6", 
-                    "Soil_Temp_C", "Air_Temp_C")#Change column names for B127
+                    "Soil_Temp_C", "Air_Temp_C")
+
+
 #Consolidating columns of Fahrenheit temperature and then converting it to Celcius
-B127.convert <- B127 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
+#Need a solution for the grwoing number of "timestamp columns" that will increase every time I make a new pull from the stations
+B127.convert <- B127 %>% mutate(Time2 = ifelse(is.na(Time2), Time3, Time2),
+                                Time_ON = ifelse(is.na(Time1), Time2, Time1),
+                                Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                 PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
+                                PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A),
+                                Soil_Moisture_A = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                                 Soil_Temp_Y = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
                                 Air_Temp_Y = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9))))
 
 #Consolidating redundant columns:
 B127.mod <- B127.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
-                                    Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
+                                    Soil_Moisture = ifelse(is.na(Soil_Moisture_ON), Soil_Moisture_A, Soil_Moisture_ON),
                                     Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
-                                    PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A),
-                                    Soil_Temp = ifelse(is.na(Soil_Temp_Y), Soil_Temp_C, Soil_Temp_Y),
-                                    Air_Temp = ifelse(is.na(Air_Temp_Y), Air_Temp_C, Air_Temp_Y))
+
+                                    Soil_Temp_Z = ifelse(is.na(Soil_Temp_Y), Soil_Temp_C, Soil_Temp_Y),
+                                    Air_Temp_Z = ifelse(is.na(Air_Temp_Y), Air_Temp_C, Air_Temp_Y),
+                                    
+                                    #PAR = ifelse(is.na(PAR_ON), PAR_A, PAR_ON),
+                                    #Combinding the converted (to celsius) hoboware with the onset
+                                    Soil_Temp = ifelse(is.na(Soil_Temp_ON), Soil_Temp_Z, Soil_Temp_ON),
+                                    Air_Temp = ifelse(is.na(Air_Temp_ON), Air_Temp_Z, Air_Temp_ON))
 Plot.title <- "B127"
 B127.mod $ Plot_Name <- Plot.title
 #Checking columns to delete are correct for next lines
 colnames(B127.mod)
-#Deleting columns before "Time6"
-B127.mod <- subset(B127.mod, select = c("Time5", "Time6", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
+
+#Removing onset labels that are the first row
+#Want this to be hardcoded but couldn't find a way that didn't break other parts
+B127.mod <- B127.mod[-c(1),]
+B127.mod <- subset(B127.mod, select = c("Time_ON", "Time5", "Time6", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-------------------------------------#
 #Consolidating N115 data#
@@ -143,11 +168,13 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   #Addressing daylight saving times issue (Time6 + Time5)
   one_plot$Time6 <- as.POSIXct(strptime(one_plot$Time6, format="%m/%d/%y %I:%M:%S %p"))
   one_plot$Time5 <- as.POSIXct(strptime(one_plot$Time5, format="%m/%d/%y %I:%M:%S %p"))
+  one_plot$Time_ON <- as.POSIXct(strptime(one_plot$Time_ON, format="%m/%d/%Y %H:%M"))
   one_plot$Date_Check <- one_plot$Time5
-  one_plot[is.na(one_plot$Date_Check),"Date_Check"] <- one_plot[is.na(one_plot$Date_Check),"Time6"] + 60*60
+  one_plot[is.na(one_plot$Date_Check) & is.na(one_plot$Time_ON),"Date_Check"] <- one_plot[is.na(one_plot$Date_Check) & is.na(one_plot$Time_ON),"Time6"] + 60*60
+  one_plot[is.na(one_plot$Date_Check), "Date_Check"] <- one_plot[is.na(one_plot$Date_Check), "Time_ON"]
   summary(one_plot)
   #Getting rid of extra time5 and time6 columns in front
-  one_plot = select(one_plot, -"Time5", -"Time6")
+  one_plot = select(one_plot, -"Time5", -"Time6", -"Time_ON")
   colnames(one_plot)
   
   #Getting rid of redundant dates of data collection#
@@ -173,6 +200,14 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   #Arranging the columns so they are standard across plots
   one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Relative_Humidity",
                                    "PAR", "Soil_Temp", "Air_Temp")]
+  
+  #Making sure columns are of the right datatype
+  #You may get warning sof NA's but that is removing the rows of onset that function as row names
+  one_plot.loop$Soil_Moisture <- as.numeric(one_plot.loop$Soil_Moisture)
+  one_plot.loop$Soil_Temp <- as.numeric(one_plot.loop$Soil_Temp)
+  one_plot.loop$Air_Temp <- as.numeric(one_plot.loop$Air_Temp)
+  
+  
   #Marking NA values as NA
   one_plot.loop[!is.na(one_plot.loop$Soil_Temp) & (one_plot.loop$Soil_Temp< -888 | one_plot.loop$Soil_Temp>999), "Soil_Temp"] <- NA
   one_plot.loop[!is.na(one_plot.loop$Soil_Moisture) & (one_plot.loop$Soil_Moisture< -0.5| one_plot.loop$Soil_Moisture>1), "Soil_Moisture"] <- NA
