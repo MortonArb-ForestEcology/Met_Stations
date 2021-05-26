@@ -68,9 +68,12 @@ B127.mod$Date_Check <- B127.mod$Time5
 B127.mod[is.na(B127.mod$Date_Check) & is.na(B127.mod$Time_ON) ,  "Date_Check"] <- B127.mod[is.na(B127.mod$Date_Check) & is.na(B127.mod$Time_ON), "Time6"] + 60*60
 B127.mod <- transform(B127.mod, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
+B127.mod$Soil_Temp_ON <- NA
+B127.mod$Soil_Moisture_ON <- NA
+
 #Removing onset labels that are the first row
 #Want this to be hardcoded but couldn't find a way that didn't break other parts
-B127.mod <- subset(B127.mod, select = c("Date_Time", "Date_Check","Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
+B127.mod <- subset(B127.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Soil_Temp_ON", "Air_Temp", "Soil_Moisture", "Soil_Moisture_ON", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-------------------------------------#
 #Consolidating N115 data#
@@ -289,13 +292,8 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot.loop$Date_Check = NULL
   
   #Arranging the columns so they are standard across plots
-  if(PLOT != "B127"){
   one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Soil_Moisture_ON", "Relative_Humidity",
                                    "PAR", "Soil_Temp", "Soil_Temp_ON", "Air_Temp")]
-  } else{
-    one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Relative_Humidity",
-                                     "PAR", "Soil_Temp", "Air_Temp")]
-  }
   
   #Making sure columns are of the right datatype
   #You may get warning sof NA's but that is removing the rows of onset that function as row names
