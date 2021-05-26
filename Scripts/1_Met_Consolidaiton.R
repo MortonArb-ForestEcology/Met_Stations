@@ -12,24 +12,26 @@ setwd(path.met)
 #--------------------------------#
 
 #Consolidating B127 data
-B127 <-read_bulk(directory = "B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
-colnames(B127)
+B127.HB <-read_bulk(directory = "B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+B127.ON <-read_bulk(directory = "Onset_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+colnames(B127.ON)
 ####Fixing redundant column names produced by updating HOBOware program which adds data logger and SN's in headers####
 #Renaming columns produced by old and new Hoboware:
 #Variable ON stands for onset and represents the data we get from onset.
-colnames(B127) <- c("Time1", "W/m² Solar Radiation", "mm Precipitation", "Lightning Activity",  "km Lightning Distance", 
+colnames(B127.ON) <- c("Time1", "W/m² Solar Radiation", "mm Precipitation", "Lightning Activity",  "km Lightning Distance", 
                     "Wind Direction",	"m/s Wind Speed", "m/s Gust Speed", "Air_Temp_ON", "kPa Vapor Pressure",	"kPa Atmospheric Pressure",	
                     "X-axis Level",  "Y-axis Level", "mm/h Max Precip Rate",	"°C RH Sensor Temp",	 "kPa VPD",	"Soil_Moisture_ON", 
                     "Soil_Temp_ON",	"% Battery Percent", "mV Battery Voltage","kPa Reference Pressure",	"°C Logger Temperature",
   
-                    "File_Name", "Time2", "Time3",
+                    "File_Name", "Time2", "Time3")
                     
                     #Hoboware sensors and data columns
                     #Variable A-C are used for the same variable but different loggers
-                    "Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", 
+colnames(B127.HB) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name",
                     "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","Air_Temp_B", "Relative_Humidity_B","PAR_B", "PAR_C", "Time6", 
                     "Soil_Temp_C", "Air_Temp_C")
 
+B127 <- full_join(B127.ON, B127.HB)
 
 #Consolidating columns of Fahrenheit temperature and then converting it to Celcius
 #Need a solution for the grwoing number of "timestamp columns" that will increase every time I make a new pull from the stations
@@ -59,10 +61,16 @@ B127.mod $ Plot_Name <- Plot.title
 #Checking columns to delete are correct for next lines
 colnames(B127.mod)
 
+B127.mod$Time6 <- as.POSIXct(strptime(B127.mod$Time6, format="%m/%d/%y %I:%M:%S %p"))
+B127.mod$Time5 <- as.POSIXct(strptime(B127.mod$Time5, format="%m/%d/%y %I:%M:%S %p"))
+B127.mod$Time_ON <- as.POSIXct(strptime(B127.mod$Time_ON, format="%m/%d/%Y %H"))
+B127.mod$Date_Check <- B127.mod$Time5
+B127.mod[is.na(B127.mod$Date_Check) & is.na(B127.mod$Time_ON) ,  "Date_Check"] <- B127.mod[is.na(B127.mod$Date_Check) & is.na(B127.mod$Time_ON), "Time6"] + 60*60
+B127.mod <- transform(B127.mod, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
+
 #Removing onset labels that are the first row
 #Want this to be hardcoded but couldn't find a way that didn't break other parts
-B127.mod <- B127.mod[-c(1),]
-B127.mod <- subset(B127.mod, select = c("Time_ON", "Time5", "Time6", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
+B127.mod <- subset(B127.mod, select = c("Date_Time", "Date_Check","Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-------------------------------------#
 #Consolidating N115 data#
@@ -281,8 +289,13 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot.loop$Date_Check = NULL
   
   #Arranging the columns so they are standard across plots
+  if(PLOT != "B127"){
   one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Soil_Moisture_ON", "Relative_Humidity",
                                    "PAR", "Soil_Temp", "Soil_Temp_ON", "Air_Temp")]
+  } else{
+    one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Relative_Humidity",
+                                     "PAR", "Soil_Temp", "Air_Temp")]
+  }
   
   #Making sure columns are of the right datatype
   #You may get warning sof NA's but that is removing the rows of onset that function as row names
