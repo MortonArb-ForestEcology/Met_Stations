@@ -91,16 +91,29 @@ colnames(N115.HB)  <-  c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A",
                     "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B", "PAR_C", "Time6", 
                     "Soil_Temp_C", "Air_Temp_C") #Change column names for N115
 
-N115 <- full_join(N115.mid, N115.HB)
+
+
 #Consolidating columns of Fahrenheit temperature and then converting it to Celcius
-N115.convert <- N115 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
+N115.convert <- N115.HB %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
+                                Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                 PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
                                 Soil_Temp_Y = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
                                 Air_Temp_Y = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
 
+
+  
+N115.convert$Time6 <- as.POSIXct(strptime(N115.convert$Time6, format="%m/%d/%y %I:%M:%S %p"))
+N115.convert$Time5 <- as.POSIXct(strptime(N115.convert$Time5, format="%m/%d/%y %I:%M:%S %p"))
+N115.convert$Date_Check <- N115.convert$Time5
+N115.convert[is.na(N115.convert$Date_Check), "Date_Check"] <- N115.convert[is.na(N115.convert$Date_Check), "Time6"] + 60*60
+N115.convert <- transform(N115.convert, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
+
+N115.convert$Soil_Moisture_ON <- N115.ON$Soil_Moisture_ON[match(N115.convert$Date_Time, N115.ON$Time_ON)]
+N115.convert$Soil_Temp_ON <- N115.ON$Soil_Temp_ON[match(N115.convert$Date_Time, N115.ON$Time_ON)]
+
 #Consolidating redundant columns:
-N115.mod <- N115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
+N115.mod <- N115.convert %>% mutate(
                             Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                             
                             Soil_Temp = ifelse(is.na(Soil_Temp_Y), Soil_Temp_C, Soil_Temp_Y),
@@ -111,8 +124,7 @@ N115.mod <- N115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(
 Plot.title <- "N115"                            
 N115.mod $ Plot_Name <- Plot.title
 colnames(N115.mod)
-N115.mod <- N115.mod[-c(1),]
-N115.mod <- subset(N115.mod, select = c("Time_ON", "Time5", "Time6", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
+N115.mod <- subset(N115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Soil_Temp_ON", "Air_Temp", "Soil_Moisture", "Soil_Moisture_ON", "Relative_Humidity", "PAR", "Plot_Name"))
 #--------------------------------#
 
 #Consolidating HH115 data
@@ -135,7 +147,6 @@ time.on <- unique(HH115.ON$Time_ON)
 HH115.mid$Time_ON <- time.on[-c(length(time.on))]
 HH115.mid$File_Name <- "Onset"
 
-
 colnames(HH115.HB) 
 
 #Currently removing the 1 day of measurements every second that I accidentally recorded
@@ -146,9 +157,9 @@ colnames(HH115.HB) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", 
                         "Time6_A", "Time5_B", "Soil_Temp_B", "Soil_Moisture_B", "PAR_B", "Air_Temp_B", "Relative_Humidity_B", "Time6_B",
                         "PAR_C", "Soil_Temp_C",  "Air_Temp_C", "Soil_Temp_D", "Soil_Moisture_C", "PAR_D", "Air_Temp_D", "Relative_Humidity_C") #Change column names for HH115
 
-HH115 <- full_join(HH115.mid, HH115.HB)
 
-HH115.convert <- HH115 %>% mutate(
+HH115.convert <- HH115.HB %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
+                                Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
                                 Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                 Relative_Humidity_B = ifelse(is.na(Relative_Humidity_B), Relative_Humidity_C, Relative_Humidity_B),
@@ -156,19 +167,26 @@ HH115.convert <- HH115 %>% mutate(
                                 Soil_Moisture_B = ifelse(is.na(Soil_Moisture_B), Soil_Moisture_C, Soil_Moisture_B),
                                 Soil_Temp_Y = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
                                 Air_Temp_Y = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
+
 #This will also need to be changed once celsius 
 HH115.convert$PAR_B <- ifelse(is.na(HH115.convert$PAR_B), HH115.convert$PAR_C, HH115.convert$PAR_B)
-HH115.convert$Soil_Temp_B <- ifelse(is.na(HH115.convert$Soil_Temp_B), HH115.convert$Soil_Temp_C, HH115.convert$Soil_Temp_B)
 
-HH115.mod <- HH115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
-                              Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
+HH115.convert$Time6 <- as.POSIXct(strptime(HH115.convert$Time6, format="%m/%d/%y %I:%M:%S %p"))
+HH115.convert$Time5 <- as.POSIXct(strptime(HH115.convert$Time5, format="%m/%d/%y %I:%M:%S %p"))
+HH115.convert$Date_Check <- HH115.convert$Time5
+HH115.convert[is.na(HH115.convert$Date_Check), "Date_Check"] <- HH115.convert[is.na(HH115.convert$Date_Check), "Time6"] + 60*60
+HH115.convert <- transform(HH115.convert, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
+
+HH115.convert$Soil_Moisture_ON <- HH115.ON$Soil_Moisture_ON[match(HH115.convert$Date_Time, HH115.ON$Time_ON)]
+HH115.convert$Soil_Temp_ON <- HH115.ON$Soil_Temp_ON[match(HH115.convert$Date_Time, HH115.ON$Time_ON)]
+
+HH115.mod <- HH115.convert %>% mutate(
                               
                               Soil_Temp_C = ifelse(is.na(Soil_Temp_C), Soil_Temp_Y, Soil_Temp_C),
                               Air_Temp_C = ifelse(is.na(Air_Temp_C), Air_Temp_Y, Air_Temp_C),
                               
                               Soil_Temp = ifelse(is.na(Soil_Temp_D), Soil_Temp_C, Soil_Temp_D),
                               Air_Temp = ifelse(is.na(Air_Temp_D), Air_Temp_C, Air_Temp_D),
-
                               
                               Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                               Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
@@ -176,18 +194,37 @@ HH115.mod <- HH115.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.characte
 Plot.title <- "HH115"
 HH115.mod $ Plot_Name <- Plot.title
 colnames(HH115.mod)
-HH115.mod <- HH115.mod[-c(1),]
-HH115.mod <- subset(HH115.mod, select = c("Time_ON", "Time5", "Time6", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
+HH115.mod <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Soil_Temp_ON", "Air_Temp", "Soil_Moisture", "Soil_Moisture_ON", "Relative_Humidity", "PAR", "Plot_Name"))
 #-------------------------------------#
-
-
 #Consolidating U134 data
-U134 <-read_bulk(directory = "U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
-colnames(U134)
-colnames(U134) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
+U134.HB <-read_bulk(directory = "U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+U134.ON <-read_bulk(directory = "Onset_U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+
+colnames(U134.ON)
+colnames(U134.ON) <- c("Time_ON", "Soil_Moisture_ON", "Soil_Temp_ON",	"% Battery Percent", "mV Battery Voltage",
+                        "kPa Reference Pressure",	"°C Logger Temperature", "File_Name", "Time2")
+
+U134.ON <- U134.ON[-c(1),]
+U134.ON$Time_ON <- ifelse(is.na(U134.ON$Time_ON), U134.ON$Time2, U134.ON$Time_ON)
+U134.ON$Time_ON <- as.POSIXct(strptime(U134.ON$Time_ON, format="%m/%d/%Y %H"))
+U134.ON$Soil_Moisture_ON <- as.numeric(U134.ON$Soil_Moisture_ON)
+U134.ON$Soil_Temp_ON <- as.numeric(U134.ON$Soil_Temp_ON) 
+U134.mid <- aggregate(U134.ON[,c("Soil_Moisture_ON", "Soil_Temp_ON")],
+                       by=list(U134.ON$Time_ON),
+                       FUN=median, na.rm=T)[,c("Soil_Moisture_ON", "Soil_Temp_ON")]
+time.on <- unique(U134.ON$Time_ON)
+U134.mid$Time_ON <- time.on[-c(length(time.on))]
+U134.mid$File_Name <- "Onset"
+
+colnames(U134.HB)
+colnames(U134.HB) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
                     "Time6_A", "Time5_B", "Soil_Temp_B", "Air_Temp_B", "Relative_Humidity_B","PAR_B", "Soil_Moisture_B","PAR_C", "Time6_B",
                     "Soil_Temp_C", "Air_Temp_C") #Change column names for U134
-U134.convert <- U134 %>% mutate(Soil_Temp_B = ifelse(is.na(Soil_Temp_B), Soil_Temp_C, Soil_Temp_B),
+
+
+U134.convert <- U134.HB %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
+                                   Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
+                                Soil_Temp_B = ifelse(is.na(Soil_Temp_B), Soil_Temp_C, Soil_Temp_B),
                                 Air_Temp_B = ifelse(is.na(Air_Temp_B), Air_Temp_C, Air_Temp_B),
                                 Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
@@ -195,15 +232,24 @@ U134.convert <- U134 %>% mutate(Soil_Temp_B = ifelse(is.na(Soil_Temp_B), Soil_Te
                                 Soil_Temp = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
                                 Air_Temp = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
 
-U134.mod <- U134.convert %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
-                            Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
+U134.convert$Time6 <- as.POSIXct(strptime(U134.convert$Time6, format="%m/%d/%y %I:%M:%S %p"))
+U134.convert$Time5 <- as.POSIXct(strptime(U134.convert$Time5, format="%m/%d/%y %I:%M:%S %p"))
+U134.convert$Date_Check <- U134.convert$Time5
+U134.convert[is.na(U134.convert$Date_Check), "Date_Check"] <- U134.convert[is.na(U134.convert$Date_Check), "Time6"] + 60*60
+U134.convert <- transform(U134.convert, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
+
+U134.convert$Soil_Moisture_ON <- U134.ON$Soil_Moisture_ON[match(U134.convert$Date_Time, U134.ON$Time_ON)]
+U134.convert$Soil_Temp_ON <- U134.ON$Soil_Temp_ON[match(U134.convert$Date_Time, U134.ON$Time_ON)]
+
+
+U134.mod <- U134.convert %>% mutate(
                             Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                             Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                             PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
 Plot.title <- "U134"
 U134.mod $ Plot_Name <- Plot.title
 colnames(U134.mod)
-U134.mod <- subset(U134.mod, select = c("Time5", "Time6", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
+U134.mod <- subset(U134.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Soil_Temp_ON", "Air_Temp", "Soil_Moisture", "Soil_Moisture_ON", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #--------------------------------#
 #After running one of the above plots you run these lines.
@@ -215,22 +261,10 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot <- comb_plot[comb_plot$Plot_Name == PLOT,]
   #Consolidating the plot and fixing redundacies in Time
   #Addressing daylight saving times issue (Time6 + Time5)
-  one_plot$Time6 <- as.POSIXct(strptime(one_plot$Time6, format="%m/%d/%y %I:%M:%S %p"))
-  one_plot$Time5 <- as.POSIXct(strptime(one_plot$Time5, format="%m/%d/%y %I:%M:%S %p"))
-  one_plot$Time_ON <- as.POSIXct(strptime(one_plot$Time_ON, format="%m/%d/%Y %H:%M"))
-  one_plot$Date_Check <- one_plot$Time5
-  one_plot[is.na(one_plot$Date_Check) & is.na(one_plot$Time_ON),"Date_Check"] <- one_plot[is.na(one_plot$Date_Check) & is.na(one_plot$Time_ON),"Time6"] + 60*60
-  one_plot[is.na(one_plot$Date_Check), "Date_Check"] <- one_plot[is.na(one_plot$Date_Check), "Time_ON"]
-  summary(one_plot)
   #Getting rid of extra time5 and time6 columns in front
-  one_plot = select(one_plot, -"Time5", -"Time6", -"Time_ON")
-  colnames(one_plot)
-  
+
   #Getting rid of redundant dates of data collection#
   one_plot <- one_plot[!duplicated(one_plot[c('Date_Check')]),]
-  
-  #Rounding the times to be on the hour so filling missing dates doesnt require hardcoding
-  one_plot <- transform(one_plot, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
   
   #Adding in missing times so missing data can be seen
   #Defining the first and last date
@@ -247,8 +281,8 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot.loop$Date_Check = NULL
   
   #Arranging the columns so they are standard across plots
-  one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Relative_Humidity",
-                                   "PAR", "Soil_Temp", "Air_Temp")]
+  one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Soil_Moisture_ON", "Relative_Humidity",
+                                   "PAR", "Soil_Temp", "Soil_Temp_ON", "Air_Temp")]
   
   #Making sure columns are of the right datatype
   #You may get warning sof NA's but that is removing the rows of onset that function as row names
