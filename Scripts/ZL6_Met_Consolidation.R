@@ -182,6 +182,7 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   
   #Making sure columns are of the right datatype
   #You may get warning sof NA's but that is removing the rows of onset that function as row names
+  one_plot.loop$Relative_Humidity <- as.numeric(one_plot.loop$Relative_Humidity)
   one_plot.loop$Soil_Moisture <- as.numeric(one_plot.loop$Soil_Moisture)
   one_plot.loop$Soil_Temp <- as.numeric(one_plot.loop$Soil_Temp)
   one_plot.loop$Air_Temp <- as.numeric(one_plot.loop$Air_Temp)
