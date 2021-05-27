@@ -1,4 +1,15 @@
-#Seperate out files from compiled list by their month#
+#----------------------------------------------------------------------------------------------------------------------------------#
+# Script by : Lucien Fitzpatrick
+# Project: Met_stations
+# Purpose: To convert the raw data we receive from data loggers into consistent units and formats across plots and data loggers
+# Inputs: Raw data from the data loggers stored in "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+# Outputs: B127.csv
+#          U134.csv
+#          N115.csv
+#          HH115.csv
+# Notes: This script should be broken into two seperate scripts for the two seperate types of data loggers as we go forward
+#        10/29/2020 is when the onset data loggers were installed
+#-----------------------------------------------------------------------------------------------------------------------------------#
 
 library(readbulk)
 library(dplyr)

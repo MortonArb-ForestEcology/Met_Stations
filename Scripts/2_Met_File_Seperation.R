@@ -1,4 +1,15 @@
-# Script for the plotting and summarizing of data by plot and by year
+#----------------------------------------------------------------------------------------------------------------------------------#
+# Script by : Lucien Fitzpatrick
+# Project: Met_stations
+# Purpose: To further process the sensor data into yearly and monthly csv's
+# Inputs: Plot csv's created by script 1_Met_Consolidation.R
+#         B127.csv
+#         U134.csv
+#         N115.csv
+#         HH115.csv
+# Outputs: Yearly and Monthly csv's for each plot (B127, U134, N115, HH115)
+# Notes: With updates this script can hopefully only work with new data
+#-----------------------------------------------------------------------------------------------------------------------------------#
 library(readbulk)
 library(dplyr)
 library(lubridate)

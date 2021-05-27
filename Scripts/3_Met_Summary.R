@@ -1,3 +1,15 @@
+#----------------------------------------------------------------------------------------------------------------------------------#
+# Script by : Lucien Fitzpatrick
+# Project: Met_stations
+# Purpose: To visualize the trends in our sensor data
+# Inputs: Plot csv's created by script 1_Met_Consolidation.R
+#         B127.csv
+#         U134.csv
+#         N115.csv
+#         HH115.csv
+# Outputs: Summary figures for QAQC of met station data
+# Notes:
+#-----------------------------------------------------------------------------------------------------------------------------------#
 library(readbulk)
 library(dplyr)
 library(lubridate)
@@ -13,7 +25,7 @@ path.out <- paste(path.met, "Data_clean/", sep="")
 setwd(path.out)
 
 #Creating potential variables to work with. Rough I know
-plot.month <- one_plot.month
+#plot.month <- one_plot.month
 plot.2017 <- read.csv(paste(Plot.title, "/", Plot.title, "-2017", ".csv", sep=""))
 plot.2018 <- read.csv(paste(Plot.title, "-2018", ".csv", sep=""))
 plot.2019 <- read.csv(paste(Plot.title, "-2019",".csv", sep=""))
