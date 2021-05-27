@@ -158,17 +158,13 @@ colnames(U134) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR
 
 U134.convert <- U134 %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
                                    Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
-                                   Soil_Temp_C = ifelse(is.na(Soil_Temp_C), Soil_Temp_D, Soil_Temp_C),
-                                   Air_Temp_C = ifelse(is.na(Air_Temp_C), Air_Temp_D, Air_Temp_C),
                                    Soil_Moisture_B = ifelse(is.na(Soil_Moisture_B), Soil_Moisture_C, Soil_Moisture_B),
-                                   Soil_Temp_B = ifelse(is.na(Soil_Temp_B), Soil_Temp_C, Soil_Temp_B),
-                                   Air_Temp_B = ifelse(is.na(Air_Temp_B), Air_Temp_C, Air_Temp_B),
                                    Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                    Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                    PAR_C = ifelse(is.na(PAR_C), PAR_D, PAR_C),
                                    PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
-                                   Soil_Temp = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
-                                   Air_Temp = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
+                                   Soil_Temp_Y = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
+                                   Air_Temp_Y = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
 
 U134.convert$Time6 <- as.POSIXct(strptime(U134.convert$Time6, format="%m/%d/%y %I:%M:%S %p"))
 U134.convert$Time5 <- as.POSIXct(strptime(U134.convert$Time5, format="%m/%d/%y %I:%M:%S %p"))
@@ -176,7 +172,11 @@ U134.convert$Date_Check <- U134.convert$Time5
 U134.convert[is.na(U134.convert$Date_Check), "Date_Check"] <- U134.convert[is.na(U134.convert$Date_Check), "Time6"] + 60*60
 U134.convert <- transform(U134.convert, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
-U134.mod <- U134.convert %>% mutate(Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
+U134.mod <- U134.convert %>% mutate(Soil_Temp_C = ifelse(is.na(Soil_Temp_C), Soil_Temp_D, Soil_Temp_C),
+                                    Air_Temp_C = ifelse(is.na(Air_Temp_C), Air_Temp_D, Air_Temp_C),
+                                    Soil_Temp = ifelse(is.na(Soil_Temp_Y), Soil_Temp_C, Soil_Temp_Y),
+                                    Air_Temp = ifelse(is.na(Air_Temp_Y), Air_Temp_C, Air_Temp_Y),
+                                    Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                                     Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                                     PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
 Plot.title <- "U134"
