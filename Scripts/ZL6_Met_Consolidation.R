@@ -9,6 +9,7 @@
 #          HH115.csv
 # Notes: This script should be broken into two seperate scripts for the two seperate types of data loggers as we go forward
 #        10/29/2020 is when the onset data loggers were installed
+#         
 #-----------------------------------------------------------------------------------------------------------------------------------#
 library(readbulk)
 library(dplyr)
@@ -18,20 +19,48 @@ library(tidyr)
 #Setting File paths
 path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 setwd(path.met)
+path.out <- paste(path.met, "Data_Clean", sep="")
 
+#This should hopefully become a loop but I don't want to structure it that way until we have the data and can see for sure
 #--------------------------------#
+#Only pulling what we need
 
-B127 <-read_bulk(directory = "Onset_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+#Finding the last date we have data for
+old.B127 <- read.csv(file.path(path.out, "B127/B127.csv"))
+
+end.B127 <- max(old.B127$Date_Time, na.rm = T)
+
+end.B127 <- sub(" .*", "", end.B127)
+
+
+#Finding the files we need to update
+dir.B127 <- dir(file.path(path.met, "Onset_B127"), ".csv")
+
+split.B127 <- strsplit(dir.B127, "_")
+
+split.B127 <- lapply(split.B127, function (x) x[2])
+
+date.B127 <- unlist(lapply(split.B127, function (x) sub(".csv", "", x)))
+
+date.B127 <- as.Date(date.B127)
+
+pull.B127 <- date.B127[date.B127 > end.B127]
+
+B127 <- data.frame()
+for(i in 1:length(pull.B127)){
+  date <- pull.B127[i]
+  file <- read.csv(paste0(path.met, "Onset_B127/B127_", date, ".csv"))
+  B127 <- rbind(B127, file)
+}
+
+#B127.ch <-read_bulk(directory = "Onset_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
 colnames(B127)
 ####Organizing the column names off Onset
-colnames(B127) <- c("Time1"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
+colnames(B127) <- c("Time_ON"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
                     "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
                     "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "Soil_Moisture", "Soil_Temp",
-                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature", "File_Name", "Time2", "Time3", "Time4")
-
-B127.mod <- B127 %>% mutate(Time3 = ifelse(is.na(Time3), Time4, Time3),
-                                Time2 = ifelse(is.na(Time2), Time3, Time2),
-                                Time_ON = ifelse(is.na(Time1), Time2, Time1))
+                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
+B127.mod <- B127
 
 Plot.title <- "B127"
 B127.mod $ Plot_Name <- Plot.title
@@ -131,6 +160,7 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   
   #Getting rid of redundant dates of data collection#
   one_plot <- one_plot[!duplicated(one_plot[c('Date_Check')]),]
+  one_plot <- one_plot[!is.na(one_plot[c('Date_Check')]),]
   
   #Adding in missing times so missing data can be seen
   #Defining the first and last date
@@ -147,8 +177,8 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot.loop$Date_Check = NULL
   
   #Arranging the columns so they are standard across plots
-  one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Soil_Moisture_ON", "Relative_Humidity",
-                                   "PAR", "Soil_Temp", "Soil_Temp_ON", "Air_Temp")]
+  one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Relative_Humidity",
+                                   "PAR", "Soil_Temp", "Air_Temp")]
   
   #Making sure columns are of the right datatype
   #You may get warning sof NA's but that is removing the rows of onset that function as row names
@@ -182,9 +212,17 @@ for(PLOT in unique(comb_plot$Plot_Name)){
     }
   }
   
+  one_plot.loop <- one_plot.loop[!is.na(one_plot.loop[c('Plot_Name')]),]
+  
+  one_plot.loop$Date_Time <- as.character(one_plot.loop$Date_Time)
+  
+  old.plot <- read.csv(file.path(path.out, PLOT, paste0(PLOT,".csv")))
+  
+  final.plot <- rbind(old.plot, one_plot.loop)
+  
   #Setting the path out to be in the corresponding folder
   path.out <- paste(path.met, "Data_Clean/", PLOT, sep="")
   filename <- paste(PLOT, ".csv", sep = "")
-  write.csv(one_plot.loop, file.path(path.out,  file = filename), row.names = FALSE)
+  write.csv(final.plot, file.path(path.out,  file = filename), row.names = FALSE)
   
 }
