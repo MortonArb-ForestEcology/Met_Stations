@@ -44,7 +44,8 @@ date.B127 <- unlist(lapply(split.B127, function (x) sub(".csv", "", x)))
 
 date.B127 <- as.Date(date.B127)
 
-pull.B127 <- date.B127[date.B127 > end.B127]
+#pull.B127 <- date.B127[date.B127 >= end.B127]
+pull.B127 <- date.B127
 
 B127 <- data.frame()
 for(i in 1:length(pull.B127)){
@@ -53,12 +54,11 @@ for(i in 1:length(pull.B127)){
   B127 <- rbind(B127, file)
 }
 
-#B127.ch <-read_bulk(directory = "Onset_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
 colnames(B127)
 ####Organizing the column names off Onset
 colnames(B127) <- c("Time_ON"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
-                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "Soil_Moisture", "Soil_Temp",
+                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
+                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", "Soil_Moisture", "Soil_Temp",
                     "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
 B127.mod <- B127
 
@@ -218,6 +218,10 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot.loop$Date_Time <- as.character(one_plot.loop$Date_Time)
   
   old.plot <- read.csv(file.path(path.out, PLOT, paste0(PLOT,".csv")))
+  
+  first <- min(one_plot.loop$Date_Time)
+  
+  old.plot <- old.plot[old.plot$Date_Time < first, ]
   
   final.plot <- rbind(old.plot, one_plot.loop)
   
