@@ -43,7 +43,7 @@ plot.U134 <- read.csv("U134/U134.csv")
 all_plots <- bind_rows(plot.B127, plot.N115, plot.HH115, plot.U134)
 
 str(all_plots)
-all_plots$Date_Time <- as.POSIXct(all_plots$Date_Time)
+all_plots$Date_Time <- as.Date(all_plots$Date_Time)
 summary(all_plots)
 
 # Changing data to a "long" format that ggplot likes
