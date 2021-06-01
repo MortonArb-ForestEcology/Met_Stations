@@ -24,17 +24,38 @@ setwd(path.met)
 
 #Consolidating B127 data
 B127.HB <-read_bulk(directory = "B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
-B127.MET <-read_bulk(directory = "Meter_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+#B127.MET <-read_bulk(directory = "Meter_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+
+#Kind of clunky download but using things like readbulk adds an extra column for Time with every upload. This is better
+dir.B127 <- dir(file.path(path.met, "Meter_B127"), ".csv")
+
+split.B127 <- strsplit(dir.B127, "_")
+
+split.B127 <- lapply(split.B127, function (x) x[2])
+
+date.B127 <- unlist(lapply(split.B127, function (x) sub(".csv", "", x)))
+
+date.B127 <- as.Date(date.B127)
+
+pull.B127 <- date.B127
+
+B127.MET <- data.frame()
+for(i in 1:length(pull.B127)){
+  date <- pull.B127[i]
+  file <- read.csv(paste0(path.met, "Meter_B127/B127_", date, ".csv"))
+  B127.MET <- rbind(B127.MET, file)
+}
+
 colnames(B127.MET)
 ####Fixing redundant column names produced by updating HOBOware program which adds data logger and SN's in headers####
 #Renaming columns produced by old and new Hoboware:
 #Variable ON stands for Meter and represents the data we get from Meter.
-colnames(B127.MET) <- c("Time1", "W/m² Solar Radiation", "mm Precipitation", "Lightning Activity",  "km Lightning Distance", 
-                    "Wind Direction",	"m/s Wind Speed", "m/s Gust Speed", "Air_Temp_MET", "kPa Vapor Pressure",	"kPa Atmospheric Pressure",	
-                    "X-axis Level",  "Y-axis Level", "mm/h Max Precip Rate",	"°C RH Sensor Temp",	 "kPa VPD",	"Soil_Moisture_MET", 
-                    "Soil_Temp_MET",	"% Battery Percent", "mV Battery Voltage","kPa Reference Pressure",	"°C Logger Temperature",
-  
-                    "File_Name", "Time2", "Time3")
+colnames(B127.MET) <- c("Time_MET"	, "PAR_MET", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
+                        "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp_MET",	"kPa Vapor Pressure", "Relative_Humidity_MET", "° X-axis Level",
+                        "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", "Soil_Moisture_MET", "Soil_Temp_MET",
+                        "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
+
+B127.MET$File_Name <- "Meter"
                     
                     #Hoboware sensors and data columns
                     #Variable A-C are used for the same variable but different loggers
@@ -46,9 +67,7 @@ B127 <- full_join(B127.MET, B127.HB)
 
 #Consolidating columns of Fahrenheit temperature and then converting it to Celcius
 #Need a solution for the grwoing number of "timestamp columns" that will increase every time I make a new pull from the stations
-B127.convert <- B127 %>% mutate(Time2 = ifelse(is.na(Time2), Time3, Time2),
-                                Time_MET = ifelse(is.na(Time1), Time2, Time1),
-                                Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
+B127.convert <- B127 %>% mutate(Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
                                 PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
                                 PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A),
@@ -79,24 +98,45 @@ B127.mod$Date_Check <- B127.mod$Time5
 B127.mod[is.na(B127.mod$Date_Check) & is.na(B127.mod$Time_MET) ,  "Date_Check"] <- B127.mod[is.na(B127.mod$Date_Check) & is.na(B127.mod$Time_MET), "Time6"] + 60*60
 B127.mod <- transform(B127.mod, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
-B127.mod$Soil_Temp_MET <- NA
-B127.mod$Soil_Moisture_MET <- NA
+#B127.mod$Soil_Temp_MET <- NA
+#B127.mod$Soil_Moisture_MET <- NA
 
-#Removing Meter labels that are the first row
-#Want this to be hardcoded but couldn't find a way that didn't break other parts
+#For B127 the Meter soil data automatically takes over since there isn't overlap
 B127.mod <- subset(B127.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Soil_Temp_MET", "Air_Temp", "Soil_Moisture", "Soil_Moisture_MET", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-------------------------------------#
 #Consolidating N115 data#
 N115.HB <-read_bulk(directory = "N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
-N115.MET <-read_bulk(directory = "Meter_N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+
+#Kind of clunky download but using things like readbulk adds an extra column for Time with every upload. This is better
+dir.N115 <- dir(file.path(path.met, "Meter_N115"), ".csv")
+
+split.N115 <- strsplit(dir.N115, "_")
+
+split.N115 <- lapply(split.N115, function (x) x[2])
+
+date.N115 <- unlist(lapply(split.N115, function (x) sub(".csv", "", x)))
+
+date.N115 <- as.Date(date.N115)
+
+pull.N115 <- date.N115
+
+N115.MET <- data.frame()
+for(i in 1:length(pull.N115)){
+  date <- pull.N115[i]
+  file <- read.csv(paste0(path.met, "Meter_N115/N115_", date, ".csv"))
+  N115.MET <- rbind(N115.MET, file)
+}
+
+
 
 colnames(N115.MET)
 colnames(N115.MET) <- c("Time_MET", "Soil_Moisture_MET", "Soil_Temp_MET",	"% Battery Percent", "mV Battery Voltage",
-                    "kPa Reference Pressure",	"°C Logger Temperature", "File_Name", "Time2")
+                    "kPa Reference Pressure",	"°C Logger Temperature")
 
-N115.MET <- N115.MET[-c(1),]
-N115.MET$Time_MET <- ifelse(is.na(N115.MET$Time_MET), N115.MET$Time2, N115.MET$Time_MET)
+N115.MET$File_Name <- "Meter"
+
+
 N115.MET$Time_MET <- as.POSIXct(strptime(N115.MET$Time_MET, format="%m/%d/%Y %H"))
 N115.MET$Soil_Moisture_MET <- as.numeric(N115.MET$Soil_Moisture_MET)
 N115.MET$Soil_Temp_MET <- as.numeric(N115.MET$Soil_Temp_MET) 
@@ -147,17 +187,41 @@ Plot.title <- "N115"
 N115.mod $ Plot_Name <- Plot.title
 colnames(N115.mod)
 N115.mod <- subset(N115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Soil_Temp_MET", "Air_Temp", "Soil_Moisture", "Soil_Moisture_MET", "Relative_Humidity", "PAR", "Plot_Name"))
+
+#Having the meter soil data overwrite the hoboware if we have meter data
+N115.mod$Soil_Moisture <- ifelse(is.na(N115.mod$Soil_Moisture_MET), N115.mod$Soil_Moisture, N115.mod$Soil_Moisture_MET)
+N115.mod$Soil_Temp <- ifelse(is.na(N115.mod$Soil_Temp_MET), N115.mod$Soil_Temp, N115.mod$Soil_Temp_MET)
 #--------------------------------#
 
 #Consolidating HH115 data
 HH115.HB <-read_bulk(directory = "HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
-HH115.MET <-read_bulk(directory = "Meter_HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+
+#Kind of clunky download but using things like readbulk adds an extra column for Time with every upload. This is better
+dir.HH115 <- dir(file.path(path.met, "Meter_HH115"), ".csv")
+
+split.HH115 <- strsplit(dir.HH115, "_")
+
+split.HH115 <- lapply(split.HH115, function (x) x[2])
+
+date.HH115 <- unlist(lapply(split.HH115, function (x) sub(".csv", "", x)))
+
+date.HH115 <- as.Date(date.HH115)
+
+pull.HH115 <- date.HH115
+
+HH115.MET <- data.frame()
+for(i in 1:length(pull.HH115)){
+  date <- pull.HH115[i]
+  file <- read.csv(paste0(path.met, "Meter_HH115/HH115_", date, ".csv"))
+  HH115.MET <- rbind(HH115.MET, file)
+}
+
 
 colnames(HH115.MET)
 colnames(HH115.MET) <- c("Time_MET", "Soil_Moisture_MET", "Soil_Temp_MET",	"% Battery Percent", "mV Battery Voltage",
-                       "kPa Reference Pressure",	"°C Logger Temperature", "File_Name", "Time2")
+                       "kPa Reference Pressure",	"°C Logger Temperature")
 
-HH115.MET <- HH115.MET[-c(1),]
+
 HH115.MET$Time_MET <- ifelse(is.na(HH115.MET$Time_MET), HH115.MET$Time2, HH115.MET$Time_MET)
 HH115.MET$Time_MET <- as.POSIXct(strptime(HH115.MET$Time_MET, format="%m/%d/%Y %H"))
 HH115.MET$Soil_Moisture_MET <- as.numeric(HH115.MET$Soil_Moisture_MET)
@@ -217,14 +281,41 @@ Plot.title <- "HH115"
 HH115.mod $ Plot_Name <- Plot.title
 colnames(HH115.mod)
 HH115.mod <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Soil_Temp_MET", "Air_Temp", "Soil_Moisture", "Soil_Moisture_MET", "Relative_Humidity", "PAR", "Plot_Name"))
+
+
+HH115.mod$Soil_Moisture <- ifelse(is.na(HH115.mod$Soil_Moisture_MET), HH115.mod$Soil_Moisture, HH115.mod$Soil_Moisture_MET)
+HH115.mod$Soil_Temp <- ifelse(is.na(HH115.mod$Soil_Temp_MET), HH115.mod$Soil_Temp, HH115.mod$Soil_Temp_MET)
+
 #-------------------------------------#
 #Consolidating U134 data
 U134.HB <-read_bulk(directory = "U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
-U134.MET <-read_bulk(directory = "Meter_U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
 
+#Kind of clunky download but using things like readbulk adds an extra column for Time with every upload. This is better
+dir.U134 <- dir(file.path(path.met, "Meter_U134"), ".csv")
+
+split.U134 <- strsplit(dir.U134, "_")
+
+split.U134 <- lapply(split.U134, function (x) x[2])
+
+date.U134 <- unlist(lapply(split.U134, function (x) sub(".csv", "", x)))
+
+date.U134 <- as.Date(date.U134)
+
+pull.U134 <- date.U134
+
+U134.MET <- data.frame()
+for(i in 1:length(pull.U134)){
+  date <- pull.U134[i]
+  file <- read.csv(paste0(path.met, "Meter_U134/U134_", date, ".csv"))
+  U134.MET <- rbind(U134.MET, file)
+}
+
+#U134 has some weirder column names because of when I was attempting to get other older sensors to work on the new device
 colnames(U134.MET)
-colnames(U134.MET) <- c("Time_MET", "Soil_Moisture_MET", "Soil_Temp_MET",	"% Battery Percent", "mV Battery Voltage",
-                        "kPa Reference Pressure",	"°C Logger Temperature", "File_Name", "Time2")
+colnames(U134.MET) <- c("Time_MET", "Soil_Moisture_MET", "Soil_Temp_MET", "Unknown Sensor", 
+                        "Air_Temp", "kPa Vapor Pressure",	"kPa Atmospheric Pressure",	 "kPa VPD",	
+                        "Sensor Output",	"% Battery Percent", "mV Battery Voltage",
+                        "kPa Reference Pressure",	"°C Logger Temperature")
 
 U134.MET <- U134.MET[-c(1),]
 U134.MET$Time_MET <- ifelse(is.na(U134.MET$Time_MET), U134.MET$Time2, U134.MET$Time_MET)
@@ -241,18 +332,17 @@ U134.mid$File_Name <- "Meter"
 colnames(U134.HB)
 colnames(U134.HB) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
                     "Time6_A", "Time5_B", "Soil_Temp_B", "Air_Temp_B", "Relative_Humidity_B","PAR_B", "Soil_Moisture_B","PAR_C", "Time6_B",
-                    "Soil_Temp_C", "Air_Temp_C") #Change column names for U134
+                    "Soil_Temp_C", "Air_Temp_C", "Soil_Temp_D", "Air_Temp_D", "PAR_D", "Soil_Moisture_C") #Change column names for U134
 
 
 U134.convert <- U134.HB %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
                                    Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
-                                Soil_Temp_B = ifelse(is.na(Soil_Temp_B), Soil_Temp_C, Soil_Temp_B),
-                                Air_Temp_B = ifelse(is.na(Air_Temp_B), Air_Temp_C, Air_Temp_B),
                                 Soil_Temp_X = ifelse(is.na(Soil_Temp_A), Soil_Temp_B, Soil_Temp_A),
                                 Air_Temp_X = ifelse(is.na(Air_Temp_A), Air_Temp_B, Air_Temp_A),
+                                PAR_C = ifelse(is.na(PAR_C), PAR_D, PAR_C),
                                 PAR_B = ifelse(is.na(PAR_B), PAR_C, PAR_B),
-                                Soil_Temp = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
-                                Air_Temp = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
+                                Soil_Temp_Y = ifelse((Soil_Temp_X > 800 | Soil_Temp_X < -800), Soil_Temp_X, ((Soil_Temp_X-32)*(5/9))), 
+                                Air_Temp_Y = ifelse((Air_Temp_X > 800 | Soil_Temp_X < -800), Air_Temp_X, ((Air_Temp_X-32)*(5/9)))) 
 
 U134.convert$Time6 <- as.POSIXct(strptime(U134.convert$Time6, format="%m/%d/%y %I:%M:%S %p"))
 U134.convert$Time5 <- as.POSIXct(strptime(U134.convert$Time5, format="%m/%d/%y %I:%M:%S %p"))
@@ -264,14 +354,21 @@ U134.convert$Soil_Moisture_MET <- U134.MET$Soil_Moisture_MET[match(U134.convert$
 U134.convert$Soil_Temp_MET <- U134.MET$Soil_Temp_MET[match(U134.convert$Date_Time, U134.MET$Time_MET)]
 
 
-U134.mod <- U134.convert %>% mutate(
+U134.mod <- U134.convert %>% mutate(Soil_Moisture_B = ifelse(is.na(Soil_Moisture_B), Soil_Moisture_C, Soil_Moisture_B),
                             Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                             Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
-                            PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
+                            PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A),
+                            Soil_Temp_C = ifelse(is.na(Soil_Temp_C), Soil_Temp_Y, Soil_Temp_C),
+                            Air_Temp_C = ifelse(is.na(Air_Temp_C), Air_Temp_Y, Air_Temp_C),
+                            Soil_Temp = ifelse(is.na(Soil_Temp_D), Soil_Temp_C, Soil_Temp_D),
+                            Air_Temp = ifelse(is.na(Air_Temp_D), Air_Temp_C, Air_Temp_D))
 Plot.title <- "U134"
 U134.mod $ Plot_Name <- Plot.title
 colnames(U134.mod)
 U134.mod <- subset(U134.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Soil_Temp_MET", "Air_Temp", "Soil_Moisture", "Soil_Moisture_MET", "Relative_Humidity", "PAR", "Plot_Name"))
+
+U134.mod$Soil_Moisture <- ifelse(is.na(U134.mod$Soil_Moisture_MET), U134.mod$Soil_Moisture, U134.mod$Soil_Moisture_MET)
+U134.mod$Soil_Temp <- ifelse(is.na(U134.mod$Soil_Temp_MET), U134.mod$Soil_Temp, U134.mod$Soil_Temp_MET)
 
 #--------------------------------#
 #After running one of the above plots you run these lines.
