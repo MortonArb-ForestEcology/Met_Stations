@@ -8,7 +8,7 @@
 #          N115.csv
 #          HH115.csv
 # Notes: This script should be broken into two seperate scripts for the two seperate types of data loggers as we go forward
-#        10/29/2020 is when the onset data loggers were installed
+#        10/29/2020 is when the Meter data loggers were installed
 #         
 #-----------------------------------------------------------------------------------------------------------------------------------#
 library(readbulk)
@@ -34,7 +34,7 @@ end.B127 <- sub(" .*", "", end.B127)
 
 
 #Finding the files we need to update
-dir.B127 <- dir(file.path(path.met, "Onset_B127"), ".csv")
+dir.B127 <- dir(file.path(path.met, "Meter_B127"), ".csv")
 
 split.B127 <- strsplit(dir.B127, "_")
 
@@ -50,12 +50,12 @@ pull.B127 <- date.B127
 B127 <- data.frame()
 for(i in 1:length(pull.B127)){
   date <- pull.B127[i]
-  file <- read.csv(paste0(path.met, "Onset_B127/B127_", date, ".csv"))
+  file <- read.csv(paste0(path.met, "Meter_B127/B127_", date, ".csv"))
   B127 <- rbind(B127, file)
 }
 
 colnames(B127)
-####Organizing the column names off Onset
+####Organizing the column names off Meter
 colnames(B127) <- c("Time_ON"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
                     "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
                     "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", "Soil_Moisture", "Soil_Temp",
@@ -70,14 +70,14 @@ colnames(B127.mod)
 B127.mod$Date_Check <- as.POSIXct(strptime(B127.mod$Time_ON, format="%m/%d/%Y %H"))
 B127.mod <- transform(B127.mod, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
-#Removing onset labels that are the first row
+#Removing Meter labels that are the first row
 #Want this to be hardcoded but couldn't find a way that didn't break other parts
 B127.mod <- subset(B127.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-----------------------------------------------------------------#
-U134 <-read_bulk(directory = "Onset_U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+U134 <-read_bulk(directory = "Meter_U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
 colnames(U134)
-####Organizing the column names off Onset
+####Organizing the column names off Meter
 colnames(U134) <- c("Time1"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
                     "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
                     "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "Soil_Moisture", "Soil_Temp",
@@ -95,14 +95,14 @@ colnames(U134.mod)
 U134.mod$Date_Check <- as.POSIXct(strptime(U134.mod$Time_ON, format="%m/%d/%Y %H"))
 U134.mod <- transform(U134.mod, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
-#Removing onset labels that are the first row
+#Removing Meter labels that are the first row
 #Want this to be hardcoded but couldn't find a way that didn't break other parts
 U134.mod <- subset(U134.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-----------------------------------------------------------------#
-N115 <-read_bulk(directory = "Onset_N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+N115 <-read_bulk(directory = "Meter_N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
 colnames(N115)
-####Organizing the column names off Onset
+####Organizing the column names off Meter
 colnames(N115) <- c("Time1"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
                     "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
                     "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "Soil_Moisture", "Soil_Temp",
@@ -120,14 +120,14 @@ colnames(N115.mod)
 N115.mod$Date_Check <- as.POSIXct(strptime(N115.mod$Time_ON, format="%m/%d/%Y %H"))
 N115.mod <- transform(N115.mod, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
-#Removing onset labels that are the first row
+#Removing Meter labels that are the first row
 #Want this to be hardcoded but couldn't find a way that didn't break other parts
 N115.mod <- subset(N115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-----------------------------------------------------------------#
-HH115 <-read_bulk(directory = "Onset_HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+HH115 <-read_bulk(directory = "Meter_HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
 colnames(HH115)
-####Organizing the column names off Onset
+####Organizing the column names off Meter
 colnames(HH115) <- c("Time1"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
                     "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
                     "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "Soil_Moisture", "Soil_Temp",
@@ -145,7 +145,7 @@ colnames(HH115.mod)
 HH115.mod$Date_Check <- as.POSIXct(strptime(HH115.mod$Time_ON, format="%m/%d/%Y %H"))
 HH115.mod <- transform(HH115.mod, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
-#Removing onset labels that are the first row
+#Removing Meter labels that are the first row
 #Want this to be hardcoded but couldn't find a way that didn't break other parts
 HH115.mod <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 #------------------------------------------------------------------#
@@ -181,7 +181,7 @@ for(PLOT in unique(comb_plot$Plot_Name)){
                                    "PAR", "Soil_Temp", "Air_Temp")]
   
   #Making sure columns are of the right datatype
-  #You may get warning sof NA's but that is removing the rows of onset that function as row names
+  #You may get warning sof NA's but that is removing the rows of Meter that function as row names
   one_plot.loop$Relative_Humidity <- as.numeric(one_plot.loop$Relative_Humidity)
   one_plot.loop$Soil_Moisture <- as.numeric(one_plot.loop$Soil_Moisture)
   one_plot.loop$Soil_Temp <- as.numeric(one_plot.loop$Soil_Temp)
