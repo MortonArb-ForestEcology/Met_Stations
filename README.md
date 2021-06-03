@@ -53,3 +53,36 @@ Notes:
 ## Met_QAQC.R
 
  Old Script for QAQC. May be adopted into new workflow
+ 
+ # Units
+ 
+ ## Hoboware
+
+  Variable   |     Unit
+------------ | -------------
+Air Temperature |  Celcius C
+PAR (phoysythetically active radiation | umol/m2/sec
+Relative Humidity | % water vapor need for saturaiton at current temperature
+Soil Moisture | Volumetric water content m3/m3
+Soil Temperature | Celcius C
+
+
+## Meter (ZL6/Atmos41)
+
+  Variable   |     Unit
+------------ | -------------
+Air Temperature |  Celcius C
+Barometric Pressue |kPA
+Horizontal Wind Speed | m/s
+Humidity Sensor Temperature | Celcius C
+Lightin Average Distance | km
+Lighting Strike | Strikes
+Precipitation | mm/h
+Relative Humidity | % water vapor need for saturaiton at current temperature
+Soil Moisture | Volumetric water content m3/m3
+Soil Temperature | Celcius C
+Solar Radiation | W/m2 (Solar irradiance)
+Vapor Pressure | kPa
+Wind Direction | Degrees (1-360)
+Wind Gust | m/s
+
