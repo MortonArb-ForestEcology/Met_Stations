@@ -379,7 +379,7 @@ colnames(U134.mod)
 U134.mod <- subset(U134.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #This is removing oddly dated (Follow a different date format) values that are repeats of previous measurements
-U134.mod <- U134.mod[!is.na(U134.mod$Date_Time),]
+#U134.mod <- U134.mod[!is.na(U134.mod$Date_Time),]
 
 #Extra steps to have the MET soil data replace hoboware data
 #This is not done for N115 or B127 as they don't have overlap issue
@@ -393,8 +393,6 @@ U134.comb$Plot_Name <- Plot.title
 #I wil fix this to be a loop in some way down the line
 
 comb_plot <- rbind(B127.mod, N115.mod, HH115.comb, U134.comb)
-
-comb_plot <- comb_plot[!is.na(comb_plot$Plot_Name),]
 
 for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot <- comb_plot[comb_plot$Plot_Name == PLOT,]
