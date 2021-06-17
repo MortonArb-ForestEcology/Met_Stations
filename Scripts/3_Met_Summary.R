@@ -36,8 +36,14 @@ plot.U134 <- read.csv("U134/U134.csv")
 all_plots <- bind_rows(plot.B127, plot.N115, plot.HH115, plot.U134)
 
 str(all_plots)
-all_plots$Date_Time <- as.Date(all_plots$Date_Time)
+all_plots$Date_Time <- as.POSIXct(all_plots$Date_Time)
 summary(all_plots)
+
+#Making a list of NA values so we know missing dates
+Dates.missing <- all_plots[is.na(all_plots$Plot_Name),]
+
+#Creating year column so years can be compared
+all_plots <- all_plots %>% mutate(Year = as.character(year(Date_Time)))
 
 # Changing data to a "long" format that ggplot likes
 met.stack <- stack(all_plots[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
@@ -46,66 +52,80 @@ met.stack[,c("Plot_Name", "Date_Time")] <- all_plots[,c("Plot_Name", "Date_Time"
 summary(met.stack)
 
 #Initial plot 
+path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/PAR and SOIL Summary"
+png(width= 750, filename= file.path(path.figures, paste0('All_Vars','.png')))
 ggplot(met.stack, aes(x = Date_Time, y = values)) +
   facet_wrap(~var, scales="free_y") +
-  geom_line(aes(color=Plot_Name)) +
+  geom_smooth(aes(color=Plot_Name)) +
   theme_bw()+
   ggtitle("Met Stations")
 
 #---------------------------#
 #Summaries of one plot across years
 
-#Making Date_Time a continous variable
-all_plots$Date_Time <- as.POSIXct(all_plots$Date_Time)
 
-#Making a list of NA values so we know missing dates
-Dates.missing <- all_plots[is.na(all_plots$Plot_Name),]
-
-#Creating year column so years can be compared
-all_plots <- all_plots %>% mutate(Year = as.character(year(Date_Time)))
-all_plots <- all_plots %>% mutate(Date = format(Date_Time, format="%m/%d %I:%M:%S %p"))
-all_plots$Date <- as.Date(all_plots$Date_Time, format = "%m/%d %I:%M:%S %p")
+all_plots <- all_plots[!is.na(all_plots$Plot_Name),]
+#Incomplete year so we don't include it
+all_plots <- all_plots[all_plots$Year != "2017",]
+sumtab <- list()
+for(PLOT in unique(all_plots$Plot_Name)){
+  plot.df <- all_plots[all_plots$Plot_Name == PLOT,]
+  for(YR in unique(plot.df$Year)){
+    temp <- plot.df[plot.df$Year == YR,]
+    sumtab[[paste(PLOT, YR, sep="-")]]$plot <- PLOT
+    sumtab[[paste(PLOT, YR, sep="-")]]$year <- YR
+    sumtab[[paste(PLOT, YR, sep="-")]]$soiltemp <- paste0(round(median(temp$Soil_Temp, na.rm =T), digits = 2), " (", round(min(temp$Soil_Temp, na.rm =T), digits = 2), "-", round(max(temp$Soil_Temp , na.rm =T), digits = 2), ")")
+    sumtab[[paste(PLOT, YR, sep="-")]]$soilmoist <- paste0(round(median(temp$Soil_Moisture, na.rm =T), digits = 4), " (", round(min(temp$Soil_Moisture, na.rm =T), digits = 4), "-", round(max(temp$Soil_Moisture , na.rm =T), digits = 4), ")")
+    #PAR IS MEAN NOT MEDIAN
+    sumtab[[paste(PLOT, YR, sep="-")]]$PAR <- paste0(round(mean(temp$PAR, na.rm =T), digits = 4), " (", round(min(temp$PAR, na.rm =T), digits = 4), "-", round(max(temp$PAR , na.rm =T), digits = 4), ")")
+  }
+}
+sumfin <- dplyr::bind_rows(sumtab)
+write.csv(sumfin, file.path(path.figures, "PAR and SOIL Summary.csv"), row.names = F)
 
 
 #Changing data to a "long" format that ggplot likes for total summary
-plot.allstack <- stack(all_plots[,c( "PAR", "Soil_Moisture", "Relative_Humidity")])
+plot.allstack <- stack(all_plots[,c( "PAR", "Soil_Moisture", "Soil_Temp")])
 names(plot.allstack) <- c("values", "var")
-plot.allstack[,c("Year", "Date", "Plot_Name")] <- all_plots[,c("Year", "Date", "Plot_Name")]
+plot.allstack[,c("Year", "Date_Time", "Plot_Name")] <- all_plots[,c("Year", "Date_Time", "Plot_Name")]
 summary(plot.allstack)
 
-plot.allstack$Yday <- lubridate::yday(plot.allstack$Date)
+plot.allstack$Yday <- lubridate::yday(plot.allstack$Date_Time)
 
 #Plot to compare years
-ggplot(plot.allstack, aes(x = Date, y = values)) +
-  facet_wrap(~var, scales="free_y") +
+png(width= 750, filename= file.path(path.figures, paste0('Continous_timeseries','.png')))
+ggplot(plot.allstack, aes(x = Date_Time, y = values)) +
+  facet_grid(cols = vars(Plot_Name), rows = vars(var), scales="free_y") +
   geom_smooth(aes(color=Year)) +
   theme_bw()+
   ggtitle(Plot.title)
+dev.off()
 
 #Looking at PAR specifically (interested in post 2020 derecho storm effect)
-path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/figures"
+#path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/figures"
 if(!dir.exists(path.figures)) dir.create(path.figures)
-png(width= 750, filename= file.path(path.figures, paste0('Post-Derecho Par','.png')))
+png(width= 750, filename= file.path(path.figures, paste0('Yearly_PAR','.png')))
 plot.PAR <- plot.allstack[plot.allstack$var == "PAR" & !is.na(plot.allstack$Plot_Name),]
 ggplot(plot.PAR, aes(x = Yday, y = values)) +
   facet_wrap(~Plot_Name, scales="free_y") +
   geom_smooth(aes(color=Year)) +
   theme_bw()+
-  ggtitle("Post-Derecho East woods PAR")
+  ggtitle("PAR")
 dev.off()
 
 
 #Looking at Soil_Moisture specifically (interested in post 2020 derecho storm effect)
-path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/figures"
+#path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/figures"
 if(!dir.exists(path.figures)) dir.create(path.figures)
-png(width= 750, filename= file.path(path.figures, paste0('Post-Derecho Soil_Moisture','.png')))
+png(width= 750, filename= file.path(path.figures, paste0('Yearly_Soil_Moisture','.png')))
 plot.Soil_Moisture <- plot.allstack[plot.allstack$var == "Soil_Moisture" & !is.na(plot.allstack$Plot_Name) & plot.allstack$Year != 2017 ,]
 ggplot(plot.Soil_Moisture, aes(x = Yday, y = values)) +
   facet_wrap(~Plot_Name, scales="free_y") +
   geom_smooth(aes(color=Year)) +
   theme_bw()+
-  ggtitle("Post-Derecho East woods Soil_Moisture")
+  ggtitle("Soil_Moisture")
 dev.off()
+
 
 #------------------------------------#
 #Summaries of one year for one plot
