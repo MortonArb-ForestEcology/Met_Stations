@@ -1,0 +1,152 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Say Hello to markdown
+
+```{r echo = FALSE,  message = FALSE, warning = FALSE}
+#-----------------------------------------------------------------------------------------------------------------------------------#
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+
+#Setting file paths
+path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+path.out <- paste(path.met, "Data_clean/", sep="")
+setwd(path.out)
+
+
+#Currently using the Month_Separation script because combining the seperate files results in 147 columns
+#Will probably seperate the current month script into a QAQC script and the seperation script
+
+# Seperating by chosen year and month values
+
+plot.B127 <- read.csv("B127/B127.csv")
+plot.N115 <- read.csv("N115/N115.csv")
+plot.HH115 <- read.csv("HH115/HH115.csv")
+plot.U134 <- read.csv("U134/U134.csv")
+
+comb <- rbind(plot.B127, plot.N115, plot.HH115, plot.U134)
+comb$Date_Time <- as.POSIXct(comb$Date_Time)
+
+#Removing NA rows 
+comb <- comb[!is.na(comb$Plot_Name),]
+```
+
+# Raw data output
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+# Changing data to a "long" format that ggplot likes
+raw.stack <- stack(comb[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
+names(raw.stack) <- c("values", "var")
+raw.stack[,c("Plot_Name", "Date_Time")] <- comb[,c("Plot_Name", "Date_Time")]
+
+#Raw Data plot
+ggplot(raw.stack, aes(x = Date_Time, y = values)) +
+  facet_wrap(~var, scales="free_y") +
+  geom_smooth(aes(color=Plot_Name)) +
+  theme_bw()+
+  ggtitle("Raw Met Station Data")
+```
+
+# Data when impossible values are removed
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+#Removing impossible values
+comb$Soil_Moisture <- ifelse(comb$Soil_Moisture <= 0, NA, comb$Soil_Moisture)
+
+# Changing data to a "long" format that ggplot likes
+met.stack <- stack(comb[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
+names(met.stack) <- c("values", "var")
+met.stack[,c("Plot_Name", "Date_Time")] <- comb[,c("Plot_Name", "Date_Time")]
+
+#Raw Data plot
+ggplot(met.stack, aes(x = Date_Time, y = values)) +
+  facet_wrap(~var, scales="free_y") +
+  geom_smooth(aes(color=Plot_Name)) +
+  theme_bw()+
+  ggtitle("Non-impossible Met Station Data")
+```
+
+
+Currently impossible values are negative Soil Moisture readings
+
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+metrics <- c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR")
+df.clean <- data.frame()
+for(PLOT in unique(comb$Plot_Name)){
+  temp <- comb[comb$Plot_Name == PLOT, ]
+  temp$Date <- as.Date(temp$Date_Time)
+  for(DOY in unique(format(temp$Date))){
+   DOY <- as.Date(DOY)
+   DATES <- seq.Date(from = (DOY - 7), to = (DOY + 7), by = 1)
+   for(VAL in metrics){
+     SM.mean <- mean(temp[temp$Date %in% DATES, VAL], na.rm = T)
+     SM.sd <- sd(temp[temp$Date %in% DATES, VAL], na.rm = T)
+     temp[temp$Date == DOY, "SIGFLAG"] <- ifelse(temp[temp$Date == DOY, VAL]<SM.mean-4*SM.sd | temp[temp$Date == DOY, VAL]>SM.mean+4*SM.sd, T, F)
+     }
+  }
+  df.clean <- rbind(df.clean, temp)
+}
+df.clean <- df.clean[which(df.clean$SIGFLAG == F),]
+df.clean$Date_Time <- as.POSIXct(df.clean$Date_Time)
+```
+
+
+# Clean met station data
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+# Changing data to a "long" format that ggplot likes
+clean.stack <- stack(df.clean[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
+names(clean.stack) <- c("values", "var")
+clean.stack[,c("Plot_Name", "Date_Time")] <- df.clean[,c("Plot_Name", "Date_Time")]
+
+#CLean Data plot
+ggplot(clean.stack, aes(x = Date_Time, y = values)) +
+  facet_wrap(~var, scales="free_y") +
+  geom_smooth(aes(color=Plot_Name)) +
+  theme_bw()+
+  ggtitle("Clean Met Station Data")
+```
+
+Measurements more than 4 standard deviations from the 2 week mean surrounding the date of measurement were removed
+
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+all_plots <- df.clean[!is.na(df.clean$Plot_Name),]
+
+all_plots <- all_plots %>% mutate(Year = as.character(year(Date_Time)))
+#Incomplete year so we don't include it
+all_plots <- all_plots[all_plots$Year != "2017",]
+
+plot.allstack <- stack(all_plots[,c( "PAR", "Soil_Moisture", "Soil_Temp")])
+names(plot.allstack) <- c("values", "var")
+plot.allstack[,c("Year", "Date_Time", "Plot_Name")] <- all_plots[,c("Year", "Date_Time", "Plot_Name")]
+
+plot.allstack$Yday <- lubridate::yday(plot.allstack$Date_Time)
+
+ggplot(plot.allstack, aes(x = Date_Time, y = values)) +
+  facet_grid(cols = vars(Plot_Name), rows = vars(var), scales="free_y") +
+  geom_smooth(aes(color=Year)) +
+  theme_bw()+
+  ggtitle("Continous Time Series")
+```
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+plot.PAR <- plot.allstack[plot.allstack$var == "PAR" & !is.na(plot.allstack$Plot_Name),]
+ggplot(plot.PAR, aes(x = Yday, y = values)) +
+  facet_wrap(~Plot_Name, scales="free_y") +
+  geom_smooth(aes(color=Year)) +
+  theme_bw()+
+  ggtitle("PAR")
+```
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+plot.Soil_Moisture <- plot.allstack[plot.allstack$var == "Soil_Moisture" & !is.na(plot.allstack$Plot_Name) & plot.allstack$Year != 2017 ,]
+ggplot(plot.Soil_Moisture, aes(x = Yday, y = values)) +
+  facet_wrap(~Plot_Name, scales="free_y") +
+  geom_smooth(aes(color=Year)) +
+  theme_bw()+
+  ggtitle("Soil_Moisture")
+```
