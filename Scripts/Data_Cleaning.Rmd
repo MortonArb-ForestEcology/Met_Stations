@@ -4,7 +4,9 @@ output:
   pdf_document: default
 ---
 
-# Say Hello to markdown
+# East Woods Met Station Data
+
+## Missing data and raw data are presented first
 
 ```{r echo = FALSE,  message = FALSE, warning = FALSE}
 #-----------------------------------------------------------------------------------------------------------------------------------#
@@ -36,6 +38,34 @@ comb$Date_Time <- as.POSIXct(comb$Date_Time)
 comb <- comb[!is.na(comb$Plot_Name),]
 ```
 
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+Columns <- c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR")
+plot.na <- data.frame()
+for(PLOT in unique(comb$Plot_Name)){
+  temp <- comb[comb$Plot_Name == PLOT, ]
+  set <- subset(temp, select = c(Columns))
+  df.na <- set %>%
+    mutate(id = row_number()) %>%
+    gather(-id, key = "key", value = "val") %>%
+    mutate(isna = is.na(val)) 
+  
+  df.na$Date_Time <- temp[df.na$id, "Date_Time"]
+  
+  df.na$Plot_Name <- PLOT
+ plot.na <- rbind(plot.na, df.na) 
+}
+    
+ggplot(plot.na, aes(x = key, y = Date_Time, fill = isna)) +
+  facet_wrap(~Plot_Name) +
+  geom_tile(alpha=0.8) +
+  ggtitle("NA's values") +
+    scale_fill_discrete(name = "",
+                        labels = c("Present", "Missing"))+
+  coord_flip()
+
+
+
+```
 # Raw data output
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 # Changing data to a "long" format that ggplot likes
@@ -68,7 +98,6 @@ ggplot(met.stack, aes(x = Date_Time, y = values)) +
   theme_bw()+
   ggtitle("Non-impossible Met Station Data")
 ```
-
 
 Currently impossible values are negative Soil Moisture readings
 
@@ -113,6 +142,9 @@ ggplot(clean.stack, aes(x = Date_Time, y = values)) +
 Measurements more than 4 standard deviations from the 2 week mean surrounding the date of measurement were removed
 
 
+
+
+# Continous Time Series
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 all_plots <- df.clean[!is.na(df.clean$Plot_Name),]
 
@@ -133,19 +165,21 @@ ggplot(plot.allstack, aes(x = Date_Time, y = values)) +
   ggtitle("Continous Time Series")
 ```
 
+# PAR
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 plot.PAR <- plot.allstack[plot.allstack$var == "PAR" & !is.na(plot.allstack$Plot_Name),]
 ggplot(plot.PAR, aes(x = Yday, y = values)) +
-  facet_wrap(~Plot_Name, scales="free_y") +
+  facet_wrap(~Plot_Name, scales="fixed") +
   geom_smooth(aes(color=Year)) +
   theme_bw()+
   ggtitle("PAR")
 ```
 
+# Soil moisture
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 plot.Soil_Moisture <- plot.allstack[plot.allstack$var == "Soil_Moisture" & !is.na(plot.allstack$Plot_Name) & plot.allstack$Year != 2017 ,]
 ggplot(plot.Soil_Moisture, aes(x = Yday, y = values)) +
-  facet_wrap(~Plot_Name, scales="free_y") +
+  facet_wrap(~Plot_Name, scales="fixed") +
   geom_smooth(aes(color=Year)) +
   theme_bw()+
   ggtitle("Soil_Moisture")
