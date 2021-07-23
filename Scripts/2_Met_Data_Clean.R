@@ -2,6 +2,7 @@
 library(dplyr)
 library(lubridate)
 library(tidyr)
+library(ggplot2)
 
 #Setting file paths
 path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
