@@ -28,6 +28,8 @@ path.out <- paste(path.met, "Data_Clean", sep="")
 #Finding the last date we have data for
 old.B127 <- read.csv(file.path(path.out, "B127/B127.csv"))
 
+old.B127$Date_Time <- as.POSIXct(strptime(old.B127$Date_Time, format="%Y-%m-%d %H"))
+
 end.B127 <- max(old.B127$Date_Time, na.rm = T)
 
 end.B127 <- sub(" .*", "", end.B127)
@@ -44,8 +46,8 @@ date.B127 <- unlist(lapply(split.B127, function (x) sub(".csv", "", x)))
 
 date.B127 <- as.Date(date.B127)
 
-#pull.B127 <- date.B127[date.B127 >= end.B127]
-pull.B127 <- date.B127
+pull.B127 <- date.B127[date.B127 >= end.B127]
+#pull.B127 <- date.B127
 
 B127 <- data.frame()
 for(i in 1:length(pull.B127)){
@@ -75,7 +77,38 @@ B127.mod <- transform(B127.mod, Date_Time = round.POSIXt(Date_Check, units = c("
 B127.mod <- subset(B127.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-----------------------------------------------------------------#
-U134 <-read_bulk(directory = "Meter_U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+#Finding the last date we have data for
+old.U134 <- read.csv(file.path(path.out, "U134/U134.csv"))
+
+old.U134$Date_Time <- as.POSIXct(strptime(old.U134$Date_Time, format="%Y-%m-%d %H"))
+
+end.U134 <- max(old.U134$Date_Time, na.rm = T)
+
+end.U134 <- sub(" .*", "", end.U134)
+
+
+#Finding the files we need to update
+dir.U134 <- dir(file.path(path.met, "Meter_U134"), ".csv")
+
+split.U134 <- strsplit(dir.U134, "_")
+
+split.U134 <- lapply(split.U134, function (x) x[2])
+
+date.U134 <- unlist(lapply(split.U134, function (x) sub(".csv", "", x)))
+
+date.U134 <- as.Date(date.U134)
+
+pull.U134 <- date.U134[date.U134 > end.U134]
+#pull.U134 <- date.U134
+
+U134 <- data.frame()
+for(i in 1:length(pull.U134)){
+  date <- pull.U134[i]
+  file <- read.csv(paste0(path.met, "Meter_U134/U134_", date, ".csv"))
+  U134 <- rbind(U134, file)
+}
+
+
 colnames(U134)
 ####Organizing the column names off Meter
 colnames(U134) <- c("Time1"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
@@ -100,7 +133,37 @@ U134.mod <- transform(U134.mod, Date_Time = round.POSIXt(Date_Check, units = c("
 U134.mod <- subset(U134.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-----------------------------------------------------------------#
-N115 <-read_bulk(directory = "Meter_N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+#Finding the last date we have data for
+old.N115 <- read.csv(file.path(path.out, "N115/N115.csv"))
+
+old.N115$Date_Time <- as.POSIXct(strptime(old.N115$Date_Time, format="%Y-%m-%d %H"))
+
+end.N115 <- max(old.N115$Date_Time, na.rm = T)
+
+end.N115 <- sub(" .*", "", end.N115)
+
+
+#Finding the files we need to update
+dir.N115 <- dir(file.path(path.met, "Meter_N115"), ".csv")
+
+split.N115 <- strsplit(dir.N115, "_")
+
+split.N115 <- lapply(split.N115, function (x) x[2])
+
+date.N115 <- unlist(lapply(split.N115, function (x) sub(".csv", "", x)))
+
+date.N115 <- as.Date(date.N115)
+
+pull.N115 <- date.N115[date.N115 > end.N115]
+#pull.N115 <- date.N115
+
+N115 <- data.frame()
+for(i in 1:length(pull.N115)){
+  date <- pull.N115[i]
+  file <- read.csv(paste0(path.met, "Meter_N115/N115_", date, ".csv"))
+  N115 <- rbind(N115, file)
+}
+
 colnames(N115)
 ####Organizing the column names off Meter
 colnames(N115) <- c("Time1"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
