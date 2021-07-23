@@ -59,7 +59,18 @@ B127.MET$File_Name <- "Meter"
 
 B127.MET <- subset(B127.MET, select = c("Time_MET",  "Air_Temp_MET", "Relative_Humidity_MET", "PAR_MET",
                                         "Soil_Moisture_MET", "Soil_Temp_MET", "File_Name"))
-                    
+
+B127.MET$Air_Temp_MET <- as.numeric(as.character(B127.MET$Air_Temp_MET))
+
+B127.MET$Relative_Humidity_MET <- as.numeric(as.character(B127.MET$Relative_Humidity_MET)) 
+
+B127.MET$PAR_MET <- as.numeric(as.character(B127.MET$PAR_MET)) 
+
+B127.MET$Soil_Moisture_MET <- as.numeric(as.character(B127.MET$Soil_Moisture_MET))
+
+B127.MET$Soil_Temp_MET <- as.numeric(as.character(B127.MET$Soil_Temp_MET))
+  
+  
                     #Hoboware sensors and data columns
                     #Variable A-C are used for the same variable but different loggers
 colnames(B127.HB) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name",
@@ -129,6 +140,9 @@ date.N115 <- as.Date(date.N115)
 
 pull.N115 <- date.N115
 
+#Focusing on the older Onset meter pulls when it was just soil moisture
+pull.N115 <- pull.N115[1:4]
+
 N115.MET <- data.frame()
 for(i in 1:length(pull.N115)){
   date <- pull.N115[i]
@@ -142,12 +156,14 @@ colnames(N115.MET)
 colnames(N115.MET) <- c("Time_MET", "Soil_Moisture_MET", "Soil_Temp_MET",	"% Battery Percent", "mV Battery Voltage",
                     "kPa Reference Pressure",	"°C Logger Temperature")
 
+N115.MET$Soil_Moisture_MET <- as.numeric(as.character(N115.MET$Soil_Moisture_MET))
+
+N115.MET$Soil_Temp_MET <- as.numeric(as.character(N115.MET$Soil_Temp_MET))
+
 N115.MET$File_Name <- "Meter"
 
 
 N115.MET$Time_MET <- as.POSIXct(strptime(N115.MET$Time_MET, format="%m/%d/%Y %H"))
-N115.MET$Soil_Moisture_MET <- as.numeric(N115.MET$Soil_Moisture_MET)
-N115.MET$Soil_Temp_MET <- as.numeric(N115.MET$Soil_Temp_MET) 
 N115.mid <- aggregate(N115.MET[,c("Soil_Moisture_MET", "Soil_Temp_MET")],
                     by=list(N115.MET$Time_MET),
                     FUN=median, na.rm=T)[,c("Soil_Moisture_MET", "Soil_Temp_MET")]
@@ -218,6 +234,9 @@ date.HH115 <- as.Date(date.HH115)
 
 pull.HH115 <- date.HH115
 
+#Focusing on the older Onset meter pulls when it was just soil moisture
+pull.HH115 <- pull.HH115[1:4]
+
 HH115.MET <- data.frame()
 for(i in 1:length(pull.HH115)){
   date <- pull.HH115[i]
@@ -230,11 +249,12 @@ colnames(HH115.MET)
 colnames(HH115.MET) <- c("Time_MET", "Soil_Moisture_MET", "Soil_Temp_MET",	"% Battery Percent", "mV Battery Voltage",
                        "kPa Reference Pressure",	"°C Logger Temperature")
 
+HH115.MET$Soil_Moisture_MET <- as.numeric(as.character(HH115.MET$Soil_Moisture_MET))
 
-HH115.MET$Time_MET <- ifelse(is.na(HH115.MET$Time_MET), HH115.MET$Time2, HH115.MET$Time_MET)
+HH115.MET$Soil_Temp_MET <- as.numeric(as.character(HH115.MET$Soil_Temp_MET))
+
+#HH115.MET$Time_MET <- ifelse(is.na(HH115.MET$Time_MET), HH115.MET$Time2, HH115.MET$Time_MET)
 HH115.MET$Time_MET <- as.POSIXct(strptime(HH115.MET$Time_MET, format="%m/%d/%Y %H"))
-HH115.MET$Soil_Moisture_MET <- as.numeric(HH115.MET$Soil_Moisture_MET)
-HH115.MET$Soil_Temp_MET <- as.numeric(HH115.MET$Soil_Temp_MET) 
 HH115.mid <- aggregate(HH115.MET[,c("Soil_Moisture_MET", "Soil_Temp_MET")],
                       by=list(HH115.MET$Time_MET),
                       FUN=median, na.rm=T)[,c("Soil_Moisture_MET", "Soil_Temp_MET")]
@@ -314,6 +334,9 @@ date.U134 <- as.Date(date.U134)
 
 pull.U134 <- date.U134
 
+#Focusing on the older Onset meter pulls when it was just soil moisture
+pull.U134 <- pull.U134[1:4]
+
 U134.MET <- data.frame()
 for(i in 1:length(pull.U134)){
   date <- pull.U134[i]
@@ -329,10 +352,9 @@ colnames(U134.MET) <- c("Time_MET", "Soil_Moisture_MET", "Soil_Temp_MET", "Unkno
                         "kPa Reference Pressure",	"°C Logger Temperature")
 
 U134.MET <- U134.MET[-c(1),]
-U134.MET$Time_MET <- ifelse(is.na(U134.MET$Time_MET), U134.MET$Time2, U134.MET$Time_MET)
 U134.MET$Time_MET <- as.POSIXct(strptime(U134.MET$Time_MET, format="%m/%d/%Y %H"))
-U134.MET$Soil_Moisture_MET <- as.numeric(U134.MET$Soil_Moisture_MET)
-U134.MET$Soil_Temp_MET <- as.numeric(U134.MET$Soil_Temp_MET) 
+U134.MET$Soil_Moisture_MET <- as.numeric(as.character(U134.MET$Soil_Moisture_MET))
+U134.MET$Soil_Temp_MET <- as.numeric(as.character(U134.MET$Soil_Temp_MET)) 
 U134.mid <- aggregate(U134.MET[,c("Soil_Moisture_MET", "Soil_Temp_MET")],
                        by=list(U134.MET$Time_MET),
                        FUN=median, na.rm=T)[,c("Soil_Moisture_MET", "Soil_Temp_MET")]
@@ -392,7 +414,7 @@ U134.comb$Plot_Name <- Plot.title
 #After running one of the above plots you run these lines.
 #I wil fix this to be a loop in some way down the line
 
-comb_plot <- rbind(B127.mod, N115.mod, HH115.comb, U134.comb)
+comb_plot <- rbind.data.frame(B127.mod, N115.mod, HH115.comb, U134.comb)
 
 for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot <- comb_plot[comb_plot$Plot_Name == PLOT,]
