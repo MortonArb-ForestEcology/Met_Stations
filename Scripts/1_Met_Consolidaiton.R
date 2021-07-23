@@ -141,7 +141,7 @@ date.N115 <- as.Date(date.N115)
 pull.N115 <- date.N115
 
 #Focusing on the older Onset meter pulls when it was just soil moisture
-pull.N115 <- pull.N115[1:4]
+pull.N115 <- pull.N115[1:5]
 
 N115.MET <- data.frame()
 for(i in 1:length(pull.N115)){
@@ -171,13 +171,12 @@ time.MET <- unique(N115.MET$Time_MET)
 N115.mid$Time_MET <- time.MET[-c(length(time.MET))]
 N115.mid$File_Name <- "Meter"
 
- 
 colnames(N115.HB) 
 colnames(N115.HB)  <-  c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name",
                     "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B", "PAR_C", "Time6", 
                     "Soil_Temp_C", "Air_Temp_C") #Change column names for N115
 
-
+N115.HB <- full_join(N115.HB, N115.mid)
 
 #Consolidating columns of Fahrenheit temperature and then converting it to Celcius
 N115.convert <- N115.HB %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
@@ -195,8 +194,6 @@ N115.convert$Date_Check <- N115.convert$Time5
 N115.convert[is.na(N115.convert$Date_Check), "Date_Check"] <- N115.convert[is.na(N115.convert$Date_Check), "Time6"] + 60*60
 N115.convert <- transform(N115.convert, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
-N115.convert$Soil_Moisture_MET <- N115.MET$Soil_Moisture_MET[match(N115.convert$Date_Time, N115.MET$Time_MET)]
-N115.convert$Soil_Temp_MET <- N115.MET$Soil_Temp_MET[match(N115.convert$Date_Time, N115.MET$Time_MET)]
 
 #Consolidating redundant columns:
 N115.mod <- N115.convert %>% mutate(
@@ -235,7 +232,7 @@ date.HH115 <- as.Date(date.HH115)
 pull.HH115 <- date.HH115
 
 #Focusing on the older Onset meter pulls when it was just soil moisture
-pull.HH115 <- pull.HH115[1:4]
+pull.HH115 <- pull.HH115[1:5]
 
 HH115.MET <- data.frame()
 for(i in 1:length(pull.HH115)){
@@ -262,6 +259,8 @@ time.MET <- unique(HH115.MET$Time_MET)
 HH115.mid$Time_MET <- time.MET[-c(length(time.MET))]
 HH115.mid$File_Name <- "Meter"
 
+HH115.mid$Time_MET <- as.POSIXct(strptime(HH115.mid$Time_MET, format="%m/%d/%y %I:%M:%S %p"))
+
 colnames(HH115.HB) 
 
 #Currently removing the 1 day of measurements every second that I accidentally recorded
@@ -272,6 +271,7 @@ colnames(HH115.HB) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", 
                         "Time6_A", "Time5_B", "Soil_Temp_B", "Soil_Moisture_B", "PAR_B", "Air_Temp_B", "Relative_Humidity_B", "Time6_B",
                         "PAR_C", "Soil_Temp_C",  "Air_Temp_C", "Soil_Temp_D", "Soil_Moisture_C", "PAR_D", "Air_Temp_D", "Relative_Humidity_C") #Change column names for HH115
 
+HH115.HB <- full_join(HH115.HB, HH115.mid)
 
 HH115.convert <- HH115.HB %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
                                 Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
@@ -309,14 +309,15 @@ HH115.mod <- HH115.convert %>% mutate(
 Plot.title <- "HH115"
 HH115.mod $ Plot_Name <- Plot.title
 colnames(HH115.mod)
+HH115.mod$Date_Time <-  ifelse(is.na(HH115.mod$Date_Time), HH115.mod$Time_MET, HH115.mod$Date_Time)
 HH115.mod <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #Extra steps to have the MET soil data replace hoboware data
-HH115.comb <- merge(HH115.mod, HH115.mid, by.x = "Date_Time", by.y = "Time_MET", all.x = T, all.y = T)
+#HH115.comb <- merge(HH115.mod, HH115.mid, by.x = "Date_Time", by.y = "Time_MET", all.x = T, all.y = T)
 
-HH115.comb$Soil_Moisture <- ifelse(is.na(HH115.comb$Soil_Moisture), HH115.comb$Soil_Moisture_MET, HH115.comb$Soil_Moisture)
-HH115.comb$Soil_Temp <- ifelse(is.na(HH115.comb$Soil_Temp), HH115.comb$Soil_Temp_MET, HH115.comb$Soil_Temp)
-HH115.comb $ Plot_Name <- Plot.title
+#HH115.comb$Soil_Moisture <- ifelse(is.na(HH115.comb$Soil_Moisture), HH115.comb$Soil_Moisture_MET, HH115.comb$Soil_Moisture)
+#HH115.comb$Soil_Temp <- ifelse(is.na(HH115.comb$Soil_Temp), HH115.comb$Soil_Temp_MET, HH115.comb$Soil_Temp)
+#HH115.comb $ Plot_Name <- Plot.title
 #-------------------------------------#
 #Consolidating U134 data
 U134.HB <-read_bulk(directory = "U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
@@ -335,7 +336,7 @@ date.U134 <- as.Date(date.U134)
 pull.U134 <- date.U134
 
 #Focusing on the older Onset meter pulls when it was just soil moisture
-pull.U134 <- pull.U134[1:4]
+pull.U134 <- pull.U134[1:5]
 
 U134.MET <- data.frame()
 for(i in 1:length(pull.U134)){
@@ -413,6 +414,8 @@ U134.comb$Plot_Name <- Plot.title
 #--------------------------------#
 #After running one of the above plots you run these lines.
 #I wil fix this to be a loop in some way down the line
+
+
 
 comb_plot <- rbind.data.frame(B127.mod, N115.mod, HH115.comb, U134.comb)
 
