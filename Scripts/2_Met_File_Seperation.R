@@ -48,11 +48,13 @@ for(PLOT in unique(comb$Plot_Name)){
   
   split <- strsplit(old.files, "_")
   
+  split <- split[-1]
+  
   split <- lapply(split, function (x) x[2])
   
   date <- unlist(lapply(split, function (x) sub(".csv", "", x)))
   
-  date <- as.Date(date)
+  #date <- as.Date(date)
   
   latest <- max(date, na.rm = T)
   
