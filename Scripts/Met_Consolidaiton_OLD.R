@@ -1,7 +1,8 @@
 #----------------------------------------------------------------------------------------------------------------------------------#
 # Script by : Lucien Fitzpatrick
 # Project: Met_stations
-# Purpose: To convert the raw data we receive from data loggers into consistent units and formats across plots and data loggers
+# Purpose: Old script from when we had to transition betweeen two different types of data loggers. Shouldn't be needed anymore
+#         To convert the raw data we receive from data loggers into consistent units and formats across plots and data loggers
 # Inputs: Raw data from the data loggers stored in "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 # Outputs: B127.csv
 #          U134.csv
