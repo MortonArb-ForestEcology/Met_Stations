@@ -111,14 +111,12 @@ for(i in 1:length(pull.U134)){
 
 colnames(U134)
 ####Organizing the column names off Meter
-colnames(U134) <- c("Time1"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
-                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "Soil_Moisture", "Soil_Temp",
-                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature", "File_Name", "Time2", "Time3", "Time4")
 
-U134.mod <- U134 %>% mutate(Time3 = ifelse(is.na(Time3), Time4, Time3),
-                            Time2 = ifelse(is.na(Time2), Time3, Time2),
-                            Time_ON = ifelse(is.na(Time1), Time2, Time1))
+colnames(U134) <- c("Time_ON"	, "Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
+                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
+                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "AIR_2", "VAPOR_2", "Sensor Output",
+                    "Atmos_2", "VPD_3" ,"% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
+U134.mod <- U134
 
 Plot.title <- "U134"
 U134.mod $ Plot_Name <- Plot.title
@@ -166,14 +164,12 @@ for(i in 1:length(pull.N115)){
 
 colnames(N115)
 ####Organizing the column names off Meter
-colnames(N115) <- c("Time1"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
+colnames(N115) <- c("Time_ON"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
                     "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "Soil_Moisture", "Soil_Temp",
-                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature", "File_Name", "Time2", "Time3", "Time4")
+                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", 
+                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
 
-N115.mod <- N115 %>% mutate(Time3 = ifelse(is.na(Time3), Time4, Time3),
-                            Time2 = ifelse(is.na(Time2), Time3, Time2),
-                            Time_ON = ifelse(is.na(Time1), Time2, Time1))
+N115.mod <- N115 
 
 Plot.title <- "N115"
 N115.mod $ Plot_Name <- Plot.title
@@ -188,17 +184,44 @@ N115.mod <- transform(N115.mod, Date_Time = round.POSIXt(Date_Check, units = c("
 N115.mod <- subset(N115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 
 #-----------------------------------------------------------------#
-HH115 <-read_bulk(directory = "Meter_HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
+old.HH115 <- read.csv(file.path(path.out, "HH115/HH115.csv"))
+
+old.HH115$Date_Time <- as.POSIXct(strptime(old.HH115$Date_Time, format="%Y-%m-%d %H"))
+
+end.HH115 <- max(old.HH115$Date_Time, na.rm = T)
+
+end.HH115 <- sub(" .*", "", end.HH115)
+
+
+#Finding the files we need to update
+dir.HH115 <- dir(file.path(path.met, "Meter_HH115"), ".csv")
+
+split.HH115 <- strsplit(dir.HH115, "_")
+
+split.HH115 <- lapply(split.HH115, function (x) x[2])
+
+date.HH115 <- unlist(lapply(split.HH115, function (x) sub(".csv", "", x)))
+
+date.HH115 <- as.Date(date.HH115)
+
+pull.HH115 <- date.HH115[date.HH115 > end.HH115]
+#pull.HH115 <- date.HH115
+
+HH115 <- data.frame()
+for(i in 1:length(pull.HH115)){
+  date <- pull.HH115[i]
+  file <- read.csv(paste0(path.met, "Meter_HH115/HH115_", date, ".csv"))
+  HH115 <- rbind(HH115, file)
+}
+
 colnames(HH115)
 ####Organizing the column names off Meter
-colnames(HH115) <- c("Time1"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
+colnames(HH115) <- c("Time_ON"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
                     "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "Soil_Moisture", "Soil_Temp",
-                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature", "File_Name", "Time2", "Time3", "Time4")
+                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", 
+                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
 
-HH115.mod <- HH115 %>% mutate(Time3 = ifelse(is.na(Time3), Time4, Time3),
-                            Time2 = ifelse(is.na(Time2), Time3, Time2),
-                            Time_ON = ifelse(is.na(Time1), Time2, Time1))
+HH115.mod <- HH115 
 
 Plot.title <- "HH115"
 HH115.mod $ Plot_Name <- Plot.title
@@ -211,6 +234,7 @@ HH115.mod <- transform(HH115.mod, Date_Time = round.POSIXt(Date_Check, units = c
 #Removing Meter labels that are the first row
 #Want this to be hardcoded but couldn't find a way that didn't break other parts
 HH115.mod <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
+
 #------------------------------------------------------------------#
 
 comb_plot <- rbind(B127.mod, N115.mod, HH115.mod, U134.mod)
@@ -289,8 +313,8 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   final.plot <- rbind(old.plot, one_plot.loop)
   
   #Setting the path out to be in the corresponding folder
-  path.out <- paste(path.met, "Data_Clean/", PLOT, sep="")
+  path.fin <- paste(path.met, "Data_Clean/", PLOT, sep="")
   filename <- paste(PLOT, ".csv", sep = "")
-  write.csv(final.plot, file.path(path.out,  file = filename), row.names = FALSE)
+  write.csv(final.plot, file.path(path.fin,  file = filename), row.names = FALSE)
   
 }
