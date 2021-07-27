@@ -120,7 +120,7 @@ B127.mod$Air_Temp <- ifelse(is.na(B127.mod$Air_Temp_MET), B127.mod$Air_Temp, B12
 
 #For B127 the Meter soil data automatically takes over since there isn't overlap
 B127.mod <- subset(B127.mod, select = c("Date_Time", "Date_Check", "Soil_Temp",  "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR",
-                                        "Plot_Name", "Soil_Moisture_MET", "Soil_Temp_MET", "File_Name"))
+                                        "Plot_Name"))
 
 
 #-------------------------------------#
@@ -176,7 +176,9 @@ colnames(N115.HB)  <-  c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A",
                     "Time5_B", "Soil_Temp_B", "Soil_Moisture_B","PAR_B", "Air_Temp_B", "Relative_Humidity_B", "PAR_C", "Time6", 
                     "Soil_Temp_C", "Air_Temp_C") #Change column names for N115
 
-N115.HB <- full_join(N115.HB, N115.mid)
+
+
+#N115.HB <- full_join(N115.HB, N115.mid)
 
 #Consolidating columns of Fahrenheit temperature and then converting it to Celcius
 N115.convert <- N115.HB %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
@@ -204,15 +206,31 @@ N115.mod <- N115.convert %>% mutate(
                             
                             Air_Temp = ifelse(is.na(Air_Temp_Y), Air_Temp_C, Air_Temp_Y),
                             PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
+
+#Adding in missing times so missing data can be seen
+#Defining the first and last date
+Date.first <- min(as.Date(N115.mid$Time_MET), na.rm = T)
+Date.last <- max(as.Date(N115.mid$Time_MET) + 1, na.rm = T)
+#Creating a sequence in between the dates and filling in gaps
+ts <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'), 
+                 as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
+ts <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
+ts <- as.POSIXct(ts,'%m/%d/%y %I:%M:%S %p')
+time_fill <- data.frame(Date_Time=ts)
+time_fill$Soil_Moisture_MET <- N115.mid$Soil_Moisture_MET[match(time_fill$Date_Time, N115.mid$Time_MET)]
+time_fill$Soil_Temp_MET <- N115.mid$Soil_Temp_MET[match(time_fill$Date_Time, N115.mid$Time_MET)]
+
+N115.mod <- full_join(time_fill, N115.mod)
+
+N115.mod$Soil_Moisture <- ifelse(is.na(N115.mod$Soil_Moisture_MET), N115.mod$Soil_Moisture, N115.mod$Soil_Moisture_MET)
+N115.mod$Soil_Temp <- ifelse(is.na(N115.mod$Soil_Temp_MET), N115.mod$Soil_Temp, N115.mod$Soil_Temp_MET)
+
+
 Plot.title <- "N115"                            
 N115.mod $ Plot_Name <- Plot.title
 colnames(N115.mod)
-N115.mod <- subset(N115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp",  "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR",
-                                        "Plot_Name", "Soil_Moisture_MET", "Soil_Temp_MET", "File_Name"))
+N115.mod <- subset(N115.mod, select = c("Date_Time", "Date_Check", "Soil_Moisture",  "Air_Temp", "Soil_Temp", "Relative_Humidity", "PAR", "Plot_Name"))
 #Having the meter soil data overwrite the hoboware if we have meter data
-N115.mod$Soil_Moisture <- ifelse(is.na(N115.mod$Soil_Moisture_MET), N115.mod$Soil_Moisture, N115.mod$Soil_Moisture_MET)
-N115.mod$Soil_Temp <- ifelse(is.na(N115.mod$Soil_Temp_MET), N115.mod$Soil_Temp, N115.mod$Soil_Temp_MET)
-N115.mod $ Plot_Name <- Plot.title
 #--------------------------------#
 
 #Consolidating HH115 data
@@ -259,7 +277,7 @@ time.MET <- unique(HH115.MET$Time_MET)
 HH115.mid$Time_MET <- time.MET[-c(length(time.MET))]
 HH115.mid$File_Name <- "Meter"
 
-HH115.mid$Time_MET <- as.POSIXct(strptime(HH115.mid$Time_MET, format="%m/%d/%y %I:%M:%S %p"))
+#HH115.mid$Time_MET <- as.POSIXct(strptime(HH115.mid$Time_MET, format="%m/%d/%y %I:%M:%S %p"))
 
 colnames(HH115.HB) 
 
@@ -271,7 +289,7 @@ colnames(HH115.HB) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", 
                         "Time6_A", "Time5_B", "Soil_Temp_B", "Soil_Moisture_B", "PAR_B", "Air_Temp_B", "Relative_Humidity_B", "Time6_B",
                         "PAR_C", "Soil_Temp_C",  "Air_Temp_C", "Soil_Temp_D", "Soil_Moisture_C", "PAR_D", "Air_Temp_D", "Relative_Humidity_C") #Change column names for HH115
 
-HH115.HB <- full_join(HH115.HB, HH115.mid)
+#HH115.HB <- full_join(HH115.HB, HH115.mid)
 
 HH115.convert <- HH115.HB %>% mutate(Time5 = ifelse(is.na(Time5_A), as.character(Time5_B), as.character(Time5_A)),
                                 Time6 = ifelse(is.na(Time6_A), as.character(Time6_B), as.character(Time6_A)),
@@ -292,8 +310,6 @@ HH115.convert$Date_Check <- HH115.convert$Time5
 HH115.convert[is.na(HH115.convert$Date_Check), "Date_Check"] <- HH115.convert[is.na(HH115.convert$Date_Check), "Time6"] + 60*60
 HH115.convert <- transform(HH115.convert, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
-HH115.convert$Soil_Moisture_MET <- HH115.MET$Soil_Moisture_MET[match(HH115.convert$Date_Time, HH115.MET$Time_MET)]
-HH115.convert$Soil_Temp_MET <- HH115.MET$Soil_Temp_MET[match(HH115.convert$Date_Time, HH115.MET$Time_MET)]
 
 HH115.mod <- HH115.convert %>% mutate(
                               
@@ -306,18 +322,31 @@ HH115.mod <- HH115.convert %>% mutate(
                               Soil_Moisture = ifelse(is.na(Soil_Moisture_A), Soil_Moisture_B, Soil_Moisture_A),
                               Relative_Humidity = ifelse(is.na(Relative_Humidity_A), Relative_Humidity_B, Relative_Humidity_A),
                               PAR = ifelse(is.na(PAR_A), PAR_B, PAR_A))
+
+#Adding in missing times so missing data can be seen
+#Defining the first and last date
+Date.first <- min(as.Date(HH115.mid$Time_MET), na.rm = T)
+Date.last <- max(as.Date(HH115.mid$Time_MET) + 1, na.rm = T)
+#Creating a sequence in between the dates and filling in gaps
+ts <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'), 
+                 as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
+ts <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
+ts <- as.POSIXct(ts,'%m/%d/%y %I:%M:%S %p')
+time_fill <- data.frame(Date_Time=ts)
+time_fill$Soil_Moisture_MET <- HH115.mid$Soil_Moisture_MET[match(time_fill$Date_Time, HH115.mid$Time_MET)]
+time_fill$Soil_Temp_MET <- HH115.mid$Soil_Temp_MET[match(time_fill$Date_Time, HH115.mid$Time_MET)]
+
+HH115.mod <- full_join(time_fill, HH115.mod)
+
+HH115.mod$Soil_Moisture <- ifelse(is.na(HH115.mod$Soil_Moisture), HH115.mod$Soil_Moisture_MET, HH115.mod$Soil_Moisture)
+HH115.mod$Soil_Temp <- ifelse(is.na(HH115.mod$Soil_Temp), HH115.mod$Soil_Temp_MET, HH115.mod$Soil_Temp)
+
+
 Plot.title <- "HH115"
 HH115.mod $ Plot_Name <- Plot.title
 colnames(HH115.mod)
-HH115.mod$Date_Time <-  ifelse(is.na(HH115.mod$Date_Time), HH115.mod$Time_MET, HH115.mod$Date_Time)
-HH115.mod <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
+HH115.comb <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR","Plot_Name"))
 
-#Extra steps to have the MET soil data replace hoboware data
-#HH115.comb <- merge(HH115.mod, HH115.mid, by.x = "Date_Time", by.y = "Time_MET", all.x = T, all.y = T)
-
-#HH115.comb$Soil_Moisture <- ifelse(is.na(HH115.comb$Soil_Moisture), HH115.comb$Soil_Moisture_MET, HH115.comb$Soil_Moisture)
-#HH115.comb$Soil_Temp <- ifelse(is.na(HH115.comb$Soil_Temp), HH115.comb$Soil_Temp_MET, HH115.comb$Soil_Temp)
-#HH115.comb $ Plot_Name <- Plot.title
 #-------------------------------------#
 #Consolidating U134 data
 U134.HB <-read_bulk(directory = "U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
@@ -384,8 +413,6 @@ U134.convert$Date_Check <- U134.convert$Time5
 U134.convert[is.na(U134.convert$Date_Check), "Date_Check"] <- U134.convert[is.na(U134.convert$Date_Check), "Time6"] + 60*60
 U134.convert <- transform(U134.convert, Date_Time = round.POSIXt(Date_Check, units = c("hours")))
 
-U134.convert$Soil_Moisture_MET <- U134.MET$Soil_Moisture_MET[match(U134.convert$Date_Time, U134.MET$Time_MET)]
-U134.convert$Soil_Temp_MET <- U134.MET$Soil_Temp_MET[match(U134.convert$Date_Time, U134.MET$Time_MET)]
 
 
 U134.mod <- U134.convert %>% mutate(Soil_Moisture_B = ifelse(is.na(Soil_Moisture_B), Soil_Moisture_C, Soil_Moisture_B),
@@ -396,21 +423,27 @@ U134.mod <- U134.convert %>% mutate(Soil_Moisture_B = ifelse(is.na(Soil_Moisture
                             Air_Temp_C = ifelse(is.na(Air_Temp_C), Air_Temp_Y, Air_Temp_C),
                             Soil_Temp = ifelse(is.na(Soil_Temp_D), Soil_Temp_C, Soil_Temp_D),
                             Air_Temp = ifelse(is.na(Air_Temp_D), Air_Temp_C, Air_Temp_D))
+
+#Defining the first and last date
+Date.first <- min(as.Date(U134.mid$Time_MET), na.rm = T)
+Date.last <- max(as.Date(U134.mid$Time_MET) + 1, na.rm = T)
+#Creating a sequence in between the dates and filling in gaps
+ts <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'), 
+                 as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
+ts <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
+ts <- as.POSIXct(ts,'%m/%d/%y %I:%M:%S %p')
+time_fill <- data.frame(Date_Time=ts)
+time_fill$Soil_Moisture_MET <- U134.mid$Soil_Moisture_MET[match(time_fill$Date_Time, U134.mid$Time_MET)]
+time_fill$Soil_Temp_MET <- U134.mid$Soil_Temp_MET[match(time_fill$Date_Time, U134.mid$Time_MET)]
+
+U134.mod <- full_join(time_fill, U134.mod)
+U134.mod$Soil_Moisture <- ifelse(is.na(U134.mod$Soil_Moisture), U134.mod$Soil_Moisture_MET, U134.mod$Soil_Moisture)
+U134.mod$Soil_Temp <- ifelse(is.na(U134.mod$Soil_Temp), U134.mod$Soil_Temp_MET, U134.mod$Soil_Temp)
+
 Plot.title <- "U134"
 U134.mod $ Plot_Name <- Plot.title
 colnames(U134.mod)
-U134.mod <- subset(U134.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
-
-#This is removing oddly dated (Follow a different date format) values that are repeats of previous measurements
-#U134.mod <- U134.mod[!is.na(U134.mod$Date_Time),]
-
-#Extra steps to have the MET soil data replace hoboware data
-#This is not done for N115 or B127 as they don't have overlap issue
-U134.comb <- merge(U134.mod, U134.mid, by.x = "Date_Time", by.y = "Time_MET", all.x = T, all.y = T)
-
-U134.comb$Soil_Moisture <- ifelse(is.na(U134.comb$Soil_Moisture), U134.comb$Soil_Moisture_MET, U134.comb$Soil_Moisture)
-U134.comb$Soil_Temp <- ifelse(is.na(U134.comb$Soil_Temp), U134.comb$Soil_Temp_MET, U134.comb$Soil_Temp)
-U134.comb$Plot_Name <- Plot.title
+U134.comb <- subset(U134.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR","Plot_Name"))
 #--------------------------------#
 #After running one of the above plots you run these lines.
 #I wil fix this to be a loop in some way down the line
@@ -443,8 +476,8 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot.loop$Date_Check = NULL
   
   #Arranging the columns so they are standard across plots
-  one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture", "Soil_Moisture_MET", "Relative_Humidity",
-                                   "PAR", "Soil_Temp", "Soil_Temp_MET", "Air_Temp")]
+  one_plot.loop <- one_plot.loop[c("Plot_Name", "Date_Time", "Soil_Moisture",  "Relative_Humidity",
+                                   "PAR", "Soil_Temp", "Air_Temp")]
   
   #Making sure columns are of the right datatype
   #You may get warning sof NA's but that is removing the rows of Meter that function as row names
