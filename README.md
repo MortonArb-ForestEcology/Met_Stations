@@ -129,7 +129,7 @@ Soil Temperature | Celcius C | Part S-TMB-M002 | <0.03°C from 0° to 50°C
 
 ## Main Data logger ZL6
 
-  Variable   |     Unit Sensor | Resolution
+  Variable   |     Unit | Sensor | Resolution
 ------------ | ------------- | ------------- |-----------
 Air Temperature |  Celcius C | ATMOS 41 | Resolution: 0.1 °C 
 Barometric Pressue | kPA | ATMOS 41 | Resolution: 0.01 kPa 
