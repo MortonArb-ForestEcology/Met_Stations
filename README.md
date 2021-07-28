@@ -9,28 +9,40 @@ From 10/29/2020 data is gathered by both hoboware data loggers and onset data lo
 
 # Scripts
 
-## 1_Met_Consolidation.R
+## 1_ZL6_Consolidation.R
 
-Purpose: To convert the raw data we receive from data loggers into consistent units and formats across plots and data loggers
+Purpose: To convert the raw data we receive from ZL6 data loggers into consistent units and formats across plots
 
-Inputs: Raw data from the data loggers stored in "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+Inputs: Raw data from the ZL6 data loggers stored in "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 
-Outputs: B127.csv, U134.csv, N115.csv, HH115.csv
+Outputs: Harmonized data csvs: B127.csv, U134.csv, N115.csv, HH115.csv
 
-Notes: This script should be broken into two seperate scripts for the two seperate types of data loggers as we go forward
-       10/29/2020 is when the onset data loggers were installed
+Notes: This script became the main script for metstations as of 07/16/2021 when all four plots had ZL6 data loggers and atmos41 sensors
 
-## 2_Met_File_Seperation.R
+
+## 2_Met_Data_Clean.R
+
+Purpose: To clean the raw data we recieve from our met stations
+
+Inputs: Harmonized plot csv's created by script 1_ZL6_Consolidation.R (B127.csv, U134.csv, N115.csv, HH115.csv)
+
+Outputs: Harmonized data csvs (B127.csv, U134.csv, N115.csv, HH115.csv)
+
+Notes: Cleaning in this script is defined as removing impossible values (negative soil moisture) and removing measurements more than 4 standard deviations from the 2 week mean surrounding the date of measurement 
+
+
+## 3_Met_File_Seperation.R
 
 Purpose: To further process the sensor data into yearly and monthly csv's
 
-Inputs: Plot csv's created by script 1_Met_Consolidation.R (B127.csv, U134.csv, N115.csv, HH115.csv)
+Inputs: Plot csv's created by script 2_Met_Data_Clean.R (B127.csv, U134.csv, N115.csv, HH115.csv)
 
 Outputs: Yearly and Monthly csv's for each plot (B127, U134, N115, HH115)
 
-Notes: With updates this script can hopefully only work with new data
+Notes: This script is set to only add on the new data instead of creating new files for all
 
-## 3_Met_Summary.R
+
+## 4a_Met_Summary.R
 
 Purpose: To visualize the trends in our sensor data
 
@@ -40,8 +52,48 @@ Outputs: Summary figures for QAQC of met station data
 
 Notes:
 
+
+## 4b_Full_Data_Vis.RMD
+
+Purpose: To visualize the trends in our sensor data
+
+Inputs: Plot csv's created by script 1_Met_Consolidation.R (B127.csv, U134.csv, N115.csv, HH115.csv)
+
+Outputs: A markdown PDF that shows our data in it's various phases of cleaning and final figures
+
+Notes: This is an RMD file (meaning RMarkdown) and not an R file
+
+
+# Legacy scripts for Hoboware sensors
+
+## Hoboware_Met_Consolidation.R
+
+Purpose: To convert the raw data we receive from Hoboware data loggers into consistent units and formats across plots 
+
+Inputs: Raw data from the data loggers stored in "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+
+Outputs: B127.csv, U134.csv, N115.csv, HH115.csv
+
+Notes: This script is for conversion and unification of data from hoboware sensors only
+
+
+## Met_Consolidation_OLD.R
+
+Purpose: To convert the raw data we receive from data loggers into consistent units and formats across plots and data loggers
+
+Inputs: Raw data from the data loggers stored in "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+
+Outputs: B127.csv, U134.csv, N115.csv, HH115.csv
+
+Notes: This script is for harmonizing hoboware and meter sensors
+
+
 # Old Scripts
 
+## Met_QAQC.R
+
+ Old Script for QAQC. May be adopted into new workflow
+ 
 ## MetData_ConsolidatingRawData.R
 
  Old Script for data consolidation. Function is now done by 1_Met_Consolidation.R
@@ -50,9 +102,6 @@ Notes:
 
  Old script. Honestly not sure what it was used for.
 
-## Met_QAQC.R
-
- Old Script for QAQC. May be adopted into new workflow
  
  # Units
  
