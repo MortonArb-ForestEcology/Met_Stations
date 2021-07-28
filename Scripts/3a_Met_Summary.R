@@ -54,12 +54,11 @@ summary(met.stack)
 #Initial plot 
 path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/PAR and SOIL Summary"
 png(width= 750, filename= file.path(path.figures, paste0('All_Vars','.png')))
-ggplot(met.stack, aes(x = Date_Time, y = values)) +
-  facet_wrap(~var, scales="free_y") +
+ggplot(met.stack[met.stack$var == "Soil_Moisture",], aes(x = Date_Time, y = values)) +
   geom_smooth(aes(color=Plot_Name)) +
   theme_bw()+
   ggtitle("Met Stations")
-
+dev.off()
 #---------------------------#
 #Summaries of one plot across years
 
