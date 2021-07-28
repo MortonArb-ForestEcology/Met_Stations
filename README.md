@@ -131,19 +131,19 @@ Soil Temperature | Celcius C | Part S-TMB-M002 | <0.03°C from 0° to 50°C
 
   Variable   |     Unit | Sensor | Resolution
 ------------ | ------------- | ------------- |-----------
-Air Temperature |  Celcius C | ATMOS 41 | Resolution: 0.1 °C 
-Barometric Pressue | kPA | ATMOS 41 | Resolution: 0.01 kPa 
-Horizontal Wind Speed | m/s | ATMOS 41 | Resolution: 0.01 m/s 
-Humidity Sensor Temperature | Celcius C | ATMOS 41 | Resolution: 0.1 °C 
-Lightin Average Distance | km | ATMOS 41 | Resolution: 3 km 
-Lighting Strike | Strikes | ATMOS 41 | Resolution: 1 strike 
-Precipitation | mm/h | ATMOS 41 | Resolution: 0.017 mm 
+Air Temperature |  Celcius C | ATMOS 41 | 0.1 °C 
+Barometric Pressue | kPA | ATMOS 41 | 0.01 kPa 
+Horizontal Wind Speed | m/s | ATMOS 41 | 0.01 m/s 
+Humidity Sensor Temperature | Celcius C | ATMOS 41 | 0.1 °C 
+Lightin Average Distance | km | ATMOS 41 | 3 km 
+Lighting Strike | Strikes | ATMOS 41 | 1 strike 
+Precipitation | mm/h | ATMOS 41 | 0.017 mm 
 Relative Humidity | % water vapor need for saturaiton at current temperature | ATMOS 41 | 0.1% RH
 Soil Moisture | Volumetric water content m3/m3 | Teros 11 | 0.001 m3/m3
-Soil Temperature | Celcius C | Teros 11 | Resolution: 0.1 °C
-Solar Radiation | W/m2 (Solar irradiance) | ATMOS 41 | Resolution: 1 W/m2
+Soil Temperature | Celcius C | Teros 11 | 0.1 °C
+Solar Radiation | W/m2 (Solar irradiance) | ATMOS 41 |  1 W/m2
 Vapor Pressure | kPa | ATMOS 41 | 0.01 kPa
-Wind Direction | Degrees (1°-360°) | ATMOS 41 | Resolution: 1° 
-Wind Gust | m/s | ATMOS 41 | Resolution: 0.01 m/s 
+Wind Direction | Degrees (1°-360°) | ATMOS 41 | 1° 
+Wind Gust | m/s | ATMOS 41 | 0.01 m/s 
 
 
