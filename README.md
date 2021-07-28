@@ -5,8 +5,11 @@ G:\My Drive\East Woods\Rollinson_Monitoring\Protocols\Met_Stations
 
 # Monitoring History
 Monitoring began on 2017-06-15 10:00:00
+
 All weather data was gathered by Hoboware data loggers until 10/29/2020.
+
 Starting 10/29/2020 Plot B127 started recording all weather using ZL6 data loggers and meter sensors. Plots HH115, N115, U134, started recording additional soil moisture and soil temperature readings using Zl6 data loggers and meter sensors in conjuction with Hoboware weatehr data (including soil moisture and temp)
+
 Starting 07/02/2021 All weather data was gathered by ZL6 data loggers
 
 # Scripts
