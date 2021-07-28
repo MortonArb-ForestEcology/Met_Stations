@@ -20,7 +20,7 @@ library(tidyr)
 path.personal <- "C:/Users/lfitzpatrick"
 path.data <- "/GitHub/Met_Stations/Data_raw_inputs/Single_Plots"
 path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
-path.out <- paste(path.met, "Data_clean/", sep="")
+path.out <- paste(path.met, "Data_clean/Clean_data", sep="")
 setwd(path.out)
 
 
