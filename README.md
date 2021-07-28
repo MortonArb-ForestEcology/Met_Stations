@@ -3,9 +3,11 @@
 Mainteneance records for the data sensors and loggers can be found in this folder
 G:\My Drive\East Woods\Rollinson_Monitoring\Protocols\Met_Stations
 
-The data was gathered by Hoboware data loggers until 10/29/2020.
-
-From 10/29/2020 data is gathered by both hoboware data loggers and onset data loggers with the exception of B127 which is only onset
+# Monitoring History
+Monitoring began on 2017-06-15 10:00:00
+All weather data was gathered by Hoboware data loggers until 10/29/2020.
+Starting 10/29/2020 Plot B127 started recording all weather using ZL6 data loggers and meter sensors. Plots HH115, N115, U134, started recording additional soil moisture and soil temperature readings using Zl6 data loggers and meter sensors in conjuction with Hoboware weatehr data (including soil moisture and temp)
+Starting 07/02/2021 All weather data was gathered by ZL6 data loggers
 
 # Scripts
 
@@ -17,7 +19,7 @@ Inputs: Raw data from the ZL6 data loggers stored in "G:/My Drive/East Woods/Rol
 
 Outputs: Harmonized data csvs: B127.csv, U134.csv, N115.csv, HH115.csv
 
-Notes: This script became the main script for metstations as of 07/16/2021 when all four plots had ZL6 data loggers and atmos41 sensors
+Notes: This script became the main script for metstations as of 07/16/2021 when all four plots had ZL6 data loggers and atmos41 sensors gathering data (They were installed two weeks prior)
 
 
 ## 2_Met_Data_Clean.R
@@ -105,33 +107,40 @@ Notes: This script is for harmonizing hoboware and meter sensors
  
  # Units
  
- ## Hoboware
+ ## Onset/Hoboware 
+ 
+ ## Main Data logger H21-002
+ 
+ Plot HH115 used a H21-USB data logger from 08/27/2020 to 07/02/2021
 
-  Variable   |     Unit
------------- | -------------
-Air Temperature |  Celcius C
-PAR (phoysythetically active radiation | umol/m2/sec
-Relative Humidity | % water vapor need for saturaiton at current temperature
-Soil Moisture | Volumetric water content m3/m3
-Soil Temperature | Celcius C
+Variable   |     Unit  |   Sensor | Resolution 
+------------ | ------------ | ------------- |-----------
+Air Temperature |  Celcius C | Part S-THB-M002 | 0.02°C at 25°C (0.04°F at 77°F) 
+PAR (phoysythetically active radiation) | umol/m2/sec | Part S-LIA-M003 | 2.5 umol/m2/sec
+Relative Humidity | % water vapor need for saturaiton at current temperature | Part S-THB-M002 | 0.1% RH
+Soil Moisture | Volumetric water content m3/m3 | Part S-SMC-M005 | ±0.031 m³/m³ (±3.1%) typical 0 to 50°C (32° to 122°F)
+Soil Temperature | Celcius C | Part S-TMB-M002 | <0.03°C from 0° to 50°C
 
 
 ## Meter (ZL6/Atmos41)
 
-  Variable   |     Unit
------------- | -------------
-Air Temperature |  Celcius C
-Barometric Pressue |kPA
-Horizontal Wind Speed | m/s
-Humidity Sensor Temperature | Celcius C
-Lightin Average Distance | km
-Lighting Strike | Strikes
-Precipitation | mm/h
-Relative Humidity | % water vapor need for saturaiton at current temperature
-Soil Moisture | Volumetric water content m3/m3
-Soil Temperature | Celcius C
-Solar Radiation | W/m2 (Solar irradiance)
-Vapor Pressure | kPa
-Wind Direction | Degrees (1-360)
-Wind Gust | m/s
+## Main Data logger ZL6
+
+  Variable   |     Unit Sensor | Resolution
+------------ | ------------- | ------------- |-----------
+Air Temperature |  Celcius C | ATMOS 41 | Resolution: 0.1 °C 
+Barometric Pressue | kPA | ATMOS 41 | Resolution: 0.01 kPa 
+Horizontal Wind Speed | m/s | ATMOS 41 | Resolution: 0.01 m/s 
+Humidity Sensor Temperature | Celcius C | ATMOS 41 | Resolution: 0.1 °C 
+Lightin Average Distance | km | ATMOS 41 | Resolution: 3 km 
+Lighting Strike | Strikes | ATMOS 41 | Resolution: 1 strike 
+Precipitation | mm/h | ATMOS 41 | Resolution: 0.017 mm 
+Relative Humidity | % water vapor need for saturaiton at current temperature | ATMOS 41 | 0.1% RH
+Soil Moisture | Volumetric water content m3/m3 | Teros 11 | 0.001 m3/m3
+Soil Temperature | Celcius C | Teros 11 | Resolution: 0.1 °C
+Solar Radiation | W/m2 (Solar irradiance) | ATMOS 41 | Resolution: 1 W/m2
+Vapor Pressure | kPa | ATMOS 41 | 0.01 kPa
+Wind Direction | Degrees (1°-360°) | ATMOS 41 | Resolution: 1° 
+Wind Gust | m/s | ATMOS 41 | Resolution: 0.01 m/s 
+
 
