@@ -19,19 +19,27 @@ path.met <- "C:/Users/lfitzpatrick/Documents/Meter/"
 #--------------------------------#
 #Only pulling what we need
 
-PLOT <- "B127"
+PLOT <- "U134"
 
 Today <- Sys.Date()
-
-Today <- "2021-06-07"
 
 start_plot <- read.csv(file.path(path.met, paste0(PLOT, "_", Today, ".csv")))
 colnames(start_plot)
 ####Organizing the column names off Meter
-colnames(start_plot) <- c("Time_ON"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
-                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", "Soil_Moisture", "Soil_Temp",
-                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
+
+if(PLOT == "U134"){
+  
+  colnames(start_plot) <- c("Time_ON"	, "Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
+                            "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
+                            "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "AIR_2", "VAPOR_2", "Sensor Output",
+                            "Atmos_2", "VPD_3" ,"% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
+} else {
+  colnames(start_plot) <- c("Time_ON"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
+                            "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
+                            "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", "Soil_Moisture", "Soil_Temp",
+                            "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
+
+}
 
 start_plot$Plot_Name <- PLOT
 
