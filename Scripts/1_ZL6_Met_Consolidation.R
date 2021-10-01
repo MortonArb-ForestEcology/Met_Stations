@@ -19,7 +19,7 @@ library(tidyr)
 #Setting File paths
 path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 setwd(path.met)
-path.out <- paste(path.met, "Data_Clean", sep="")
+path.out <- paste(path.met, "Data_Clean/Clean_data", sep="")
 
 #This should hopefully become a loop but I don't want to structure it that way until we have the data and can see for sure
 #--------------------------------#
@@ -98,7 +98,7 @@ date.U134 <- unlist(lapply(split.U134, function (x) sub(".csv", "", x)))
 
 date.U134 <- as.Date(date.U134)
 
-pull.U134 <- date.U134[date.U134 > end.U134]
+pull.U134 <- date.U134[date.U134 >= end.U134]
 #pull.U134 <- date.U134
 
 U134 <- data.frame()
@@ -113,8 +113,8 @@ colnames(U134)
 ####Organizing the column names off Meter
 
 colnames(U134) <- c("Time_ON"	, "Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
-                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", "AIR_2", "VAPOR_2", "Sensor Output",
+                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
+                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", "AIR_2", "VAPOR_2", "Sensor Output",
                     "Atmos_2", "VPD_3" ,"% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
 U134.mod <- U134
 
@@ -152,7 +152,7 @@ date.N115 <- unlist(lapply(split.N115, function (x) sub(".csv", "", x)))
 
 date.N115 <- as.Date(date.N115)
 
-pull.N115 <- date.N115[date.N115 > end.N115]
+pull.N115 <- date.N115[date.N115 >= end.N115]
 #pull.N115 <- date.N115
 
 N115 <- data.frame()
@@ -165,8 +165,8 @@ for(i in 1:length(pull.N115)){
 colnames(N115)
 ####Organizing the column names off Meter
 colnames(N115) <- c("Time_ON"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
-                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", 
+                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
+                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", 
                     "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
 
 N115.mod <- N115 
@@ -204,7 +204,7 @@ date.HH115 <- unlist(lapply(split.HH115, function (x) sub(".csv", "", x)))
 
 date.HH115 <- as.Date(date.HH115)
 
-pull.HH115 <- date.HH115[date.HH115 > end.HH115]
+pull.HH115 <- date.HH115[date.HH115 >= end.HH115]
 #pull.HH115 <- date.HH115
 
 HH115 <- data.frame()
@@ -217,8 +217,8 @@ for(i in 1:length(pull.HH115)){
 colnames(HH115)
 ####Organizing the column names off Meter
 colnames(HH115) <- c("Time_ON"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
-                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"Relative_Humidity", 
+                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
+                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", 
                     "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
 
 HH115.mod <- HH115 
@@ -269,10 +269,11 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   
   #Making sure columns are of the right datatype
   #You may get warning sof NA's but that is removing the rows of Meter that function as row names
-  one_plot.loop$Relative_Humidity <- as.numeric(one_plot.loop$Relative_Humidity)
-  one_plot.loop$Soil_Moisture <- as.numeric(one_plot.loop$Soil_Moisture)
-  one_plot.loop$Soil_Temp <- as.numeric(one_plot.loop$Soil_Temp)
-  one_plot.loop$Air_Temp <- as.numeric(one_plot.loop$Air_Temp)
+  one_plot.loop$Relative_Humidity <- as.numeric(as.character(one_plot.loop$Relative_Humidity))
+  one_plot.loop$Soil_Moisture <- as.numeric(as.character(one_plot.loop$Soil_Moisture))
+  one_plot.loop$Soil_Temp <- as.numeric(as.character(one_plot.loop$Soil_Temp))
+  one_plot.loop$Air_Temp <- as.numeric(as.character(one_plot.loop$Air_Temp))
+  one_plot.loop$PAR <- as.numeric(as.character(one_plot.loop$PAR))
   
   
   #Marking NA values as NA
@@ -308,12 +309,16 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   
   first <- min(one_plot.loop$Date_Time)
   
-  old.plot <- old.plot[old.plot$Date_Time < first, ]
+  old.plot <- old.plot[as.Date(old.plot$Date_Time) < first, ]
+  
+  old.plot$Date <- as.Date(old.plot$Date)
+  one_plot.loop$Date <- as.Date(one_plot.loop$Date_Time)
+  one_plot.loop$SIGFLAG <- NA
   
   final.plot <- rbind(old.plot, one_plot.loop)
   
   #Setting the path out to be in the corresponding folder
-  path.fin <- paste(path.met, "Data_Clean/", PLOT, sep="")
+  path.fin <- paste(path.met, "Data_Clean/Harmonized_data/", PLOT, sep="")
   filename <- paste(PLOT, ".csv", sep = "")
   write.csv(final.plot, file.path(path.fin,  file = filename), row.names = FALSE)
   
