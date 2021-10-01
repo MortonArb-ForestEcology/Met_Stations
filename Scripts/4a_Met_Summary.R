@@ -20,7 +20,7 @@ library(plotly)
 #setting paths
 Plot.title = "B127"
 path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
-path.out <- paste(path.met, "Data_clean/", sep="")
+path.out <- paste(path.met, "Data_clean/Clean_data", sep="")
 
 setwd(path.out)
 
