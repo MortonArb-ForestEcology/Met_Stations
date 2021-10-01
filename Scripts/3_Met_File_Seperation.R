@@ -44,7 +44,7 @@ for(PLOT in unique(comb$Plot_Name)){
   one_plot.loop <- comb[comb$Plot_Name == PLOT,]
   
   #Making sure we only update and add the neccessary files
-  old.files <- dir(file.path(path.met,"Data_clean" ,PLOT), ".csv")
+  old.files <- dir(file.path(path.met,"Data_clean/Clean_data" ,PLOT), ".csv")
   
   split <- strsplit(old.files, "_")
   
@@ -54,11 +54,15 @@ for(PLOT in unique(comb$Plot_Name)){
   
   date <- unlist(lapply(split, function (x) sub(".csv", "", x)))
   
-  #date <- as.Date(date)
+  #This is working right now for reasons I don't understand. Why can't it translate this date?
+  #test <- as.Date(as.character(date), format = "%Y-%m")
   
-  latest <- max(date, na.rm = T)
+  #latest <- max(date, na.rm = T)
+
   
-  one_plot.loop <- one_plot.loop[one_plot.loop$Date_Time >= latest, ]
+  one_plot.loop$Date_Time <- as.Date(one_plot.loop$Date_Time)
+  
+  #one_plot.loop <- one_plot.loop[one_plot.loop$Date_Time >= latest, ]
   
   for (i in rows:nrow(one_plot.loop)){
     Date.month <- one_plot.loop[i, "Date_Time"]
@@ -98,6 +102,8 @@ for(PLOT in unique(comb$Plot_Name)){
   one_plot.loop <- comb[comb$Plot_Name == PLOT,]
   
   year <- year(Sys.Date())
+  
+  one_plot.loop$Date_Time <- as.Date(one_plot.loop$Date_Time)
   
   one_plot.loop <- one_plot.loop[one_plot.loop$Date_Time >= year, ]
   
