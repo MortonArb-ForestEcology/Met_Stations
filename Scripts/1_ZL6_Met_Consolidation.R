@@ -34,7 +34,6 @@ end.B127 <- max(old.B127$Date_Time, na.rm = T)
 
 end.B127 <- sub(" .*", "", end.B127)
 
-
 #Finding the files we need to update
 dir.B127 <- dir(file.path(path.met, "Meter_B127"), ".csv")
 
@@ -58,11 +57,17 @@ for(i in 1:length(pull.B127)){
 
 colnames(B127)
 ####Organizing the column names off Meter
-colnames(B127) <- c("Time_ON"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
-                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", "Soil_Moisture", "Soil_Temp",
-                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
-B127.mod <- B127
+colnames(B127) <- c("Time_ON"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"0 Wind Direction",
+                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "0 X-axis Level",
+                    "0 Y-axis Level", "mm/h Max Precip Rate", "0C RH Sensor Temp",	"kPa VPD", "Soil_Moisture", "Soil_Temp",
+                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "0C Logger Temperature")
+
+B127.mod <- B127[3:nrow(B127),]
+
+#Calculating the saturated vapour pressure to calculate relative humidty
+B127.mod$Sat_vap_press <- .611*exp((17.502*as.numeric(B127.mod$Air_Temp))/(240.97+as.numeric(B127.mod$Air_Temp)))
+
+B127.mod$Relative_Humidity <- (as.numeric(B127.mod$`kPa Vapor Pressure`)/B127.mod$Sat_vap_press)*100
 
 Plot.title <- "B127"
 B127.mod $ Plot_Name <- Plot.title
@@ -86,6 +91,7 @@ end.U134 <- max(old.U134$Date_Time, na.rm = T)
 
 end.U134 <- sub(" .*", "", end.U134)
 
+end.U134 <- "2021-07-03"
 
 #Finding the files we need to update
 dir.U134 <- dir(file.path(path.met, "Meter_U134"), ".csv")
@@ -112,11 +118,16 @@ for(i in 1:length(pull.U134)){
 colnames(U134)
 ####Organizing the column names off Meter
 
-colnames(U134) <- c("Time_ON"	, "Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
-                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", "AIR_2", "VAPOR_2", "Sensor Output",
-                    "Atmos_2", "VPD_3" ,"% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
-U134.mod <- U134
+colnames(U134) <- c("Time_ON"	, "Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"0 Wind Direction",
+                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "0 X-axis Level",
+                    "0 Y-axis Level", "mm/h Max Precip Rate", "0C RH Sensor Temp",	"kPa VPD", "AIR_2", "VAPOR_2", "Sensor Output",
+                    "Atmos_2", "VPD_3" ,"% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "0C Logger Temperature")
+U134.mod <- U134[3:nrow(U134),]
+
+#Calculating the saturated vapour pressure to calculate relative humidty
+U134.mod$Sat_vap_press <- .611*exp((17.502*as.numeric(U134.mod$Air_Temp))/(240.97+as.numeric(U134.mod$Air_Temp)))
+
+U134.mod$Relative_Humidity <- (as.numeric(U134.mod$`kPa Vapor Pressure`)/U134.mod$Sat_vap_press)*100
 
 Plot.title <- "U134"
 U134.mod $ Plot_Name <- Plot.title
@@ -139,6 +150,8 @@ old.N115$Date_Time <- as.POSIXct(strptime(old.N115$Date_Time, format="%Y-%m-%d %
 end.N115 <- max(old.N115$Date_Time, na.rm = T)
 
 end.N115 <- sub(" .*", "", end.N115)
+
+end.N115 <- "2021-07-03"
 
 
 #Finding the files we need to update
@@ -164,12 +177,17 @@ for(i in 1:length(pull.N115)){
 
 colnames(N115)
 ####Organizing the column names off Meter
-colnames(N115) <- c("Time_ON"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
-                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", 
-                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
+colnames(N115) <- c("Time_ON"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"0 Wind Direction",
+                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "0 X-axis Level",
+                    "0 Y-axis Level", "mm/h Max Precip Rate", "0C RH Sensor Temp",	"kPa VPD", 
+                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "0C Logger Temperature")
 
-N115.mod <- N115 
+N115.mod <- N115[3:nrow(N115),]
+
+#Calculating the saturated vapour pressure to calculate relative humidty
+N115.mod$Sat_vap_press <- .611*exp((17.502*as.numeric(N115.mod$Air_Temp))/(240.97+as.numeric(N115.mod$Air_Temp)))
+
+N115.mod$Relative_Humidity <- (as.numeric(N115.mod$`kPa Vapor Pressure`)/N115.mod$Sat_vap_press)*100 
 
 Plot.title <- "N115"
 N115.mod $ Plot_Name <- Plot.title
@@ -191,6 +209,8 @@ old.HH115$Date_Time <- as.POSIXct(strptime(old.HH115$Date_Time, format="%Y-%m-%d
 end.HH115 <- max(old.HH115$Date_Time, na.rm = T)
 
 end.HH115 <- sub(" .*", "", end.HH115)
+
+end.HH115 <- "2021-07-03"
 
 
 #Finding the files we need to update
@@ -216,12 +236,17 @@ for(i in 1:length(pull.HH115)){
 
 colnames(HH115)
 ####Organizing the column names off Meter
-colnames(HH115) <- c("Time_ON"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
-                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "Relative_Humidity", "° X-axis Level",
-                    "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp",	"kPa VPD", 
-                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "°C Logger Temperature")
+colnames(HH115) <- c("Time_ON"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"0 Wind Direction",
+                    "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "0 X-axis Level",
+                    "0 Y-axis Level", "mm/h Max Precip Rate", "0C RH Sensor Temp",	"kPa VPD", 
+                    "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "0C Logger Temperature")
 
-HH115.mod <- HH115 
+HH115.mod <- HH115[3:nrow(HH115),]
+
+#Calculating the saturated vapour pressure to calculate relative humidty
+HH115.mod$Sat_vap_press <- .611*exp((17.502*as.numeric(HH115.mod$Air_Temp))/(240.97+as.numeric(HH115.mod$Air_Temp)))
+
+HH115.mod$Relative_Humidity <- (as.numeric(HH115.mod$`kPa Vapor Pressure`)/HH115.mod$Sat_vap_press)*100
 
 Plot.title <- "HH115"
 HH115.mod $ Plot_Name <- Plot.title
@@ -237,7 +262,7 @@ HH115.mod <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp"
 
 #------------------------------------------------------------------#
 
-comb_plot <- rbind(B127.mod, N115.mod, HH115.mod, U134.mod)
+comb_plot <- rbind(N115.mod, HH115.mod, U134.mod)
 
 for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot <- comb_plot[comb_plot$Plot_Name == PLOT,]
