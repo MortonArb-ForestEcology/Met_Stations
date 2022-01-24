@@ -250,7 +250,7 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   }
   
   #Setting the path out to be in the corresponding folder
-  path.out <- paste(path.met, "Data_Clean/", PLOT, sep="")
+  path.out <- paste(path.met, "Data_Clean/Clean_data/", PLOT, sep="")
   filename <- paste(PLOT, ".csv", sep = "")
   write.csv(one_plot.loop, file.path(path.out,  file = filename), row.names = FALSE)
   
