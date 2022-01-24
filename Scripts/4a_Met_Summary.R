@@ -21,6 +21,9 @@ library(plotly)
 Plot.title = "B127"
 path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 path.out <- paste(path.met, "Data_clean/Clean_data", sep="")
+path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/PAR and SOIL Summary"
+path.qaqc <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/QAQC_figs"
+
 
 setwd(path.out)
 
@@ -29,6 +32,28 @@ plot.N115 <- read.csv("N115/N115.csv")
 plot.HH115 <- read.csv("HH115/HH115.csv")
 plot.U134 <- read.csv("U134/U134.csv")
 
+comb <- rbind(plot.B127, plot.N115, plot.HH115, plot.U134)
+comb$Date_Time <- as.POSIXct(comb$Date_Time)
+comb$yday <- yday(comb$Date_Time)
+comb$year <- year(comb$Date_Time)
+
+
+agg.stack <- aggregate(cbind(Soil_Temp, Soil_Moisture, PAR, Air_Temp, Relative_Humidity)~Plot_Name+year+yday, data = comb, FUN = median)
+
+plot.stack <- stack(agg.stack[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
+names(plot.stack) <- c("values", "var")
+plot.stack[,c("Plot_Name", "year", "yday")] <- agg.stack[,c("Plot_Name", "year", "yday")]
+
+
+for(PLOT in unique(plot.stack$Plot_Name)){
+  png(width= 750, filename= file.path(path.qaqc, paste0(PLOT, 'All_Vars','.png')))
+  ggplot() +
+    facet_wrap(~var,scales="free_y") +
+    geom_smooth(aes(x = yday, y = values, color=as.character(year)), data = plot.stack[plot.stack$Plot_Name == PLOT,]) +
+    theme_bw()+
+    ggtitle(paste0(PLOT, " Yearly Time Series using daily median"))
+  dev.off()
+}
 #---------------------------#
 #Summary of all plots
 
@@ -57,7 +82,7 @@ png(width= 750, filename= file.path(path.figures, paste0('All_Vars','.png')))
 ggplot(met.stack[met.stack$var == "Soil_Moisture",], aes(x = Date_Time, y = values)) +
   geom_smooth(aes(color=Plot_Name)) +
   theme_bw()+
-  ggtitle("Met Stations")
+  ggtitle("Met Stations Soil Moisture")
 dev.off()
 #---------------------------#
 #Summaries of one plot across years
