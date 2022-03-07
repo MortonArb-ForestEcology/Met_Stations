@@ -91,8 +91,6 @@ end.U134 <- max(old.U134$Date_Time, na.rm = T)
 
 end.U134 <- sub(" .*", "", end.U134)
 
-end.U134 <- "2021-07-03"
-
 #Finding the files we need to update
 dir.U134 <- dir(file.path(path.met, "Meter_U134"), ".csv")
 
@@ -151,9 +149,6 @@ end.N115 <- max(old.N115$Date_Time, na.rm = T)
 
 end.N115 <- sub(" .*", "", end.N115)
 
-end.N115 <- "2021-07-03"
-
-
 #Finding the files we need to update
 dir.N115 <- dir(file.path(path.met, "Meter_N115"), ".csv")
 
@@ -210,9 +205,6 @@ end.HH115 <- max(old.HH115$Date_Time, na.rm = T)
 
 end.HH115 <- sub(" .*", "", end.HH115)
 
-end.HH115 <- "2021-07-03"
-
-
 #Finding the files we need to update
 dir.HH115 <- dir(file.path(path.met, "Meter_HH115"), ".csv")
 
@@ -262,7 +254,7 @@ HH115.mod <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp"
 
 #------------------------------------------------------------------#
 
-comb_plot <- rbind(N115.mod, HH115.mod, U134.mod)
+comb_plot <- rbind(B127.mod,  N115.mod, HH115.mod, U134.mod)
 
 for(PLOT in unique(comb_plot$Plot_Name)){
   one_plot <- comb_plot[comb_plot$Plot_Name == PLOT,]
