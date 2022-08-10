@@ -12,7 +12,6 @@
 #        removing measurements more than 4 standard deviations from the 2 week mean surrounding the date of measurement
 #         
 #-----------------------------------------------------------------------------------------------------------------------------------#
-
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -20,19 +19,15 @@ library(lubridate)
 
 #Setting file paths
 path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
-path.out <- paste(path.met, "Data_clean/Harmonized_data", sep="")
+path.out <- paste(path.met, "Data_processed/Harmonized_data", sep="")
 setwd(path.out)
-
-
-#Currently using the Month_Separation script because combining the seperate files results in 147 columns
-#Will probably seperate the current month script into a QAQC script and the seperation script
 
 # Seperating by chosen year and month values
 
-plot.B127 <- read.csv("B127/B127.csv")
-plot.N115 <- read.csv("N115/N115.csv")
-plot.HH115 <- read.csv("HH115/HH115.csv")
-plot.U134 <- read.csv("U134/U134.csv")
+plot.B127 <- read.csv("B127.csv")
+plot.N115 <- read.csv("N115.csv")
+plot.HH115 <- read.csv("HH115.csv")
+plot.U134 <- read.csv("U134.csv")
 
 comb <- rbind(plot.B127, plot.N115, plot.HH115, plot.U134)
 comb$Date_Time <- as.POSIXct(comb$Date_Time)
@@ -52,6 +47,7 @@ for(PLOT in unique(comb$Plot_Name)){
   for(DOY in unique(format(temp$Date))){
     DOY <- as.Date(DOY)
     DATES <- seq.Date(from = (DOY - 7), to = (DOY + 7), by = 1)
+    #Checking if a value deviates illogically from other values centered around it
     for(VAL in metrics){
       SM.mean <- mean(temp[temp$Date %in% DATES, VAL], na.rm = T)
       SM.sd <- sd(temp[temp$Date %in% DATES, VAL], na.rm = T)
@@ -60,15 +56,18 @@ for(PLOT in unique(comb$Plot_Name)){
   }
   df.clean <- rbind(df.clean, temp)
 }
+
+#Removing observations that are flagged as illogical
+df.clean$SIGFLAG <- ifelse(is.na(df.clean$SIGFLAG), F, (df.clean$SIGFLAG) ) 
+
 df.clean <- df.clean[which(df.clean$SIGFLAG == F),]
 df.clean$Date_Time <- as.POSIXct(df.clean$Date_Time)
 
+#Saving the clean data into individual plot files
 for(PLOT in unique(df.clean$Plot_Name)){
   temp <- df.clean[df.clean$Plot_Name == PLOT,]
-  path.fin <- paste(path.met, "Data_Clean/Clean_data/", PLOT, sep="")
+  path.fin <- paste(path.met, "Data_processed/Clean_data/", PLOT, sep="")
   filename <- paste(PLOT, ".csv", sep = "")
   write.csv(temp, file.path(path.fin,  file = filename), row.names = FALSE)
 }
-
-
 
