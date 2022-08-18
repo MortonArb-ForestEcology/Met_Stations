@@ -2,7 +2,7 @@
 # Script by : Lucien Fitzpatrick
 # Project: Met_stations
 # Purpose: To visualize the trends in our sensor data
-# Inputs: Plot csv's created by script 1_Met_Consolidation.R
+# Inputs: Plot csv's created by script 2_Met_Data_Clean.R
 #         B127.csv
 #         U134.csv
 #         N115.csv
@@ -18,19 +18,16 @@ library(ggplot2)
 library(plotly)
 
 #setting paths
-Plot.title = "B127"
-path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
-path.out <- paste(path.met, "Data_clean/Clean_data", sep="")
-path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/PAR and SOIL Summary"
-path.qaqc <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/QAQC_figs"
+path.met <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+path.out <- paste(path.met, "Data_processed/Clean_data", sep="")
+path.qaqc <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/QAQC_figs/"
 
 
-setwd(path.out)
-
-plot.B127 <- read.csv("B127/B127.csv")
-plot.N115 <- read.csv("N115/N115.csv")
-plot.HH115 <- read.csv("HH115/HH115.csv")
-plot.U134 <- read.csv("U134/U134.csv")
+# Seperating by chosen year and month values
+plot.B127 <- read.csv(file.path(path.out,"B127/B127.csv"))
+plot.N115 <- read.csv(file.path(path.out,"N115/N115.csv"))
+plot.HH115 <- read.csv(file.path(path.out,"HH115/HH115.csv"))
+plot.U134 <- read.csv(file.path(path.out,"U134/U134.csv"))
 
 comb <- rbind(plot.B127, plot.N115, plot.HH115, plot.U134)
 comb$Date_Time <- as.POSIXct(comb$Date_Time)
@@ -47,11 +44,12 @@ plot.stack[,c("Plot_Name", "year", "yday")] <- agg.stack[,c("Plot_Name", "year",
 
 for(PLOT in unique(plot.stack$Plot_Name)){
   png(width= 750, filename= file.path(path.qaqc, paste0(PLOT, 'All_Vars','.png')))
-  ggplot() +
+  fig <- ggplot() +
     facet_wrap(~var,scales="free_y") +
     geom_smooth(aes(x = yday, y = values, color=as.character(year)), data = plot.stack[plot.stack$Plot_Name == PLOT,]) +
     theme_bw()+
     ggtitle(paste0(PLOT, " Yearly Time Series using daily median"))
+  print(fig)
   dev.off()
 }
 #---------------------------#

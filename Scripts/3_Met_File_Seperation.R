@@ -18,7 +18,6 @@ library(tidyr)
 #Setting file paths
 path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 path.out <- paste(path.met, "Data_processed/Clean_data", sep="")
-setwd(path.out)
 
 # Seperating by chosen year and month values
 plot.B127 <- read.csv(file.path(path.out,"B127/B127.csv"))
