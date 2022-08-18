@@ -16,7 +16,7 @@ library(lubridate)
 library(tidyr)
 
 #Setting file paths
-path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+path.met <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 path.out <- paste(path.met, "Data_processed/Clean_data", sep="")
 
 # Seperating by chosen year and month values
@@ -83,23 +83,35 @@ for(PLOT in unique(comb$Plot_Name)){
   } 
 }
 
+#Need to also add a check for the year rolls over to make a final version for that year.
+
 
 # Seperating by chosen year
 for(PLOT in unique(comb$Plot_Name)){
+  
+  dir.plot <- dir(file.path(path.out, PLOT), ".csv")
+  
+  #Way of finding the oldest and most recent file to be deleted.
+  old.plot <- dir.plot[match(1, stringr::str_detect(dir.plot, "up_to_"))]
+  
+  if (file.exists(file.path(path.out, PLOT, old.plot))) {
+    unlink(file.path(path.out, PLOT, old.plot))
+    cat("The file is deleted")
+  }
+  
   one_plot.loop <- comb[comb$Plot_Name == PLOT,]
+  one_plot.loop$year <- lubridate::year(one_plot.loop$Date_Time)
   
   year <- year(Sys.Date())
   
   one_plot.loop$Date_Time <- as.POSIXct(one_plot.loop$Date_Time)
   
-  one_plot.loop <- one_plot.loop[one_plot.loop$Date_Time >= year, ]
-  for(YR in 2017:year){
-    Date.min <- paste(YR, "-01-01 00:00:00", sep="")
-    Date.max <- paste(YR, "-12-31", " 23:59:59", sep="")
-    one_plot.year <- subset(one_plot.loop, Date_Time >= as.POSIXlt(Date.min) & Date_Time <= as.POSIXlt(Date.max))
-    filename <- paste(PLOT,"_", YR, ".csv", sep = "")
-    write.csv(one_plot.year, file.path(path.out, PLOT,  file = filename), row.names = FALSE)
-  }
+  one_plot.year <- one_plot.loop[one_plot.loop$year <= year, ]
+  Date.min <- min(one_plot.year$Date_Time)
+  Date.max <- max(one_plot.year$Date_Time)
+  filename <- paste(PLOT,"_2022_up_to_" , as.Date(Date.max), ".csv", sep = "")
+  write.csv(one_plot.year, file.path(path.out, PLOT,  file = filename), row.names = FALSE)
+  
 }
 
 
