@@ -35,7 +35,7 @@ comb$yday <- yday(comb$Date_Time)
 comb$year <- year(comb$Date_Time)
 
 
-agg.stack <- aggregate(cbind(Soil_Temp, Soil_Moisture, PAR, Air_Temp, Relative_Humidity)~Plot_Name+Date_Time, data = comb, FUN = median)
+agg.stack <- aggregate(cbind(Soil_Temp, Soil_Moisture, PAR, Air_Temp, Relative_Humidity)~Plot_Name+Date_Time, data = comb, FUN = median, na.action = NULL)
 
 plot.stack <- stack(agg.stack[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
 names(plot.stack) <- c("values", "var")
@@ -43,12 +43,23 @@ plot.stack[,c("Plot_Name", "Date_Time")] <- agg.stack[,c("Plot_Name", "Date_Time
 
 
 for(VAR in unique(plot.stack$var)){
-  png(width= 750, filename= file.path(path.qaqc, paste0(VAR, 'All_PLOTS','.png')))
+  png(width= 750, filename= file.path(path.qaqc, paste0('All_PLOTS_',VAR,'.png')))
   fig <- ggplot() +
     facet_wrap(~Plot_Name, scales="free_y") +
     geom_line(aes(x = Date_Time, y = values), data = plot.stack[plot.stack$var == VAR,]) +
     theme_bw()+
     ggtitle(paste0(VAR, " Yearly Time Series using daily median"))
+  print(fig)
+  dev.off()
+}
+
+for(PLOT in unique(plot.stack$Plot_Name)){
+  png(width= 750, filename= file.path(path.qaqc, paste0('PLOT_', PLOT, '_All_VARS','.png')))
+  fig <- ggplot() +
+    facet_wrap(~var, scales="free_y") +
+    geom_line(aes(x = Date_Time, y = values), data = plot.stack[plot.stack$Plot_Name == PLOT,]) +
+    theme_bw()+
+    ggtitle(paste0(PLOT, " Yearly Time Series using daily median"))
   print(fig)
   dev.off()
 }
