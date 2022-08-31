@@ -17,9 +17,9 @@ library(lubridate)
 library(tidyr)
 
 #Setting File paths
-path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+path.met <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 setwd(path.met)
-path.out <- paste(path.met, "Data_Clean/Clean_data", sep="")
+path.out <- paste(path.met, "Data_processed/Clean_data", sep="")
 
 #This should hopefully become a loop but I don't want to structure it that way until we have the data and can see for sure
 #--------------------------------#
@@ -35,7 +35,7 @@ end.B127 <- max(old.B127$Date_Time, na.rm = T)
 end.B127 <- sub(" .*", "", end.B127)
 
 #Finding the files we need to update
-dir.B127 <- dir(file.path(path.met, "Meter_B127"), ".csv")
+dir.B127 <- dir(file.path(path.met, "Data_raw/Meter_B127"), ".csv")
 
 split.B127 <- strsplit(dir.B127, "_")
 
@@ -51,7 +51,7 @@ pull.B127 <- date.B127[date.B127 >= end.B127]
 B127 <- data.frame()
 for(i in 1:length(pull.B127)){
   date <- pull.B127[i]
-  file <- read.csv(paste0(path.met, "Meter_B127/B127_", date, ".csv"))
+  file <- read.csv(paste0(path.met, "Data_raw/Meter_B127/B127_", date, ".csv"))
   B127 <- rbind(B127, file)
 }
 
@@ -92,7 +92,7 @@ end.U134 <- max(old.U134$Date_Time, na.rm = T)
 end.U134 <- sub(" .*", "", end.U134)
 
 #Finding the files we need to update
-dir.U134 <- dir(file.path(path.met, "Meter_U134"), ".csv")
+dir.U134 <- dir(file.path(path.met, "Data_raw/Meter_U134"), ".csv")
 
 split.U134 <- strsplit(dir.U134, "_")
 
@@ -102,13 +102,13 @@ date.U134 <- unlist(lapply(split.U134, function (x) sub(".csv", "", x)))
 
 date.U134 <- as.Date(date.U134)
 
-pull.U134 <- date.U134[date.U134 >= end.U134]
-#pull.U134 <- date.U134
+#pull.U134 <- date.U134[date.U134 >= end.U134]
+pull.U134 <- date.U134[date.U134 <= "2021-07-02"]
 
 U134 <- data.frame()
 for(i in 1:length(pull.U134)){
   date <- pull.U134[i]
-  file <- read.csv(paste0(path.met, "Meter_U134/U134_", date, ".csv"))
+  file <- read.csv(paste0(path.met, "Data_raw/Meter_U134/U134_", date, ".csv"))
   U134 <- rbind(U134, file)
 }
 
@@ -150,7 +150,7 @@ end.N115 <- max(old.N115$Date_Time, na.rm = T)
 end.N115 <- sub(" .*", "", end.N115)
 
 #Finding the files we need to update
-dir.N115 <- dir(file.path(path.met, "Meter_N115"), ".csv")
+dir.N115 <- dir(file.path(path.met, "Data_raw/Meter_N115"), ".csv")
 
 split.N115 <- strsplit(dir.N115, "_")
 
@@ -166,7 +166,7 @@ pull.N115 <- date.N115[date.N115 >= end.N115]
 N115 <- data.frame()
 for(i in 1:length(pull.N115)){
   date <- pull.N115[i]
-  file <- read.csv(paste0(path.met, "Meter_N115/N115_", date, ".csv"))
+  file <- read.csv(paste0(path.met, "Data_raw/Meter_N115/N115_", date, ".csv"))
   N115 <- rbind(N115, file)
 }
 
@@ -206,7 +206,7 @@ end.HH115 <- max(old.HH115$Date_Time, na.rm = T)
 end.HH115 <- sub(" .*", "", end.HH115)
 
 #Finding the files we need to update
-dir.HH115 <- dir(file.path(path.met, "Meter_HH115"), ".csv")
+dir.HH115 <- dir(file.path(path.met, "Data_raw/Meter_HH115"), ".csv")
 
 split.HH115 <- strsplit(dir.HH115, "_")
 
@@ -222,7 +222,7 @@ pull.HH115 <- date.HH115[date.HH115 >= end.HH115]
 HH115 <- data.frame()
 for(i in 1:length(pull.HH115)){
   date <- pull.HH115[i]
-  file <- read.csv(paste0(path.met, "Meter_HH115/HH115_", date, ".csv"))
+  file <- read.csv(paste0(path.met, "Data_raw/Meter_HH115/HH115_", date, ".csv"))
   HH115 <- rbind(HH115, file)
 }
 
@@ -335,7 +335,7 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   final.plot <- rbind(old.plot, one_plot.loop)
   
   #Setting the path out to be in the corresponding folder
-  path.fin <- paste(path.met, "Data_Clean/Harmonized_data/", PLOT, sep="")
+  path.fin <- paste(path.met, "Data_processed/Harmonized_data/", PLOT, sep="")
   filename <- paste(PLOT, ".csv", sep = "")
   write.csv(final.plot, file.path(path.fin,  file = filename), row.names = FALSE)
   
