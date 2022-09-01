@@ -41,6 +41,18 @@ plot.stack <- stack(agg.stack[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp"
 names(plot.stack) <- c("values", "var")
 plot.stack[,c("Plot_Name", "Date_Time")] <- agg.stack[,c("Plot_Name", "Date_Time")]
 
+plot.comb <- data.frame()
+for(PLOT in unique(plot.stack$Plot_Name)){
+  temp <- plot.stack[plot.stack$Plot_Name == PLOT,]
+  if(PLOT == "B127"){
+    #Adding a sensor flag. Adding one for soil sensor's and one for other sensors since they changed at different times for all but B127
+    temp$Air.Sensor <- ifelse(temp$Date_Time <= "2020-10-20 12:00:00", "Onset", "Meter")
+    temp$Soil.Sensor <- ifelse(temp$Date_Time <= "2020-10-20 12:00:00", "Onset", "Meter")
+  } else {
+    temp$Soil.Sensor <- ifelse(temp$Date_Time <= "2020-11-05 13:00:00", "Onset", "Meter")
+    temp$Air.Sensor <- ifelse(temp$Date_Time <= "2021-07-02 14:00:00", "Onset", "Meter")
+  }
+}
 
 for(VAR in unique(plot.stack$var)){
   png(width= 750, filename= file.path(path.qaqc, paste0('All_PLOTS_',VAR,'.png')))
