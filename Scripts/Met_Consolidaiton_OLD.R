@@ -18,13 +18,13 @@ library(lubridate)
 library(tidyr)
 
 #Setting File paths
-path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/Data_raw/"
 setwd(path.met)
 
 #--------------------------------#
 
 #Consolidating B127 data
-B127.HB <-read_bulk(directory = "B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+B127.HB <-read_bulk(directory = "Onset_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 #B127.MET <-read_bulk(directory = "Meter_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9"))
 
 #Kind of clunky download but using things like readbulk adds an extra column for Time with every upload. This is better
@@ -126,7 +126,7 @@ B127.mod <- subset(B127.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", 
 
 #-------------------------------------#
 #Consolidating N115 data#
-N115.HB <-read_bulk(directory = "N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+N115.HB <-read_bulk(directory = "Onset_N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 
 #Kind of clunky download but using things like readbulk adds an extra column for Time with every upload. This is better
 dir.N115 <- dir(file.path(path.met, "Meter_N115"), ".csv")
@@ -235,7 +235,7 @@ N115.mod <- subset(N115.mod, select = c("Date_Time", "Date_Check", "Soil_Moistur
 #--------------------------------#
 
 #Consolidating HH115 data
-HH115.HB <-read_bulk(directory = "HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+HH115.HB <-read_bulk(directory = "Onset_HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 
 #Kind of clunky download but using things like readbulk adds an extra column for Time with every upload. This is better
 dir.HH115 <- dir(file.path(path.met, "Meter_HH115"), ".csv")
@@ -350,7 +350,7 @@ HH115.comb <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp
 
 #-------------------------------------#
 #Consolidating U134 data
-U134.HB <-read_bulk(directory = "U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+U134.HB <-read_bulk(directory = "Onset_U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 
 #Kind of clunky download but using things like readbulk adds an extra column for Time with every upload. This is better
 dir.U134 <- dir(file.path(path.met, "Meter_U134"), ".csv")
@@ -514,7 +514,7 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   }
   
   #Setting the path out to be in the corresponding folder
-  path.out <- paste(path.met, "Data_Clean/", PLOT, sep="")
+  path.out <- paste(path.met, "/Data_processed/Harmonized_data/", sep="")
   filename <- paste(PLOT, ".csv", sep = "")
   write.csv(one_plot.loop, file.path(path.out,  file = filename), row.names = FALSE)
 
