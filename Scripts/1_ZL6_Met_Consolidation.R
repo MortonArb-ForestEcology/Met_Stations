@@ -102,8 +102,7 @@ date.U134 <- unlist(lapply(split.U134, function (x) sub(".csv", "", x)))
 
 date.U134 <- as.Date(date.U134)
 
-#pull.U134 <- date.U134[date.U134 >= end.U134]
-pull.U134 <- date.U134[date.U134 <= "2021-07-02"]
+pull.U134 <- date.U134[date.U134 >= end.U134]
 
 U134 <- data.frame()
 for(i in 1:length(pull.U134)){
@@ -330,12 +329,19 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   
   old.plot$Date <- as.Date(old.plot$Date)
   one_plot.loop$Date <- as.Date(one_plot.loop$Date_Time)
+  #Adding these empty columns for later file matching
   one_plot.loop$SIGFLAG <- NA
+  one_plot.loop$SIGFLAG_Soil_Moisture <- NA
+  one_plot.loop$SIGFLAG_Soil_Temp <- NA
+  one_plot.loop$SIGFLAG_Air_Temp <- NA
+  one_plot.loop$SIGFLAG_Relative_Humidity <- NA
+  one_plot.loop$SIGFLAG_PAR <- NA
+  
   
   final.plot <- rbind(old.plot, one_plot.loop)
   
   #Setting the path out to be in the corresponding folder
-  path.fin <- paste(path.met, "Data_processed/Harmonized_data/", PLOT, sep="")
+  path.fin <- paste(path.met, "Data_processed/Harmonized_data/", sep="")
   filename <- paste(PLOT, ".csv", sep = "")
   write.csv(final.plot, file.path(path.fin,  file = filename), row.names = FALSE)
   
