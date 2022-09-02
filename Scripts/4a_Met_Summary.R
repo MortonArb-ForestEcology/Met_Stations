@@ -34,16 +34,9 @@ comb$Date_Time <- as.POSIXct(comb$Date_Time)
 comb$yday <- yday(comb$Date_Time)
 comb$year <- year(comb$Date_Time)
 
-
-agg.stack <- aggregate(cbind(Soil_Temp, Soil_Moisture, PAR, Air_Temp, Relative_Humidity)~Plot_Name+Date_Time, data = comb, FUN = median, na.action = NULL)
-
-plot.stack <- stack(agg.stack[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
-names(plot.stack) <- c("values", "var")
-plot.stack[,c("Plot_Name", "Date_Time")] <- agg.stack[,c("Plot_Name", "Date_Time")]
-
 plot.comb <- data.frame()
-for(PLOT in unique(plot.stack$Plot_Name)){
-  temp <- plot.stack[plot.stack$Plot_Name == PLOT,]
+for(PLOT in unique(comb$Plot_Name)){
+  temp <- comb[comb$Plot_Name == PLOT,]
   if(PLOT == "B127"){
     #Adding a sensor flag. Adding one for soil sensor's and one for other sensors since they changed at different times for all but B127
     temp$Air.Sensor <- ifelse(temp$Date_Time <= "2020-10-20 12:00:00", "Onset", "Meter")
@@ -52,26 +45,72 @@ for(PLOT in unique(plot.stack$Plot_Name)){
     temp$Soil.Sensor <- ifelse(temp$Date_Time <= "2020-11-05 13:00:00", "Onset", "Meter")
     temp$Air.Sensor <- ifelse(temp$Date_Time <= "2021-07-02 14:00:00", "Onset", "Meter")
   }
+  plot.comb <- rbind(plot.comb, temp)
 }
 
+#Organizing data into long form for easier graphing
+agg.stack <- aggregate(cbind(Soil_Temp, Soil_Moisture, PAR, Air_Temp, Relative_Humidity)~Plot_Name+Date_Time+Air.Sensor+Soil.Sensor, data = plot.comb, FUN = median, na.action = NULL)
+
+plot.stack <- stack(agg.stack[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
+names(plot.stack) <- c("values", "var")
+plot.stack[,c("Plot_Name", "Date_Time", "Air.Sensor", "Soil.Sensor")] <- agg.stack[,c("Plot_Name", "Date_Time", "Air.Sensor", "Soil.Sensor")]
+
+#Creating a rolling average
+plot.roll <- plot.stack %>%
+  dplyr::arrange(desc(Plot_Name)) %>% 
+  dplyr::group_by(Plot_Name, var) %>% 
+  dplyr::mutate(VAR_07 = zoo::rollmean(values, k = 7, fill = NA),
+                VAR_15 = zoo::rollmean(values, k = 15, fill = NA),
+                VAR_30 = zoo::rollmean(values, k = 30, fill = NA)) %>% 
+  dplyr::ungroup()
+
+plot.roll$yday <- yday(plot.roll$Date_Time)
+plot.roll$year <- year(plot.roll$Date_Time)
+
+#Looks at one variable at all plots
 for(VAR in unique(plot.stack$var)){
   png(width= 750, filename= file.path(path.qaqc, paste0('All_PLOTS_',VAR,'.png')))
+  if(VAR %in% c("PAR", "Air_Temp", "Relative_Humidity")){
   fig <- ggplot() +
     facet_wrap(~Plot_Name, scales="free_y") +
-    geom_line(aes(x = Date_Time, y = values), data = plot.stack[plot.stack$var == VAR,]) +
+    geom_line(aes(x = Date_Time, y = values, color = Air.Sensor), data = plot.stack[plot.stack$var == VAR,]) +
     theme_bw()+
     ggtitle(paste0(VAR, " Yearly Time Series using daily median"))
   print(fig)
   dev.off()
+  } else{
+  fig <- ggplot() +
+    facet_wrap(~Plot_Name, scales="free_y") +
+    geom_line(aes(x = Date_Time, y = values, color = Soil.Sensor), data = plot.stack[plot.stack$var == VAR,]) +
+    theme_bw()+
+    ggtitle(paste0(VAR, " Yearly Time Series using daily median"))
+  print(fig)
+  dev.off()    
+  }
 }
 
-for(PLOT in unique(plot.stack$Plot_Name)){
-  png(width= 750, filename= file.path(path.qaqc, paste0('PLOT_', PLOT, '_All_VARS','.png')))
+#Looks at one plot with all variables by year
+for(PLOT in unique(plot.roll$Plot_Name)){
+  png(width= 750, filename= file.path(path.qaqc, paste0('PLOT_', PLOT, '_All_VARS_by_year','.png')))
   fig <- ggplot() +
     facet_wrap(~var, scales="free_y") +
-    geom_line(aes(x = Date_Time, y = values), data = plot.stack[plot.stack$Plot_Name == PLOT,]) +
+    geom_line(aes(x = yday, y = VAR_30, color = as.character(year)), data = plot.roll[plot.roll$Plot_Name == PLOT,]) +
     theme_bw()+
-    ggtitle(paste0(PLOT, " Yearly Time Series using daily median"))
+    ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average"))+
+    ylab(paste0("30 day rolling average"))
+    print(fig)
+  dev.off()
+}
+
+#Looks at one plot with all variables through time
+for(PLOT in unique(plot.roll$Plot_Name)){
+  png(width= 750, filename= file.path(path.qaqc, paste0('PLOT_', PLOT, '_All_VARS_time_series','.png')))
+  fig <- ggplot() +
+    facet_wrap(~var, scales="free_y") +
+    geom_line(aes(x = Date_Time, y = VAR_30), data = plot.roll[plot.roll$Plot_Name == PLOT,]) +
+    theme_bw()+
+    ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average"))+
+    ylab(paste0("30 day rolling average"))
   print(fig)
   dev.off()
 }
