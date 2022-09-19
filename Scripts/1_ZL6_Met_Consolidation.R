@@ -46,7 +46,6 @@ date.B127 <- unlist(lapply(split.B127, function (x) sub(".csv", "", x)))
 date.B127 <- as.Date(date.B127)
 
 pull.B127 <- date.B127[date.B127 >= end.B127]
-#pull.B127 <- date.B127
 
 B127 <- data.frame()
 for(i in 1:length(pull.B127)){
@@ -330,7 +329,6 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   old.plot$Date <- as.Date(old.plot$Date)
   one_plot.loop$Date <- as.Date(one_plot.loop$Date_Time)
   #Adding these empty columns for later file matching
-  one_plot.loop$SIGFLAG <- NA
   one_plot.loop$SIGFLAG_Soil_Moisture <- NA
   one_plot.loop$SIGFLAG_Soil_Temp <- NA
   one_plot.loop$SIGFLAG_Air_Temp <- NA
