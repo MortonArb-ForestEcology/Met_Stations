@@ -75,7 +75,7 @@ for(VAR in unique(plot.stack$var)){
     facet_wrap(~Plot_Name, scales="free_y") +
     geom_line(aes(x = Date_Time, y = values, color = Air.Sensor), data = plot.stack[plot.stack$var == VAR,]) +
     theme_bw()+
-    ggtitle(paste0(VAR, " Yearly Time Series using daily median"))
+    ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Date_Time)))
   print(fig)
   dev.off()
   } else{
@@ -83,7 +83,7 @@ for(VAR in unique(plot.stack$var)){
     facet_wrap(~Plot_Name, scales="free_y") +
     geom_line(aes(x = Date_Time, y = values, color = Soil.Sensor), data = plot.stack[plot.stack$var == VAR,]) +
     theme_bw()+
-    ggtitle(paste0(VAR, " Yearly Time Series using daily median"))
+    ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Date_Time)))
   print(fig)
   dev.off()    
   }
@@ -96,7 +96,7 @@ for(PLOT in unique(plot.roll$Plot_Name)){
     facet_wrap(~var, scales="free_y") +
     geom_line(aes(x = yday, y = VAR_30, color = as.character(year)), data = plot.roll[plot.roll$Plot_Name == PLOT,]) +
     theme_bw()+
-    ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average"))+
+    ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.stack$Date_Time)))+
     ylab(paste0("30 day rolling average"))
     print(fig)
   dev.off()
