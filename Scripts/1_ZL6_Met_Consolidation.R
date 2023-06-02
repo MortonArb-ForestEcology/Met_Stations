@@ -51,6 +51,7 @@ B127 <- data.frame()
 for(i in 1:length(pull.B127)){
   date <- pull.B127[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_B127/B127_", date, ".csv"))
+  file <- file[3:nrow(file),]
   B127 <- rbind(B127, file)
 }
 
@@ -61,8 +62,7 @@ colnames(B127) <- c("Time_ON"	, "PAR", "mm Precipitation", "Lightning Activity",
                     "0 Y-axis Level", "mm/h Max Precip Rate", "0C RH Sensor Temp",	"kPa VPD", "Soil_Moisture", "Soil_Temp",
                     "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "0C Logger Temperature")
 
-B127.mod <- B127[3:nrow(B127),]
-
+B127.mod <- B127
 #Calculating the saturated vapour pressure to calculate relative humidty
 B127.mod$Sat_vap_press <- .611*exp((17.502*as.numeric(B127.mod$Air_Temp))/(240.97+as.numeric(B127.mod$Air_Temp)))
 
@@ -107,6 +107,7 @@ U134 <- data.frame()
 for(i in 1:length(pull.U134)){
   date <- pull.U134[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_U134/U134_", date, ".csv"))
+  file <- file[3:nrow(file),]
   U134 <- rbind(U134, file)
 }
 
@@ -118,7 +119,7 @@ colnames(U134) <- c("Time_ON"	, "Soil_Moisture", "Soil_Temp", "PAR", "mm Precipi
                     "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"kPa Vapor Pressure", "kPa Atmospheric Pressure", "0 X-axis Level",
                     "0 Y-axis Level", "mm/h Max Precip Rate", "0C RH Sensor Temp",	"kPa VPD", "AIR_2", "VAPOR_2", "Sensor Output",
                     "Atmos_2", "VPD_3" ,"% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "0C Logger Temperature")
-U134.mod <- U134[3:nrow(U134),]
+U134.mod <- U134
 
 #Calculating the saturated vapour pressure to calculate relative humidty
 U134.mod$Sat_vap_press <- .611*exp((17.502*as.numeric(U134.mod$Air_Temp))/(240.97+as.numeric(U134.mod$Air_Temp)))
@@ -165,6 +166,7 @@ N115 <- data.frame()
 for(i in 1:length(pull.N115)){
   date <- pull.N115[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_N115/N115_", date, ".csv"))
+  file <- file[3:nrow(file),]
   N115 <- rbind(N115, file)
 }
 
@@ -175,7 +177,7 @@ colnames(N115) <- c("Time_ON"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipit
                     "0 Y-axis Level", "mm/h Max Precip Rate", "0C RH Sensor Temp",	"kPa VPD", 
                     "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "0C Logger Temperature")
 
-N115.mod <- N115[3:nrow(N115),]
+N115.mod <- N115
 
 #Calculating the saturated vapour pressure to calculate relative humidty
 N115.mod$Sat_vap_press <- .611*exp((17.502*as.numeric(N115.mod$Air_Temp))/(240.97+as.numeric(N115.mod$Air_Temp)))
@@ -221,6 +223,7 @@ HH115 <- data.frame()
 for(i in 1:length(pull.HH115)){
   date <- pull.HH115[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_HH115/HH115_", date, ".csv"))
+  file <- file[3:nrow(file),]
   HH115 <- rbind(HH115, file)
 }
 
@@ -231,7 +234,7 @@ colnames(HH115) <- c("Time_ON"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipi
                     "0 Y-axis Level", "mm/h Max Precip Rate", "0C RH Sensor Temp",	"kPa VPD", 
                     "% Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "0C Logger Temperature")
 
-HH115.mod <- HH115[3:nrow(HH115),]
+HH115.mod <- HH115
 
 #Calculating the saturated vapour pressure to calculate relative humidty
 HH115.mod$Sat_vap_press <- .611*exp((17.502*as.numeric(HH115.mod$Air_Temp))/(240.97+as.numeric(HH115.mod$Air_Temp)))
