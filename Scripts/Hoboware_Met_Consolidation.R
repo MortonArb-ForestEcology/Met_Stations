@@ -17,13 +17,13 @@ library(lubridate)
 library(tidyr)
 
 #Setting File paths
-path.met <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+path.met <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/Data_raw/"
 setwd(path.met)
 
 #--------------------------------#
 
 #Consolidating B127 data
-B127 <-read_bulk(directory = "B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+B127 <-read_bulk(directory = "Onset_B127", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 
 #Hoboware sensors and data columns
 #Variable A-C are used for the same variable but different loggers
@@ -64,7 +64,7 @@ B127.mod <- subset(B127.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", 
 
 #-------------------------------------#
 #Consolidating N115 data#
-N115 <-read_bulk(directory = "N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+N115 <-read_bulk(directory = "Onset_N115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 
 colnames(N115) 
 colnames(N115)  <-  c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name",
@@ -102,7 +102,7 @@ N115.mod <- subset(N115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", 
 #--------------------------------#
 
 #Consolidating HH115 data
-HH115 <-read_bulk(directory = "HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+HH115 <-read_bulk(directory = "Onset_HH115", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 
 #Currently removing the 1 day of measurements every second that I accidentally recorded
 #Will talk to Christy about how best to use
@@ -148,7 +148,7 @@ colnames(HH115.mod)
 HH115.mod <- subset(HH115.mod, select = c("Date_Time", "Date_Check", "Soil_Temp", "Air_Temp", "Soil_Moisture", "Relative_Humidity", "PAR", "Plot_Name"))
 #-------------------------------------#
 #Consolidating U134 data
-U134 <-read_bulk(directory = "U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
+U134 <-read_bulk(directory = "Onset_U134", extension = ".csv", header = TRUE, skip=1, na.strings=c("-888.9")) # Combine all data
 
 colnames(U134)
 colnames(U134) <- c("Row_Num", "Time5_A", "Soil_Temp_A", "Soil_Moisture_A", "PAR_A", "Air_Temp_A", "Relative_Humidity_A", "File_Name", 
@@ -250,7 +250,7 @@ for(PLOT in unique(comb_plot$Plot_Name)){
   }
   
   #Setting the path out to be in the corresponding folder
-  path.out <- paste(path.met, "Data_Clean/Clean_data/", PLOT, sep="")
+  path.out <- paste(path.met, "../Data_processed/", sep="")
   filename <- paste(PLOT, ".csv", sep = "")
   write.csv(one_plot.loop, file.path(path.out,  file = filename), row.names = FALSE)
   
