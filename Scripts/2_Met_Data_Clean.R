@@ -18,6 +18,7 @@ library(lubridate)
 #Setting file paths
 path.met <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 path.out <- paste(path.met, "Data_processed/Harmonized_data", sep="")
+path.clean <- paste(path.met, "Data_processed/Clean_data", sep="")
 setwd(path.out)
 
 # Seperating by chosen year and month values
@@ -27,13 +28,15 @@ plot.HH115 <- read.csv("HH115.csv")
 plot.U134 <- read.csv("U134.csv")
 
 comb <- rbind(plot.B127, plot.N115, plot.HH115, plot.U134)
-comb$Date_Time <- as.POSIXct(comb$Date_Time)
+comb$Date_Time <- as.POSIXct(comb$Timestamp)
 
 #Removing impossible soil_moissture readings
 comb$Soil_Moisture <- ifelse(comb$Soil_Moisture <= 0, NA, comb$Soil_Moisture)
 
 #Removing impossible air_temp readings
 comb$Air_Temp <- ifelse(comb$Air_Temp >= 150, NA, comb$Air_Temp)
+
+comb$Relative_Humidity <-  as.numeric(comb$Relative_Humidity)
 
 #Removing NA rows 
 comb <- comb[!is.na(comb$Plot_Name),]
@@ -57,14 +60,6 @@ for(PLOT in unique(comb$Plot_Name)){
   df.clean <- rbind(df.clean, temp)
 }
 
-#Saving the flagged data into individual plot files
-for(PLOT in unique(df.clean$Plot_Name)){
-  temp <- df.clean[df.clean$Plot_Name == PLOT,]
-  path.fin <- paste(path.met, "Data_processed/Harmonized_data/", sep="")
-  filename <- paste(PLOT, ".csv", sep = "")
-  write.csv(temp, file.path(path.fin,  file = filename), row.names = FALSE)
-}
-
 #Removing our flagged values to create a clean dataframe.
 df.clean$Soil_Moisture <- ifelse(df.clean$SIGFLAG_Soil_Moisture == T, NA, df.clean$Soil_Moisture )
 df.clean$Soil_Temp <- ifelse(df.clean$SIGFLAG_Soil_Temp== T, NA, df.clean$Soil_Temp )
@@ -79,5 +74,41 @@ for(PLOT in unique(df.clean$Plot_Name)){
   path.fin <- paste(path.met, "Data_processed/Clean_data/", PLOT, sep="")
   filename <- paste(PLOT, ".csv", sep = "")
   write.csv(temp, file.path(path.fin,  file = filename), row.names = FALSE)
+}
+
+
+# Seperating by chosen year
+for(PLOT in unique(comb$Plot_Name)){
+  
+  dir.plot <- dir(file.path(path.clean, PLOT), ".csv")
+  
+  #Way of finding the oldest and most recent file to be deleted.
+  old.plot <- dir.plot[match(1, stringr::str_detect(dir.plot, "up_to_"))]
+  
+  #Deleting the old version
+  if (file.exists(file.path(path.out, PLOT, old.plot))) {
+    unlink(file.path(path.out, PLOT, old.plot))
+    cat("The file is deleted")
+  }
+  
+  one_plot.loop <- comb[comb$Plot_Name == PLOT,]
+  one_plot.loop$year <- lubridate::year(one_plot.loop$Date_Time)
+  
+  year <- year(Sys.Date())
+  
+  one_plot.loop$Date_Time <- as.POSIXct(one_plot.loop$Date_Time)
+  
+  #Creating the previous year's complete file
+  one_plot.old <- one_plot.loop[one_plot.loop$year <= year-1 & one_plot.loop$year > year-2,]
+  write.csv(one_plot.old, file.path(path.out, PLOT,  file = paste(PLOT,"_" ,year-1, ".csv", sep="")), row.names = FALSE)
+  
+  one_plot.year <- one_plot.loop[one_plot.loop$year <= year & one_plot.loop$year > year-1, ]
+  Date.min <- min(one_plot.year$Date_Time)
+  Date.max <- max(one_plot.year$Date_Time)
+  
+  #Creating a file name that includes the ending of current measurements
+  filename <- paste(PLOT,"_", lubridate::year(as.Date(Date.max)), "_up_to_" , as.Date(Date.max), ".csv", sep = "")
+  write.csv(one_plot.year, file.path(path.out, PLOT,  file = filename), row.names = FALSE)
+  
 }
 
