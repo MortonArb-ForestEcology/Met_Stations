@@ -19,13 +19,13 @@ library(lubridate)
 path.met <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 path.out <- paste(path.met, "Data_processed/Harmonized_data", sep="")
 path.clean <- paste(path.met, "Data_processed/Clean_data", sep="")
-setwd(path.out)
+#setwd(path.out)
 
 # Seperating by chosen year and month values
-plot.B127 <- read.csv("B127.csv")
-plot.N115 <- read.csv("N115.csv")
-plot.HH115 <- read.csv("HH115.csv")
-plot.U134 <- read.csv("U134.csv")
+plot.B127 <- read.csv(file.path(path.out,"B127.csv"))
+plot.N115 <- read.csv(file.path(path.out,"N115.csv"))
+plot.HH115 <- read.csv(file.path(path.out,"HH115.csv"))
+plot.U134 <- read.csv(file.path(path.out,"U134.csv"))
 
 comb <- rbind(plot.B127, plot.N115, plot.HH115, plot.U134)
 comb$Date_Time <- as.POSIXct(comb$Timestamp)
@@ -67,48 +67,49 @@ df.clean$Air_Temp <- ifelse(df.clean$SIGFLAG_Air_Temp== T, NA, df.clean$Air_Temp
 df.clean$Relative_Humidity <- ifelse(df.clean$SIGFLAG_Relative_Humidity== T, NA, df.clean$Relative_Humidity )
 df.clean$PAR <- ifelse(df.clean$SIGFLAG_PAR== T, NA, df.clean$PAR)
 
-
-#Saving the clean data into individual plot files
-for(PLOT in unique(df.clean$Plot_Name)){
-  temp <- df.clean[df.clean$Plot_Name == PLOT,]
-  path.fin <- paste(path.met, "Data_processed/Clean_data/", PLOT, sep="")
-  filename <- paste(PLOT, ".csv", sep = "")
-  write.csv(temp, file.path(path.fin,  file = filename), row.names = FALSE)
-}
-
-
 # Seperating by chosen year
 for(PLOT in unique(comb$Plot_Name)){
+  year <- year(Sys.Date())
   
   dir.plot <- dir(file.path(path.clean, PLOT), ".csv")
   
   #Way of finding the oldest and most recent file to be deleted.
-  old.plot <- dir.plot[match(1, stringr::str_detect(dir.plot, "up_to_"))]
+  old.path <- dir.plot[match(1, stringr::str_detect(dir.plot, "up_to_"))]
+  old.plot <- read.csv(file.path(path.clean, PLOT, old.path))
+  old.yearb <- read.csv(file.path(path.clean, PLOT,  file = paste(PLOT,"_" ,year-1, ".csv", sep="")))
   
   #Deleting the old version
-  if (file.exists(file.path(path.out, PLOT, old.plot))) {
-    unlink(file.path(path.out, PLOT, old.plot))
+  if (file.exists(file.path(path.clean, PLOT, old.path))) {
+    unlink(file.path(path.clean, PLOT, old.path))
     cat("The file is deleted")
   }
   
-  one_plot.loop <- comb[comb$Plot_Name == PLOT,]
-  one_plot.loop$year <- lubridate::year(one_plot.loop$Date_Time)
+  new.plot <- df.clean[df.clean$Plot_Name == PLOT,]
+  new.plot$Date_Time <- as.POSIXct(new.plot$Timestamp)
+  new.plot$year <- lubridate::year(new.plot$Date_Time)
+
   
-  year <- year(Sys.Date())
+  old.comb <- rbind(old.yearb, old.plot) 
+  old.comb$Date_Time <- as.POSIXct(old.comb$Date_Time)
+  colnames(old.comb) <- c("Date_Time" ,"Plot_Name" ,"Soil_Moisture", "Relative_Humidity", "PAR" , "Soil_Temp" , "Air_Temp", "Timestamp",                 
+                          "mm.Precipitation" ,"Lightning.Activity","km.Lightning.Distance","X..Wind.Direction", "m.s.Wind.Speed" , "m.s.Gust.Speed",
+                          "kPa.Atmospheric.Pressure", "X..X.axis.Level", "X..Y.axis.Level", "mm.h.Max.Precip.Rate", "X.C.RH.Sensor.Temp", "X..Battery.Percent", "mV.Battery.Voltage", 
+                          "kPa.Reference.Pressure", "X.C.Logger.Temperature", "Date", "SIGFLAG_Soil_Moisture", "SIGFLAG_Soil_Temp", "SIGFLAG_Air_Temp", "SIGFLAG_Relative_Humidity" ,"SIGFLAG_PAR", "year")
   
-  one_plot.loop$Date_Time <- as.POSIXct(one_plot.loop$Date_Time)
+  both.comb <- rbind(old.comb, new.plot)
   
   #Creating the previous year's complete file
-  one_plot.old <- one_plot.loop[one_plot.loop$year <= year-1 & one_plot.loop$year > year-2,]
-  write.csv(one_plot.old, file.path(path.out, PLOT,  file = paste(PLOT,"_" ,year-1, ".csv", sep="")), row.names = FALSE)
+  one_plot.old <- both.comb[both.comb$year <= year-1 & both.comb$year > year-2,]
+  write.csv(one_plot.old, file.path(path.clean, PLOT,  file = paste(PLOT,"_" ,year-1, ".csv", sep="")), row.names = FALSE)
   
-  one_plot.year <- one_plot.loop[one_plot.loop$year <= year & one_plot.loop$year > year-1, ]
+  one_plot.year <- both.comb[both.comb$year <= year & both.comb$year > year-1, ]
   Date.min <- min(one_plot.year$Date_Time)
   Date.max <- max(one_plot.year$Date_Time)
   
   #Creating a file name that includes the ending of current measurements
   filename <- paste(PLOT,"_", lubridate::year(as.Date(Date.max)), "_up_to_" , as.Date(Date.max), ".csv", sep = "")
-  write.csv(one_plot.year, file.path(path.out, PLOT,  file = filename), row.names = FALSE)
+  write.csv(one_plot.year, file.path(path.clean, PLOT,  file = filename), row.names = FALSE)
   
 }
+
 
