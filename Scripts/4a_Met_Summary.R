@@ -54,6 +54,8 @@ agg.stack <- aggregate(cbind(Soil_Temp, Soil_Moisture, PAR, Air_Temp, Relative_H
 plot.stack <- stack(agg.stack[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
 names(plot.stack) <- c("values", "var")
 plot.stack[,c("Plot_Name", "Date_Time", "Air.Sensor", "Soil.Sensor")] <- agg.stack[,c("Plot_Name", "Date_Time", "Air.Sensor", "Soil.Sensor")]
+plot.stack$yday <- yday(plot.stack$Date_Time)
+plot.stack$year <- year(plot.stack$Date_Time)
 
 #Creating a rolling average
 plot.roll <- plot.stack %>%
@@ -88,6 +90,7 @@ for(VAR in unique(plot.stack$var)){
   dev.off()    
   }
 }
+
 
 #Looks at one plot with all variables by year
 for(PLOT in unique(plot.roll$Plot_Name)){
