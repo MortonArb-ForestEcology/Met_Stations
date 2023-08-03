@@ -11,7 +11,6 @@
 # Notes: This script should be broken into two seperate scripts for the two seperate types of data loggers as we go forward
 #        10/29/2020 is when the Meter data loggers were installed
 #-----------------------------------------------------------------------------------------------------------------------------------#
-
 library(readbulk)
 library(dplyr)
 library(lubridate)
@@ -69,6 +68,10 @@ B127.mod$Air_Temp <- ifelse(is.na(B127.mod$` °C Air Temperature`), B127.mod$Air_
 
 #Getting rid of redundant dates of data collection#
 B127.mod <- B127.mod[!duplicated(B127.mod[c('Date_Time')]),]
+
+#Getting rid of the other air temp, RH, PAR, soil moisture, and soil temp columns since their data is in another column now
+B127.mod <- subset(B127.mod, select = -c(` °C Air Temperature`, ` RH Relative Humidity`, ` W/m² Solar Radiation`, ` m³/m³ Water Content`, ` °C Soil Temperature`))
+
 
 #Adding in missing times so missing data can be seen
 #Defining the first and last date
@@ -171,6 +174,10 @@ N115.mod$Air_Temp <- ifelse(is.na(N115.mod$` °C Air Temperature`), N115.mod$Air_
 #Getting rid of redundant dates of data collection#
 N115.mod <- N115.mod[!duplicated(N115.mod[c('Date_Time')]),]
 
+#Getting rid of the other air temp, RH, PAR, soil moisture, and soil temp columns since their data is in another column now
+N115.mod <- subset(N115.mod, select = -c(` °C Air Temperature`, ` RH Relative Humidity`, ` W/m² Solar Radiation`, ` m³/m³ Water Content`, ` °C Soil Temperature`))
+
+
 #Adding in missing times so missing data can be seen
 #Defining the first and last date
 Date.first <- min(as.Date(N115.mod$Date_Time), na.rm = T)
@@ -270,6 +277,10 @@ HH115.mod$Air_Temp <- ifelse(is.na(HH115.mod$` °C Air Temperature`), HH115.mod$A
 
 #Getting rid of redundant dates of data collection#
 HH115.mod <- HH115.mod[!duplicated(HH115.mod[c('Date_Time')]),]
+
+#Getting rid of the other air temp, RH, PAR, soil moisture, and soil temp columns since their data is in another column now
+HH115.mod <- subset(HH115.mod, select = -c(` °C Air Temperature`, ` RH Relative Humidity`, ` W/m² Solar Radiation`, ` m³/m³ Water Content`, ` °C Soil Temperature`))
+
 
 #Adding in missing times so missing data can be seen
 #Defining the first and last date
@@ -374,6 +385,10 @@ U134.mod$Air_Temp <- ifelse(is.na(U134.mod$` °C Air Temperature`), U134.mod$Air_
 #Getting rid of redundant dates of data collection#
 U134.mod <- U134.mod[!duplicated(U134.mod[c('Date_Time')]),]
 
+#Getting rid of the other air temp, RH, PAR, soil moisture, and soil temp columns since their data is in another column now
+U134.mod <- subset(U134.mod, select = -c(` °C Air Temperature`, ` RH Relative Humidity`, ` W/m² Solar Radiation`, ` m³/m³ Water Content`, ` °C Soil Temperature`))
+
+
 #Adding in missing times so missing data can be seen
 #Defining the first and last date
 Date.first <- min(as.Date(U134.mod$Date_Time), na.rm = T)
@@ -425,4 +440,3 @@ for (i in 2:rows){
 path.out <- paste(path.met, "../Data_processed/Harmonized_data/", sep="")
 filename <- paste("U134.csv", sep = "")
 write.csv(U134.mod.loop, file.path(path.out,  file = filename), row.names = FALSE)
-
