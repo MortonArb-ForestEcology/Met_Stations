@@ -21,32 +21,41 @@ path.in <- paste(path.met, "Data_processed/Clean_data", sep="")
 #-------------------------------------------------#
 # B127
 #-------------------------------------------------#
-#Finding the last date we have data for
-old.B127 <- read.csv(file.path(path.in, "B127/B127.csv"))
+#Reading in our old file with complete data
+dir.old.B127 <- as.data.frame(dir(file.path(path.in, "B127"), ".csv"))
+colnames(dir.old.B127) <- "file"
+
+path.B127 <-  dir.old.B127[stringr::str_detect(dir.old.B127$file, 'up_to'),]
+
+old.B127 <- read.csv(file.path(path.in, "B127", path.B127))
 
 old.B127$Date_Time <- as.POSIXct(strptime(old.B127$Date_Time, format="%Y-%m-%d %H"))
 
+#Finding the last date we have data for
 end.B127 <- max(old.B127$Date_Time, na.rm = T)
 
 end.B127 <- sub(" .*", "", end.B127)
 
-#Finding the files we need to update
+#Finding the new files
 dir.B127 <- dir(file.path(path.met, "Data_raw/Meter_B127"), ".csv")
 
 split.B127 <- strsplit(dir.B127, "_")
 
 split.B127 <- lapply(split.B127, function (x) x[2])
 
+#Pulling out a list of new dates to pull specific files
 date.B127 <- unlist(lapply(split.B127, function (x) sub(".csv", "", x)))
 
 date.B127 <- as.Date(date.B127)
 
 pull.B127 <- date.B127[date.B127 > end.B127]
 
+#Loop for pulling files in case there is more than 1
 B127 <- data.frame()
 for(i in 1:length(pull.B127)){
   date <- pull.B127[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_B127/B127_", date, ".csv"))
+  #This step checks if there are two file and if there are then it removes the redudant column and sensor names
   if(i >1){
     file <- file[file$Port.1 != "ATMOS 41",]
     file <- file[file$z6.10460 != "Timestamp",]
@@ -54,12 +63,13 @@ for(i in 1:length(pull.B127)){
   B127 <- rbind(B127, file)
 }
 
-#Making the column names proper
+#Setting the column names to match what is the column names row of data
 colnames(B127) <- B127[B127$z6.10460 == "Timestamp",]
+#Removing old column and sensor labels
 B127 <- B127[B127$` W/m² Solar Radiation` != "ATMOS 41",]
 B127 <- B127[B127$Timestamp != "Timestamp",]
 
-
+#Renaming to harmonize with old data
 colnames(B127) <- c("Timestamp"	, "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"° Wind Direction",
                     "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"Relative_Humidity", "kPa Atmospheric Pressure", "° X-axis Level",
                     "° Y-axis Level", "mm/h Max Precip Rate", "°C RH Sensor Temp", "Soil_Moisture", "Soil_Temp",
@@ -100,8 +110,13 @@ write.csv(B127.mod.loop, file.path(path.out,  file = filename), row.names = FALS
 #-------------------------------------------------#
 # N115
 #-------------------------------------------------#
-#Finding the last date we have data for
-old.N115 <- read.csv(file.path(path.in, "N115/N115.csv"))
+#Reading in our old file with complete data
+dir.old.N115 <- as.data.frame(dir(file.path(path.in, "N115"), ".csv"))
+colnames(dir.old.N115) <- "file"
+
+path.N115 <-  dir.old.N115[stringr::str_detect(dir.old.N115$file, 'up_to'),]
+
+old.N115 <- read.csv(file.path(path.in, "N115", path.N115))
 
 old.N115$Date_Time <- as.POSIXct(strptime(old.N115$Date_Time, format="%Y-%m-%d %H"))
 
@@ -116,6 +131,7 @@ split.N115 <- strsplit(dir.N115, "_")
 
 split.N115 <- lapply(split.N115, function (x) x[2])
 
+#Pulling out a list of new dates to pull specific files
 date.N115 <- unlist(lapply(split.N115, function (x) sub(".csv", "", x)))
 
 date.N115 <- as.Date(date.N115)
@@ -127,8 +143,9 @@ for(i in 1:length(pull.N115)){
   date <- pull.N115[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_N115/N115_", date, ".csv"))
   if(i >1){
+    #This step checks if there are two file and if there are then it removes the redudant column and sensor names
     file <- file[file$Port.1 != "ATMOS 41",]
-    file <- file[file$z6.10460 != "Timestamp",]
+    file <- file[file$z6.10464 != "Timestamp",]
   }
   N115 <- rbind(N115, file)
 }
@@ -174,8 +191,13 @@ write.csv(N115.mod.loop, file.path(path.out,  file = filename), row.names = FALS
 #-------------------------------------------------#
 # HH115
 #-------------------------------------------------#
-#Finding the last date we have data for
-old.HH115 <- read.csv(file.path(path.in, "HH115/HH115.csv"))
+#Reading in our old file with complete data
+dir.old.HH115 <- as.data.frame(dir(file.path(path.in, "HH115"), ".csv"))
+colnames(dir.old.HH115) <- "file"
+
+path.HH115 <-  dir.old.HH115[stringr::str_detect(dir.old.HH115$file, 'up_to'),]
+
+old.HH115 <- read.csv(file.path(path.in, "HH115", path.HH115))
 
 old.HH115$Date_Time <- as.POSIXct(strptime(old.HH115$Date_Time, format="%Y-%m-%d %H"))
 
@@ -190,6 +212,7 @@ split.HH115 <- strsplit(dir.HH115, "_")
 
 split.HH115 <- lapply(split.HH115, function (x) x[2])
 
+#Pulling out a list of new dates to pull specific files
 date.HH115 <- unlist(lapply(split.HH115, function (x) sub(".csv", "", x)))
 
 date.HH115 <- as.Date(date.HH115)
@@ -201,8 +224,9 @@ for(i in 1:length(pull.HH115)){
   date <- pull.HH115[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_HH115/HH115_", date, ".csv"))
   if(i >1){
+    #This step checks if there are two file and if there are then it removes the redudant column and sensor names
     file <- file[file$Port.1 != "ATMOS 41",]
-    file <- file[file$z6.10460 != "Timestamp",]
+    file <- file[file$z6.10461 != "Timestamp",]
   }
   HH115 <- rbind(HH115, file)
 }
@@ -248,8 +272,13 @@ write.csv(HH115.mod.loop, file.path(path.out,  file = filename), row.names = FAL
 #-------------------------------------------------#
 # U134
 #-------------------------------------------------#
-#Finding the last date we have data for
-old.U134 <- read.csv(file.path(path.in, "U134/U134.csv"))
+#Reading in our old file with complete data
+dir.old.U134 <- as.data.frame(dir(file.path(path.in, "U134"), ".csv"))
+colnames(dir.old.U134) <- "file"
+
+path.U134 <-  dir.old.U134[stringr::str_detect(dir.old.U134$file, 'up_to'),]
+
+old.U134 <- read.csv(file.path(path.in, "U134", path.U134))
 
 old.U134$Date_Time <- as.POSIXct(strptime(old.U134$Date_Time, format="%Y-%m-%d %H"))
 
@@ -264,6 +293,7 @@ split.U134 <- strsplit(dir.U134, "_")
 
 split.U134 <- lapply(split.U134, function (x) x[2])
 
+#Pulling out a list of new dates to pull specific files
 date.U134 <- unlist(lapply(split.U134, function (x) sub(".csv", "", x)))
 
 date.U134 <- as.Date(date.U134)
@@ -275,8 +305,9 @@ for(i in 1:length(pull.U134)){
   date <- pull.U134[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_U134/U134_", date, ".csv"))
   if(i >1){
+    #This step checks if there are two file and if there are then it removes the redudant column and sensor names
     file <- file[file$Port.1 != "ATMOS 41",]
-    file <- file[file$z6.10460 != "Timestamp",]
+    file <- file[file$z6.10465 != "Timestamp",]
   }
   U134 <- rbind(U134, file)
 }
