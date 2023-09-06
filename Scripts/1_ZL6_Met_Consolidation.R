@@ -100,29 +100,21 @@ for(i in 1:length(pull.B127)){
   date <- pull.B127[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_B127/B127_", date, ".csv"))
   
-  #This step checks if there are two file and if there are then it removes the redudant column and sensor names
-  # CR NOTE: This is vulnerable, but I'm not going to mess with for the moment
-  if(i >1){
-    file <- file[file$Port.1 != "ATMOS 41",]
-    file <- file[file$z6.10460 != "Timestamp",]
-  }
+  #Getting rid of columns without the sensors we want
+  file <- file[,c(grep("z6", names(file)), which(file[1,] %in% sensorList))]
+  # head(file)
+  
+  #Renaming to harmonize with old data
+  colnames(file) <- renameCols(file[file[grep("z6", names(file))] == "Timestamp",])
+  file <- file[-(grep("Records", file$Timestamp)),]
+  file <- file[-(grep("Timestamp", file$Timestamp)),]
+  
   B127 <- rbind(B127, file)
 }
 
 
 head(B127)
-
-#Getting rid of columns without the sensors we want
-B127 <- B127[,c(grep("z6", names(B127)), which(B127[1,] %in% sensorList))]
-head(B127)
-
-#Renaming to harmonize with old data
-colnames(B127) <- renameCols(B127[B127[grep("z6", names(B127))] == "Timestamp",])
-B127 <- B127[-(grep("Records", B127$Timestamp)),]
-B127 <- B127[-(grep("Timestamp", B127$Timestamp)),]
-
-head(B127)
-
+tail(B127)
 
 B127.mod <- B127
 
@@ -141,11 +133,11 @@ Date.last <- max(as.POSIXct(B127.mod$Timestamp, format="%m/%d/%Y %H") + 1, na.rm
 #Creating a sequence in between the dates and filling in gaps
 # ts1 <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'), 
 #                  as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
-ts1 <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
-ts1 <- as.POSIXct(ts1,'%m/%d/%y %I:%M:%S %p')
-time_fill <- data.frame(Timestamp=ts1)
+tsB127 <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
+tsB127 <- as.POSIXct(tsB127,'%m/%d/%y %I:%M:%S %p')
+time_fillB127 <- data.frame(Timestamp=tsB127)
 B127.mod$Timestamp <- as.POSIXct(B127.mod$Timestamp, format="%m/%d/%Y %H")
-B127.mod.loop <- full_join(time_fill, B127.mod)
+B127.mod.loop <- full_join(time_fillB127, B127.mod)
 
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.met, "/Data_processed/Harmonized_data/", sep="")
@@ -188,25 +180,22 @@ N115 <- data.frame()
 for(i in 1:length(pull.N115)){
   date <- pull.N115[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_N115/N115_", date, ".csv"))
-  if(i >1){
-    #This step checks if there are two file and if there are then it removes the redudant column and sensor names
-    file <- file[file$Port.1 != "ATMOS 41",]
-    file <- file[file$z6.10464 != "Timestamp",]
-  }
+
+  #Getting rid of columns without the sensors we want
+  file <- file[,c(grep("z6", names(file)), which(file[1,] %in% sensorList))]
+  # head(file)
+  
+  #Renaming to harmonize with old data
+  colnames(file) <- renameCols(file[file[grep("z6", names(file))] == "Timestamp",])
+  file <- file[-(grep("Records", file$Timestamp)),]
+  file <- file[-(grep("Timestamp", file$Timestamp)),]
+
   N115 <- rbind(N115, file)
 }
 
 head(N115)
+tail(N115)
 
-#Getting rid of columns without the sensors we want
-N115 <- N115[,c(grep("z6", names(N115)), which(N115[1,] %in% sensorList))]
-head(N115)
-
-#Renaming to harmonize with old data
-colnames(N115) <- renameCols(N115[N115[grep("z6", names(N115))] == "Timestamp",])
-N115 <- N115[-(grep("Records", N115$Timestamp)),]
-N115 <- N115[-(grep("Timestamp", N115$Timestamp)),]
-head(N115)
 
 N115.mod <- N115
 
@@ -226,11 +215,11 @@ Date.last <- max(as.POSIXct(N115.mod$Timestamp, format="%m/%d/%Y %H") + 1, na.rm
 #Creating a sequence in between the dates and filling in gaps
 # ts1 <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'), 
 #                  as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
-ts1 <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
-ts1 <- as.POSIXct(ts1,'%m/%d/%y %I:%M:%S %p')
-time_fill <- data.frame(Timestamp=ts1)
+tsN115 <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
+tsN115 <- as.POSIXct(tsN115,'%m/%d/%y %I:%M:%S %p')
+time_fillN115 <- data.frame(Timestamp=tsN115)
 N115.mod$Timestamp <- as.POSIXct(N115.mod$Timestamp, format="%m/%d/%Y %H")
-N115.mod.loop <- full_join(time_fill, N115.mod)
+N115.mod.loop <- full_join(time_fillN115, N115.mod)
 
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.met, "/Data_processed/Harmonized_data/", sep="")
@@ -270,30 +259,25 @@ date.HH115 <- as.Date(date.HH115)
 pull.HH115 <- date.HH115[date.HH115 > end.HH115]
 pull.HH115 # Note: if there are NAs, it means there's a typo in the file name!
 
-
 HH115 <- data.frame()
 for(i in 1:length(pull.HH115)){
   date <- pull.HH115[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_HH115/HH115_", date, ".csv"))
-  if(i >1){
-    #This step checks if there are two file and if there are then it removes the redudant column and sensor names
-    file <- file[file$Port.1 != "ATMOS 41",]
-    file <- file[file$z6.10461 != "Timestamp",]
-  }
+
+  #Getting rid of columns without the sensors we want
+  file <- file[,c(grep("z6", names(file)), which(file[1,] %in% sensorList))]
+  # head(file)
+  
+  #Renaming to harmonize with old data
+  colnames(file) <- renameCols(file[file[grep("z6", names(file))] == "Timestamp",])
+  file <- file[-(grep("Records", file$Timestamp)),]
+  file <- file[-(grep("Timestamp", file$Timestamp)),]
+  
   HH115 <- rbind(HH115, file)
 }
 
 head(HH115)
-
-#Getting rid of columns without the sensors we want
-HH115 <- HH115[,c(grep("z6", names(HH115)), which(HH115[1,] %in% sensorList))]
-head(HH115)
-
-#Renaming to harmonize with old data
-colnames(HH115) <- renameCols(HH115[HH115[grep("z6", names(HH115))] == "Timestamp",])
-HH115 <- HH115[-(grep("Records", HH115$Timestamp)),]
-HH115 <- HH115[-(grep("Timestamp", HH115$Timestamp)),]
-head(HH115)
+tail(HH115)
 
 HH115.mod <- HH115
 
@@ -314,11 +298,11 @@ Date.last <- max(as.POSIXct(HH115.mod$Timestamp, format="%m/%d/%Y %H") + 1, na.r
 #Creating a sequence in between the dates and filling in gaps
 # ts1 <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'), 
 #                  as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
-ts1 <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
-ts1 <- as.POSIXct(ts1,'%m/%d/%y %I:%M:%S %p')
-time_fill <- data.frame(Timestamp=ts1)
+tsH115 <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
+tsH115 <- as.POSIXct(tsH115,'%m/%d/%y %I:%M:%S %p')
+time_fillH115 <- data.frame(Timestamp=tsH115)
 HH115.mod$Timestamp <- as.POSIXct(HH115.mod$Timestamp, format="%m/%d/%Y %H")
-HH115.mod.loop <- full_join(time_fill, HH115.mod)
+HH115.mod.loop <- full_join(time_fillH115, HH115.mod)
 # head(HH115.mod.loop)
 
 #Setting the path out to be in the corresponding folder
@@ -363,25 +347,21 @@ U134 <- data.frame()
 for(i in 1:length(pull.U134)){
   date <- pull.U134[i]
   file <- read.csv(paste0(path.met, "Data_raw/Meter_U134/U134_", date, ".csv"))
-  if(i >1){
-    #This step checks if there are two file and if there are then it removes the redudant column and sensor names
-    file <- file[file$Port.1 != "ATMOS 41",]
-    file <- file[file$z6.10465 != "Timestamp",]
-  }
+  
+  #Getting rid of columns without the sensors we want
+  file <- file[,c(grep("z6", names(file)), which(file[1,] %in% sensorList))]
+  # head(file)
+  
+  #Renaming to harmonize with old data
+  colnames(file) <- renameCols(file[file[grep("z6", names(file))] == "Timestamp",])
+  file <- file[-(grep("Records", file$Timestamp)),]
+  file <- file[-(grep("Timestamp", file$Timestamp)),]
+  
   U134 <- rbind(U134, file)
 }
 
 head(U134)
-#Getting rid of columns without the sensors we want
-U134 <- U134[,c(grep("z6", names(U134)), which(U134[1,] %in% sensorList))]
-head(U134)
-
-#Renaming to harmonize with old data
-colnames(U134) <- renameCols(U134[U134[grep("z6", names(U134))] == "Timestamp",])
-U134 <- U134[-(grep("Records", U134$Timestamp)),]
-U134 <- U134[-(grep("Timestamp", U134$Timestamp)),]
-head(U134)
-
+tail(U134)
 
 U134.mod <- U134
 
@@ -402,11 +382,11 @@ Date.last <- max(as.POSIXct(U134.mod$Timestamp, format="%m/%d/%Y %H") + 1, na.rm
 #Creating a sequence in between the dates and filling in gaps
 # ts1 <- seq.POSIXt(as.POSIXct(Date.first, '%m/%d/%y %I:%M:%S %p'), 
 #                  as.POSIXct(Date.last, '%m/%d/%y %I:%M:%S %p'), by="hour")
-ts1 <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
-ts1 <- as.POSIXct(ts1,'%m/%d/%y %I:%M:%S %p')
-time_fill <- data.frame(Timestamp=ts1)
+tsU134 <- seq.POSIXt(as.POSIXct(Date.first), as.POSIXlt(Date.last), by="hour")
+tsU134 <- as.POSIXct(tsU134,'%m/%d/%y %I:%M:%S %p')
+time_fillU134 <- data.frame(Timestamp=tsU134)
 U134.mod$Timestamp <- as.POSIXct(U134.mod$Timestamp, format="%m/%d/%Y %H")
-U134.mod.loop <- full_join(time_fill, U134.mod)
+U134.mod.loop <- full_join(time_fillU134, U134.mod)
 
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.met, "/Data_processed/Harmonized_data/", sep="")
