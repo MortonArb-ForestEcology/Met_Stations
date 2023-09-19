@@ -169,9 +169,15 @@ for(PLOT in unique(plot.roll$Plot_Name)){
 }
 
 
+# Figurig out WTH is going on with relative humidity
+checkRH <- comb[comb$year==2023,]
+summary(checkRH[checkRH$Relative_Humidity<1 & !is.na(checkRH$Relative_Humidity) & checkRH$yday>120,])
 
+ggplot(data=checkRH) +
   facet_wrap(~Plot_Name, scales="free_y") +
+  geom_line(aes(x = Date_Time, y = Relative_Humidity)) +
   theme_bw()
+summary(checkRH)
 
 ##################################################################
 ##################################################################
