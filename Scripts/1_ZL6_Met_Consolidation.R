@@ -37,6 +37,7 @@ renameCols <- function(x){
   vecCols[grep("Relative Humidity", vecCols, useBytes = T)] <- "Relative_Humidity"
   vecCols[grep("Relative_Humidity", vecCols, useBytes = T)] <- "Relative_Humidity"
   vecCols[grep("Atmospheric Press", vecCols, useBytes = T)] <- "kPa Atmospheric Pressure"
+  vecCols[grep("VPD", vecCols, useBytes = T)] <- "kPa VPD"
   vecCols[grep("X-axis", vecCols, useBytes = T)] <- "deg X-axis Level"
   vecCols[grep("Y-axis", vecCols, useBytes = T)] <- "deg Y-axis Level"
   vecCols[grep("Max Precip", vecCols, useBytes = T)] <- "mm/h Max Precip Rate"
@@ -70,6 +71,8 @@ colnames(dir.old.B127) <- "file"
 
 path.B127 <-  dir.old.B127[stringr::str_detect(dir.old.B127$file, 'up_to'),]
 
+if(length(path.B127)==0) path.B127 <- dir.old.B127[nrow(dir.old.B127),]
+
 old.B127 <- read.csv(file.path(path.in, "B127", path.B127))
 
 old.B127$Date_Time <- as.POSIXct(strptime(old.B127$Date_Time, format="%Y-%m-%d %H"))
@@ -98,18 +101,29 @@ pull.B127
 B127 <- data.frame()
 for(i in 1:length(pull.B127)){
   date <- pull.B127[i]
-  file <- read.csv(paste0(path.met, "Data_raw/Meter_B127/B127_", date, ".csv"))
+  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_B127/B127_", date, ".csv"))
   
   #Getting rid of columns without the sensors we want
-  file <- file[,c(grep("z6", names(file)), which(file[1,] %in% sensorList))]
-  # head(file)
+  fNow <- fNow[,c(grep("z6", names(fNow)), which(fNow[1,] %in% sensorList))]
+  # head(fNow)
+  
   
   #Renaming to harmonize with old data
-  colnames(file) <- renameCols(file[file[grep("z6", names(file))] == "Timestamp",])
-  file <- file[-(grep("Records", file$Timestamp)),]
-  file <- file[-(grep("Timestamp", file$Timestamp)),]
+  colnames(fNow) <- renameCols(fNow[fNow[grep("z6", names(fNow))] == "Timestamp",])
+  fNow <- fNow[-(grep("Records", fNow$Timestamp)),]
+  fNow <- fNow[-(grep("Timestamp", fNow$Timestamp)),]
+  # head(fNow)
   
-  B127 <- rbind(B127, file)
+  # For some reason a column was dropped at some point!  No bueno! need to add that column in
+  if(nrow(B127)>0 & !all(names(B127) %in% names(fNow))){
+    fNow[,names(B127)[!names(B127) %in% names(fNow)]] <- NA
+  }
+  
+  if(nrow(B127)>0){
+    B127 <- rbind(B127, fNow[,names(B127)])
+  } else {
+    B127 <- fNow
+  }
 }
 
 
@@ -153,6 +167,8 @@ colnames(dir.old.N115) <- "file"
 
 path.N115 <-  dir.old.N115[stringr::str_detect(dir.old.N115$file, 'up_to'),]
 
+if(length(path.N115)==0) path.N115 <- dir.old.N115[nrow(dir.old.N115),]
+
 old.N115 <- read.csv(file.path(path.in, "N115", path.N115))
 
 old.N115$Date_Time <- as.POSIXct(strptime(old.N115$Date_Time, format="%Y-%m-%d %H"))
@@ -179,18 +195,27 @@ pull.N115
 N115 <- data.frame()
 for(i in 1:length(pull.N115)){
   date <- pull.N115[i]
-  file <- read.csv(paste0(path.met, "Data_raw/Meter_N115/N115_", date, ".csv"))
+  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_N115/N115_", date, ".csv"))
 
   #Getting rid of columns without the sensors we want
-  file <- file[,c(grep("z6", names(file)), which(file[1,] %in% sensorList))]
-  # head(file)
+  fNow <- fNow[,c(grep("z6", names(fNow)), which(fNow[1,] %in% sensorList))]
+  # head(fNow)
   
   #Renaming to harmonize with old data
-  colnames(file) <- renameCols(file[file[grep("z6", names(file))] == "Timestamp",])
-  file <- file[-(grep("Records", file$Timestamp)),]
-  file <- file[-(grep("Timestamp", file$Timestamp)),]
+  colnames(fNow) <- renameCols(fNow[fNow[grep("z6", names(fNow))] == "Timestamp",])
+  fNow <- fNow[-(grep("Records", fNow$Timestamp)),]
+  fNow <- fNow[-(grep("Timestamp", fNow$Timestamp)),]
 
-  N115 <- rbind(N115, file)
+  # For some reason a column was dropped at some point!  No bueno! need to add that column in
+  if(nrow(N115)>0 & !all(names(N115) %in% names(fNow))){
+    fNow[,names(N115)[!names(N115) %in% names(fNow)]] <- NA
+  }
+  
+  if(nrow(N115)>0){
+    N115 <- rbind(N115, fNow[,names(N115)])
+  } else {
+    N115 <- fNow
+  }
 }
 
 head(N115)
@@ -236,6 +261,8 @@ colnames(dir.old.HH115) <- "file"
 
 path.HH115 <-  dir.old.HH115[stringr::str_detect(dir.old.HH115$file, 'up_to'),]
 
+if(length(path.HH115)==0) path.HH115 <- dir.old.HH115[nrow(dir.old.HH115),]
+
 old.HH115 <- read.csv(file.path(path.in, "HH115", path.HH115))
 
 old.HH115$Date_Time <- as.POSIXct(strptime(old.HH115$Date_Time, format="%Y-%m-%d %H"))
@@ -262,18 +289,27 @@ pull.HH115 # Note: if there are NAs, it means there's a typo in the file name!
 HH115 <- data.frame()
 for(i in 1:length(pull.HH115)){
   date <- pull.HH115[i]
-  file <- read.csv(paste0(path.met, "Data_raw/Meter_HH115/HH115_", date, ".csv"))
+  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_HH115/HH115_", date, ".csv"))
 
   #Getting rid of columns without the sensors we want
-  file <- file[,c(grep("z6", names(file)), which(file[1,] %in% sensorList))]
-  # head(file)
+  fNow <- fNow[,c(grep("z6", names(fNow)), which(fNow[1,] %in% sensorList))]
+  # head(fNow)
   
   #Renaming to harmonize with old data
-  colnames(file) <- renameCols(file[file[grep("z6", names(file))] == "Timestamp",])
-  file <- file[-(grep("Records", file$Timestamp)),]
-  file <- file[-(grep("Timestamp", file$Timestamp)),]
+  colnames(fNow) <- renameCols(fNow[fNow[grep("z6", names(fNow))] == "Timestamp",])
+  fNow <- fNow[-(grep("Records", fNow$Timestamp)),]
+  fNow <- fNow[-(grep("Timestamp", fNow$Timestamp)),]
   
-  HH115 <- rbind(HH115, file)
+  # For some reason a column was dropped at some point!  No bueno! need to add that column in
+  if(nrow(HH115)>0 & !all(names(HH115) %in% names(fNow))){
+    fNow[,names(HH115)[!names(HH115) %in% names(fNow)]] <- NA
+  }
+  
+  if(nrow(HH115)>0){
+    HH115 <- rbind(HH115, fNow[,names(HH115)])
+  } else {
+    HH115 <- fNow
+  }
 }
 
 head(HH115)
@@ -320,6 +356,8 @@ colnames(dir.old.U134) <- "file"
 
 path.U134 <-  dir.old.U134[stringr::str_detect(dir.old.U134$file, 'up_to'),]
 
+if(length(path.U134)==0) path.U134 <- dir.old.U134[nrow(dir.old.U134),]
+
 old.U134 <- read.csv(file.path(path.in, "U134", path.U134))
 
 old.U134$Date_Time <- as.POSIXct(strptime(old.U134$Date_Time, format="%Y-%m-%d %H"))
@@ -346,18 +384,27 @@ pull.U134
 U134 <- data.frame()
 for(i in 1:length(pull.U134)){
   date <- pull.U134[i]
-  file <- read.csv(paste0(path.met, "Data_raw/Meter_U134/U134_", date, ".csv"))
+  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_U134/U134_", date, ".csv"))
   
   #Getting rid of columns without the sensors we want
-  file <- file[,c(grep("z6", names(file)), which(file[1,] %in% sensorList))]
-  # head(file)
+  fNow <- fNow[,c(grep("z6", names(fNow)), which(fNow[1,] %in% sensorList))]
+  # head(fNow)
   
   #Renaming to harmonize with old data
-  colnames(file) <- renameCols(file[file[grep("z6", names(file))] == "Timestamp",])
-  file <- file[-(grep("Records", file$Timestamp)),]
-  file <- file[-(grep("Timestamp", file$Timestamp)),]
+  colnames(fNow) <- renameCols(fNow[fNow[grep("z6", names(fNow))] == "Timestamp",])
+  fNow <- fNow[-(grep("Records", fNow$Timestamp)),]
+  fNow <- fNow[-(grep("Timestamp", fNow$Timestamp)),]
   
-  U134 <- rbind(U134, file)
+  # For some reason a column was dropped at some point!  No bueno! need to add that column in
+  if(nrow(U134)>0 & !all(names(U134) %in% names(fNow))){
+    fNow[,names(U134)[!names(U134) %in% names(fNow)]] <- NA
+  }
+  
+  if(nrow(U134)>0){
+    U134 <- rbind(U134, fNow[,names(U134)])
+  } else {
+    U134 <- fNow
+  }
 }
 
 head(U134)
