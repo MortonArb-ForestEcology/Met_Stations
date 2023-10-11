@@ -29,6 +29,11 @@ colOrder <- c("Timestamp"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitatio
               "deg Y-axis Level", "mm/h Max Precip Rate", "degC RH Sensor Temp", 
               "Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "degC Logger Temperature", "Plot_Name")
 
+# For when things go weird, we need to . instead of the slashes that were in some old files
+colOrderGood <- gsub(" ", ".", colOrder)
+colOrderGood <- gsub("-", ".", colOrderGood)
+colOrderGood <- gsub("/", ".", colOrderGood)
+
 sensorList <- c("ATMOS 41", "TEROS 11", "Battery", "Barometer")
 
 
@@ -43,12 +48,12 @@ path.B127 <-  dir.old.B127[stringr::str_detect(dir.old.B127$file, 'up_to'),]
 
 if(length(path.B127)==0) path.B127 <- dir.old.B127[nrow(dir.old.B127),]
 
-old.B127 <- read.csv(file.path(path.in, "B127", path.B127))
+old.B127 <- read.csv(file.path(path.in, "B127", path.B127), na.strings=c("#N/A", "NA", ""))
 
-old.B127$Date_Time <- as.POSIXct(strptime(old.B127$Date_Time, format="%Y-%m-%d %H"))
+old.B127$Date_Time <- as.POSIXct(strptime(old.B127$Timestamp, format="%Y-%m-%d %H"))
 
 #Finding the last date we have data for
-end.B127 <- max(old.B127$Date_Time, na.rm = T)
+end.B127 <- max(old.B127$Timestamp, na.rm = T)
 
 end.B127 <- sub(" .*", "", end.B127)
 
@@ -71,7 +76,7 @@ pull.B127
 B127 <- data.frame()
 for(i in 1:length(pull.B127)){
   date <- pull.B127[i]
-  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_B127/B127_", date, ".csv"))
+  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_B127/B127_", date, ".csv"), na.strings=c("#N/A", "NA", ""))
   
   #Getting rid of columns without the sensors we want
   fNow <- fNow[,c(grep("z6", names(fNow)), which(fNow[1,] %in% sensorList))]
@@ -108,7 +113,8 @@ B127.mod$Plot_Name <- "B127" ## This is what gives Brendon errors
 B127.mod <- B127.mod[!duplicated(B127.mod[c('Timestamp')]),]
 
 #rearranging column order to match other plots
-B127.mod <- B127.mod[, colOrder]
+B127.mod <- B127.mod[, colOrderGood]
+summary(B127.mod)
 
 #Adding in missing times so missing data can be seen
 #Defining the first and last date
@@ -122,10 +128,13 @@ tsB127 <- as.POSIXct(tsB127,'%m/%d/%y %I:%M:%S %p')
 time_fillB127 <- data.frame(Timestamp=tsB127)
 B127.mod$Timestamp <- as.POSIXct(B127.mod$Timestamp, format="%m/%d/%Y %H")
 B127.mod.loop <- full_join(time_fillB127, B127.mod)
+tail(B127.mod.loop)
+# summary(B127.mod.loop)
 
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.met, "/Data_processed/Harmonized_data/", sep="")
 filename <- paste("B127.csv", sep = "")
+
 write.csv(B127.mod.loop, file.path(path.out,  file = filename), row.names = FALSE)
 
 #-------------------------------------------------#
@@ -139,9 +148,9 @@ path.N115 <-  dir.old.N115[stringr::str_detect(dir.old.N115$file, 'up_to'),]
 
 if(length(path.N115)==0) path.N115 <- dir.old.N115[nrow(dir.old.N115),]
 
-old.N115 <- read.csv(file.path(path.in, "N115", path.N115))
+old.N115 <- read.csv(file.path(path.in, "N115", path.N115), na.strings=c("#N/A", "NA", ""))
 
-old.N115$Date_Time <- as.POSIXct(strptime(old.N115$Date_Time, format="%Y-%m-%d %H"))
+old.N115$Date_Time <- as.POSIXct(strptime(old.N115$Timestamp, format="%Y-%m-%d %H"))
 
 end.N115 <- max(old.N115$Date_Time, na.rm = T)
 
@@ -165,7 +174,7 @@ pull.N115
 N115 <- data.frame()
 for(i in 1:length(pull.N115)){
   date <- pull.N115[i]
-  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_N115/N115_", date, ".csv"))
+  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_N115/N115_", date, ".csv"), na.strings=c("#N/A", "NA", ""))
 
   #Getting rid of columns without the sensors we want
   fNow <- fNow[,c(grep("z6", names(fNow)), which(fNow[1,] %in% sensorList))]
@@ -197,7 +206,7 @@ N115.mod <- N115
 N115.mod$Plot_Name <- "N115"
 
 #rearranging column order to match other plots
-N115.mod <- N115.mod[, colOrder]
+N115.mod <- N115.mod[, colOrderGood]
 names(N115.mod)
 
 #Getting rid of redundant dates of data collection#
@@ -215,6 +224,8 @@ tsN115 <- as.POSIXct(tsN115,'%m/%d/%y %I:%M:%S %p')
 time_fillN115 <- data.frame(Timestamp=tsN115)
 N115.mod$Timestamp <- as.POSIXct(N115.mod$Timestamp, format="%m/%d/%Y %H")
 N115.mod.loop <- full_join(time_fillN115, N115.mod)
+head(N115.mod.loop)
+tail(N115.mod.loop)
 
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.met, "/Data_processed/Harmonized_data/", sep="")
@@ -233,9 +244,9 @@ path.HH115 <-  dir.old.HH115[stringr::str_detect(dir.old.HH115$file, 'up_to'),]
 
 if(length(path.HH115)==0) path.HH115 <- dir.old.HH115[nrow(dir.old.HH115),]
 
-old.HH115 <- read.csv(file.path(path.in, "HH115", path.HH115))
+old.HH115 <- read.csv(file.path(path.in, "HH115", path.HH115), na.strings=c("#N/A", "NA", ""))
 
-old.HH115$Date_Time <- as.POSIXct(strptime(old.HH115$Date_Time, format="%Y-%m-%d %H"))
+old.HH115$Date_Time <- as.POSIXct(strptime(old.HH115$Timestamp, format="%Y-%m-%d %H"))
 
 end.HH115 <- max(old.HH115$Date_Time, na.rm = T)
 
@@ -259,7 +270,7 @@ pull.HH115 # Note: if there are NAs, it means there's a typo in the file name!
 HH115 <- data.frame()
 for(i in 1:length(pull.HH115)){
   date <- pull.HH115[i]
-  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_HH115/HH115_", date, ".csv"))
+  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_HH115/HH115_", date, ".csv"), na.strings=c("#N/A", "NA", ""))
 
   #Getting rid of columns without the sensors we want
   fNow <- fNow[,c(grep("z6", names(fNow)), which(fNow[1,] %in% sensorList))]
@@ -290,7 +301,7 @@ HH115.mod <- HH115
 HH115.mod$Plot_Name <- "HH115"
 
 #rearranging column order to match other plots
-HH115.mod <- HH115.mod[, colOrder]
+HH115.mod <- HH115.mod[, colOrderGood]
 names(HH115.mod)
 
 
@@ -309,7 +320,9 @@ tsH115 <- as.POSIXct(tsH115,'%m/%d/%y %I:%M:%S %p')
 time_fillH115 <- data.frame(Timestamp=tsH115)
 HH115.mod$Timestamp <- as.POSIXct(HH115.mod$Timestamp, format="%m/%d/%Y %H")
 HH115.mod.loop <- full_join(time_fillH115, HH115.mod)
-# head(HH115.mod.loop)
+head(HH115.mod.loop)
+tail(HH115.mod.loop)
+
 
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.met, "/Data_processed/Harmonized_data/", sep="")
@@ -328,9 +341,11 @@ path.U134 <-  dir.old.U134[stringr::str_detect(dir.old.U134$file, 'up_to'),]
 
 if(length(path.U134)==0) path.U134 <- dir.old.U134[nrow(dir.old.U134),]
 
-old.U134 <- read.csv(file.path(path.in, "U134", path.U134))
+old.U134 <- read.csv(file.path(path.in, "U134", path.U134), na.strings=c("#N/A", "NA", ""))
+head(old.U134)
+tail(old.U134)
 
-old.U134$Date_Time <- as.POSIXct(strptime(old.U134$Date_Time, format="%Y-%m-%d %H"))
+old.U134$Date_Time <- as.POSIXct(strptime(old.U134$Timestamp, format="%Y-%m-%d %H"))
 
 end.U134 <- max(old.U134$Date_Time, na.rm = T)
 
@@ -354,7 +369,7 @@ pull.U134
 U134 <- data.frame()
 for(i in 1:length(pull.U134)){
   date <- pull.U134[i]
-  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_U134/U134_", date, ".csv"))
+  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_U134/U134_", date, ".csv"), na.strings=c("#N/A", "NA", ""))
   
   #Getting rid of columns without the sensors we want
   fNow <- fNow[,c(grep("z6", names(fNow)), which(fNow[1,] %in% sensorList))]
@@ -385,9 +400,9 @@ U134.mod <- U134
 U134.mod$Plot_Name <- "U134"
 
 #rearranging column order to match other plots
-U134.mod <- U134.mod[, colOrder]
+U134.mod <- U134.mod[, colOrderGood]
 names(U134.mod)
-
+head(U134.mod)
 
 #Getting rid of redundant dates of data collection#
 U134.mod <- U134.mod[!duplicated(U134.mod[c('Timestamp')]),]
@@ -404,6 +419,8 @@ tsU134 <- as.POSIXct(tsU134,'%m/%d/%y %I:%M:%S %p')
 time_fillU134 <- data.frame(Timestamp=tsU134)
 U134.mod$Timestamp <- as.POSIXct(U134.mod$Timestamp, format="%m/%d/%Y %H")
 U134.mod.loop <- full_join(time_fillU134, U134.mod)
+head(U134.mod.loop)
+tail(U134.mod.loop)
 
 #Setting the path out to be in the corresponding folder
 path.out <- paste(path.met, "/Data_processed/Harmonized_data/", sep="")
