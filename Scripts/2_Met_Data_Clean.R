@@ -56,6 +56,8 @@ summary(comb[comb$Relative_Humidity>1 & !is.na(comb$Relative_Humidity),])
 
 #Removing NA rows 
 comb <- comb[!is.na(comb$Plot_Name) & !is.na(comb$Date_Time),]
+comb[comb$Date_Time<as.Date(lubridate::year(Sys.Date())),] # THere's a weird quick; don't know where it came in at the moment!
+comb <- comb[comb$Date_Time<as.Date(lubridate::year(Sys.Date())),] # 
 summary(comb)
 
 # Adding flags for outliers
@@ -87,7 +89,7 @@ summary(df.clean)
 # df.clean$PAR <- ifelse(df.clean$SIGFLAG_PAR== T, NA, df.clean$PAR)
 
 # Seperating by chosen year
-for(PLOT in unique(comb$Plot_Name)[2:4]){
+for(PLOT in unique(comb$Plot_Name)[]){
   yrNow <- year(Sys.Date())
   
   dir.plot <- dir(file.path(path.clean, PLOT), ".csv")

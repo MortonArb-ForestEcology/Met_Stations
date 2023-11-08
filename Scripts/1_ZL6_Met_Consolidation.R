@@ -44,13 +44,30 @@ sensorList <- c("ATMOS 41", "TEROS 11", "Battery", "Barometer")
 dir.old.B127 <- as.data.frame(dir(file.path(path.in, "B127"), ".csv"))
 colnames(dir.old.B127) <- "file"
 
+# Finding a working file for the current year
 path.B127 <-  dir.old.B127[stringr::str_detect(dir.old.B127$file, 'up_to'),]
 
+# If no current file, pull the oldest one
 if(length(path.B127)==0) path.B127 <- dir.old.B127[nrow(dir.old.B127),]
+path.B127
 
 old.B127 <- read.csv(file.path(path.in, "B127", path.B127), na.strings=c("#N/A", "NA", ""))
+summary(old.B127)
+head(old.B127)
+tail(old.B127)
 
-old.B127$Date_Time <- as.POSIXct(strptime(old.B127$Timestamp, format="%Y-%m-%d %H"))
+# 2022 has a mix of year/date foramts!
+# old.B127$Date_Time <- as.POSIXct(strptime(old.B127$Timestamp, format="%Y-%m-%d %H")) # This is causing
+old.B127$Date_Time <- as.POSIXct(old.B127$Timestamp, format="%m/%d/%Y %H") # This is causing
+head(old.B127)
+tail(old.B127)
+dim(old.B127)
+
+head(old.B127[is.na(old.B127$Date_Time),])
+old.B127[9000:9088,c("Timestamp", "Date_Time", "Date")]
+
+summary(old.B127)
+tail(old.B127[is.na(old.B127$Date_Time),])
 
 #Finding the last date we have data for
 end.B127 <- max(old.B127$Timestamp, na.rm = T)
