@@ -9,6 +9,25 @@ cols.final <- c("year", "Plot_Name", "Timestamp", "Date_Time", "Date", "year", "
 cleanB127 <- dir(file.path(path.in, "B127"), ".csv")
 
 
+# This has a mix of formats!!
+b127.2022  <- read.csv(file.path(path.in, "B127", "B127_2022.csv"))
+
+fixDates <- as.POSIXct(NA, length=nrow(b127.2022)) # Use a blank vector otherwise you'll add a column you eventually want to just drop
+
+rowsDash <- grep("-", b127.2022$Timestamp)
+dateDashNA <- which(is.na(strptime(b127.2022$Timestamp[rowsDash], format="%Y-%m-%d %H")))
+b127.2022$Timestamp[rowsDash[dateDashNA]]<- paste(b127.2022$Timestamp[rowsDash[dateDashNA]], "0:00")
+
+fixDates[rowsDash] <- as.POSIXct(strptime(b127.2022$Timestamp[rowsDash], format="%Y-%m-%d %H")) 
+
+rowsSlash <- grep("/", b127.2022$Timestamp)
+fixDates[rowsSlash] <- as.POSIXct(strptime(b127.2022$Timestamp[rowsSlash], format="%m/%d/%Y %H"), format="%Y-%m-%d %H") 
+
+b127.2022$Timestamp <- fixDates
+# b127.2022 <- subset(b127.2022, select=-TEST2)
+summary(b127.2022)
+
+
 
 b127.2017  <- read.csv(file.path(path.in, "B127", "B127_2017.csv"))
 if(all(is.na(b127.2017$Timestamp))) b127.2017$Timestamp <- b127.2017$Date_Time
@@ -57,18 +76,6 @@ head(b127.2021)
 tail(b127.2021)
 b127.2021$Date_Time <-  as.POSIXct(strptime(b127.2021$Date_Time, format="%Y-%m-%d %H")) 
 summary(b127.2021)
-
-# This has a mix of formats!!
-b127.2022  <- read.csv(file.path(path.in, "B127", "B127_2022.csv"))
-b127.2022$TEST2 <- as.POSIXct(NA)
-rowsSlash <- grep("/", b127.2022$Timestamp)
-b127.2022$TEST2[rowsSlash] <- as.POSIXct(strptime(b127.2022$Timestamp[rowsSlash], format="%m/%d/%Y %H"), format="%Y-%m-%d %H") 
-
-rowsDash <- grep("-", b127.2022$Timestamp)
-dateDashNA <- which(is.na(strptime(b127.2022$Timestamp[rowsDash], format="%Y-%m-%d %H")))
-b127.2022$Timestamp[rowsDash[dateDashNA]]<- paste(b127.2022$Timestamp[rowsDash[dateDashNA]], "0:00")
-b127.2022$TEST2[rowsDash] <- as.POSIXct(strptime(b127.2022$Timestamp[rowsDash], format="%Y-%m-%d %H")) 
-summary(b127.2022)
 
 
 summary(b127.2022[,c("Timestamp", "Date_Time", "TEST2")])
