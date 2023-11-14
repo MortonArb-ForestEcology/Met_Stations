@@ -78,4 +78,8 @@ TEST2 <- read.csv(file.path(path.out, "U134", "U134_2022.csv"))
 TEST2$Timestamp <- as.POSIXct(TEST2$Timestamp, tz='Etc/GMT+6')
 head(TEST2)
 tail(TEST2)
+plot(TEST2$PAR[lubridate::hour(TEST2$Timestamp)==7])
+# 7 a.m. is when we start getting values with GMT+6# This will look weird but is right because the canopy closes
 
+
+plot(TEST2$PAR[1:48])
