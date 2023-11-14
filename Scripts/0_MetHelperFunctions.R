@@ -51,7 +51,8 @@ renameCols <- function(x){
 
 # Function to append new files to each other ----
 combineMetFiles <- function(plotID, pathPlot, filesPlot){
-  cols.final <- c("Plot_Name", "Timestamp", "Date", "Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "km.Lightning.Distance", "deg.Wind.Direction", "m.s.Wind.Speed", "m.s.Gust.Speed", "kPa.Atmospheric.Pressure", "deg.X.axis.Level", "deg.Y.axis.Level", "mm.h.Max.Precip.Rate", "degC.RH.Sensor.Temp", "Battery.Percent", "mV.Battery.Voltage", "kPa.Reference.Pressure", "degC.Logger.Temperature", "SIGFLAG_Soil_Moisture", "SIGFLAG_Soil_Temp", "SIGFLAG_Air_Temp", "SIGFLAG_Relative_Humidity", "SIGFLAG_PAR")
+  
+  cols.final <- c("Plot_Name", "Timestamp", "Date ", "Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "km.Lightning.Distance", "deg.Wind.Direction", "m.s.Wind.Speed", "m.s.Gust.Speed", "kPa.Atmospheric.Pressure", "deg.X.axis.Level", "deg.Y.axis.Level", "mm.h.Max.Precip.Rate", "degC.RH.Sensor.Temp", "Battery.Percent", "mV.Battery.Voltage", "kPa.Reference.Pressure", "degC.Logger.Temperature", "SIGFLAG_Soil_Moisture", "SIGFLAG_Soil_Temp", "SIGFLAG_Air_Temp", "SIGFLAG_Relative_Humidity", "SIGFLAG_PAR")
   
   # NOTE: Will be assuming NO DST per what we've seen in some recent past data
   datAll <- data.frame()
@@ -92,8 +93,8 @@ combineMetFiles <- function(plotID, pathPlot, filesPlot){
     fixDates[rowsSlash] <- as.POSIXct(strptime(fNow$Timestamp[rowsSlash], format="%m/%d/%Y %H"), format="%Y-%m-%d %H", tz='Etc/GMT+6') 
     
     # 5. Now that we have everything in a formatted vector, overwrite the entire column at once; this shoudl cause the weirdness that happened when we tried to fix or work with subsets
-    fixDates[(length(fixDates)-48):length(fixDates)]
-    fNow$Timestamp[(length(fixDates)-48):length(fixDates)]
+    # fixDates[(length(fixDates)-48):length(fixDates)]
+    # fNow$Timestamp[(length(fixDates)-48):length(fixDates)]
     
     fNow$Timestamp <- fixDates
     fNow$Date <- as.Date(trunc(fNow$Timestamp, 'days')) # If just do as.Date, it will round and that sucks
