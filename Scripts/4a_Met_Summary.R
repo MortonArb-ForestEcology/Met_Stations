@@ -34,6 +34,9 @@ B127All <- dir(file.path(path.out,"B127"))
 plot.B127 <- data.frame()
 for(i in 1:length(B127All)){
   fNow <- read.csv(file.path(path.out,"B127", B127All[i]), na.strings=c("", "NA", "#N/A"))
+  fNow$Timestamp <- as.POSIXct(fNow$Timestamp, tz="Etc/GMT+6")
+  fNow$Date <- as.Date(fNow$Date)
+  fNow$Plot_Name <- as.factor(fNow$Plot_Name)
   names(fNow)[!grepl("SIGFLAG", names(fNow))] <- renameCols(names(fNow)[!grepl("SIGFLAG", names(fNow))])
   
   plot.B127 <- rbind(plot.B127, fNow)
@@ -45,6 +48,9 @@ N115All <- dir(file.path(path.out,"N115"))
 plot.N115 <- data.frame()
 for(i in 1:length(N115All)){
   fNow <- read.csv(file.path(path.out,"N115", N115All[i]), na.strings=c("", "NA", "#N/A"))
+  fNow$Timestamp <- as.POSIXct(fNow$Timestamp, tz="Etc/GMT+6")
+  fNow$Date <- as.Date(fNow$Date)
+  fNow$Plot_Name <- as.factor(fNow$Plot_Name)
   names(fNow)[!grepl("SIGFLAG", names(fNow))] <- renameCols(names(fNow)[!grepl("SIGFLAG", names(fNow))])
   
   plot.N115 <- rbind(plot.N115, fNow)
@@ -58,6 +64,9 @@ HH115All <- dir(file.path(path.out,"HH115"))
 plot.HH115 <- data.frame()
 for(i in 1:length(HH115All)){
   fNow <- read.csv(file.path(path.out,"HH115", HH115All[i]), na.strings=c("", "NA", "#N/A"))
+  fNow$Date <- as.Date(fNow$Date)
+  fNow$Timestamp <- as.POSIXct(fNow$Timestamp, tz="Etc/GMT+6")
+  fNow$Plot_Name <- as.factor(fNow$Plot_Name)
   names(fNow)[!grepl("SIGFLAG", names(fNow))] <- renameCols(names(fNow)[!grepl("SIGFLAG", names(fNow))])
   
   plot.HH115 <- rbind(plot.HH115, fNow)
@@ -70,6 +79,9 @@ U134All <- dir(file.path(path.out,"U134"))
 plot.U134 <- data.frame()
 for(i in 1:length(U134All)){
   fNow <- read.csv(file.path(path.out,"U134", U134All[i]), na.strings=c("", "NA", "#N/A"))
+  fNow$Timestamp <- as.POSIXct(fNow$Timestamp, tz="Etc/GMT+6")
+  fNow$Date <- as.Date(fNow$Date)
+  fNow$Plot_Name <- as.factor(fNow$Plot_Name)
   names(fNow)[!grepl("SIGFLAG", names(fNow))] <- renameCols(names(fNow)[!grepl("SIGFLAG", names(fNow))])
   
   plot.U134 <- rbind(plot.U134, fNow)
@@ -80,32 +92,32 @@ head(plot.U134)
 
 
 comb <- rbind(plot.B127, plot.N115, plot.HH115, plot.U134)
-comb$Date_Time <- as.POSIXct(comb$Date_Time)
-comb$yday <- yday(comb$Date_Time)
-comb$year <- year(comb$Date_Time)
+# comb$Timestamp <- as.POSIXct(comb$Timestamp)
+comb$yday <- lubridate::yday(comb$Date)
+comb$year <- lubridate::year(comb$Date)
 
 plot.comb <- data.frame()
 for(PLOT in unique(comb$Plot_Name)){
   temp <- comb[comb$Plot_Name == PLOT,]
   if(PLOT == "B127"){
     #Adding a sensor flag. Adding one for soil sensor's and one for other sensors since they changed at different times for all but B127
-    temp$Air.Sensor <- ifelse(temp$Date_Time <= "2020-10-20 12:00:00", "Onset", "Meter")
-    temp$Soil.Sensor <- ifelse(temp$Date_Time <= "2020-10-20 12:00:00", "Onset", "Meter")
+    temp$Air.Sensor <- ifelse(temp$Timestamp <= "2020-10-20 12:00:00", "Onset", "Meter")
+    temp$Soil.Sensor <- ifelse(temp$Timestamp <= "2020-10-20 12:00:00", "Onset", "Meter")
   } else {
-    temp$Soil.Sensor <- ifelse(temp$Date_Time <= "2020-11-05 13:00:00", "Onset", "Meter")
-    temp$Air.Sensor <- ifelse(temp$Date_Time <= "2021-07-02 14:00:00", "Onset", "Meter")
+    temp$Soil.Sensor <- ifelse(temp$Timestamp <= "2020-11-05 13:00:00", "Onset", "Meter")
+    temp$Air.Sensor <- ifelse(temp$Timestamp <= "2021-07-02 14:00:00", "Onset", "Meter")
   }
   plot.comb <- rbind(plot.comb, temp)
 }
 
 #Organizing data into long form for easier graphing
-agg.stack <- aggregate(cbind(Soil_Temp, Soil_Moisture, PAR, Air_Temp, Relative_Humidity)~Plot_Name+Date_Time+Air.Sensor+Soil.Sensor, data = plot.comb, FUN = median, na.action = NULL)
+agg.stack <- aggregate(cbind(Soil_Temp, Soil_Moisture, PAR, Air_Temp, Relative_Humidity)~Plot_Name+Timestamp+Air.Sensor+Soil.Sensor, data = plot.comb, FUN = median, na.action = NULL)
 
 plot.stack <- stack(agg.stack[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
 names(plot.stack) <- c("values", "var")
-plot.stack[,c("Plot_Name", "Date_Time", "Air.Sensor", "Soil.Sensor")] <- agg.stack[,c("Plot_Name", "Date_Time", "Air.Sensor", "Soil.Sensor")]
-plot.stack$yday <- yday(plot.stack$Date_Time)
-plot.stack$year <- year(plot.stack$Date_Time)
+plot.stack[,c("Plot_Name", "Timestamp", "Air.Sensor", "Soil.Sensor")] <- agg.stack[,c("Plot_Name", "Timestamp", "Air.Sensor", "Soil.Sensor")]
+plot.stack$yday <- yday(plot.stack$Timestamp)
+plot.stack$year <- year(plot.stack$Timestamp)
 
 #Creating a rolling average
 plot.roll <- plot.stack %>%
@@ -116,8 +128,8 @@ plot.roll <- plot.stack %>%
                 VAR_30 = zoo::rollmean(values, k = 30, fill = NA)) %>% 
   dplyr::ungroup()
 
-plot.roll$yday <- yday(plot.roll$Date_Time)
-plot.roll$year <- year(plot.roll$Date_Time)
+plot.roll$yday <- yday(plot.roll$Timestamp)
+plot.roll$year <- year(plot.roll$Timestamp)
 
 #Looks at one variable at all plots
 for(VAR in unique(plot.stack$var)){
@@ -125,17 +137,17 @@ for(VAR in unique(plot.stack$var)){
   if(VAR %in% c("PAR", "Air_Temp", "Relative_Humidity")){
   fig <- ggplot() +
     facet_wrap(~Plot_Name, scales="free_y") +
-    geom_line(aes(x = Date_Time, y = values, color = Air.Sensor), data = plot.stack[plot.stack$var == VAR,]) +
+    geom_line(aes(x = Timestamp, y = values, color = Air.Sensor), data = plot.stack[plot.stack$var == VAR,]) +
     theme_bw()+
-    ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Date_Time)))
+    ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Timestamp)))
   print(fig)
   dev.off()
   } else{
   fig <- ggplot() +
     facet_wrap(~Plot_Name, scales="free_y") +
-    geom_line(aes(x = Date_Time, y = values, color = Soil.Sensor), data = plot.stack[plot.stack$var == VAR,]) +
+    geom_line(aes(x = Timestamp, y = values, color = Soil.Sensor), data = plot.stack[plot.stack$var == VAR,]) +
     theme_bw()+
-    ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Date_Time)))
+    ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Timestamp)))
   print(fig)
   dev.off()    
   }
@@ -149,7 +161,7 @@ for(PLOT in unique(plot.roll$Plot_Name)){
     facet_wrap(~var, scales="free_y") +
     geom_line(aes(x = yday, y = VAR_30, color = as.character(year)), data = plot.roll[plot.roll$Plot_Name == PLOT,]) +
     theme_bw()+
-    ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.stack$Date_Time)))+
+    ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.stack$Timestamp)))+
     ylab(paste0("30 day rolling average"))
     print(fig)
   dev.off()
@@ -160,9 +172,9 @@ for(PLOT in unique(plot.roll$Plot_Name)){
   png(width= 750, filename= file.path(path.qaqc, paste0('PLOT_', PLOT, '_All_VARS_time_series','.png')))
   fig <- ggplot() +
     facet_wrap(~var, scales="free_y") +
-    geom_line(aes(x = Date_Time, y = VAR_30), data = plot.roll[plot.roll$Plot_Name == PLOT,]) +
+    geom_line(aes(x = Timestamp, y = VAR_30), data = plot.roll[plot.roll$Plot_Name == PLOT,]) +
     theme_bw()+
-    ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.roll$Date_Time)))+
+    ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.roll$Timestamp)))+
     ylab(paste0("30 day rolling average"))
   print(fig)
   dev.off()
@@ -175,7 +187,7 @@ summary(checkRH[checkRH$Relative_Humidity<1 & !is.na(checkRH$Relative_Humidity) 
 
 ggplot(data=checkRH) +
   facet_wrap(~Plot_Name, scales="free_y") +
-  geom_line(aes(x = Date_Time, y = Relative_Humidity)) +
+  geom_line(aes(x = Timestamp, y = Relative_Humidity)) +
   theme_bw()
 summary(checkRH)
 
@@ -193,25 +205,25 @@ summary(checkRH)
 # all_plots <- bind_rows(plot.B127, plot.N115, plot.HH115, plot.U134)
 # 
 # str(all_plots)
-# all_plots$Date_Time <- as.POSIXct(all_plots$Date_Time)
+# all_plots$Timestamp <- as.POSIXct(all_plots$Timestamp)
 # summary(all_plots)
 # 
 # #Making a list of NA values so we know missing dates
 # Dates.missing <- all_plots[is.na(all_plots$Plot_Name),]
 # 
 # #Creating year column so years can be compared
-# all_plots <- all_plots %>% mutate(Year = as.character(year(Date_Time)))
+# all_plots <- all_plots %>% mutate(Year = as.character(year(Timestamp)))
 # 
 # # Changing data to a "long" format that ggplot likes
 # met.stack <- stack(all_plots[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
 # names(met.stack) <- c("values", "var")
-# met.stack[,c("Plot_Name", "Date_Time")] <- all_plots[,c("Plot_Name", "Date_Time")]
+# met.stack[,c("Plot_Name", "Timestamp")] <- all_plots[,c("Plot_Name", "Timestamp")]
 # summary(met.stack)
 # 
 # #Initial plot 
 # path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/PAR and SOIL Summary"
 # png(width= 750, filename= file.path(path.figures, paste0('All_Vars','.png')))
-# ggplot(met.stack[met.stack$var == "Soil_Moisture",], aes(x = Date_Time, y = values)) +
+# ggplot(met.stack[met.stack$var == "Soil_Moisture",], aes(x = Timestamp, y = values)) +
 #   geom_smooth(aes(color=Plot_Name)) +
 #   theme_bw()+
 #   ggtitle("Met Stations Soil Moisture")
@@ -243,14 +255,14 @@ summary(checkRH)
 # #Changing data to a "long" format that ggplot likes for total summary
 # plot.allstack <- stack(all_plots[,c( "PAR", "Soil_Moisture", "Soil_Temp")])
 # names(plot.allstack) <- c("values", "var")
-# plot.allstack[,c("Year", "Date_Time", "Plot_Name")] <- all_plots[,c("Year", "Date_Time", "Plot_Name")]
+# plot.allstack[,c("Year", "Timestamp", "Plot_Name")] <- all_plots[,c("Year", "Timestamp", "Plot_Name")]
 # summary(plot.allstack)
 # 
-# plot.allstack$Yday <- lubridate::yday(plot.allstack$Date_Time)
+# plot.allstack$Yday <- lubridate::yday(plot.allstack$Timestamp)
 # 
 # #Plot to compare years
 # png(width= 750, filename= file.path(path.figures, paste0('Continous_timeseries','.png')))
-# ggplot(plot.allstack, aes(x = Date_Time, y = values)) +
+# ggplot(plot.allstack, aes(x = Timestamp, y = values)) +
 #   facet_grid(cols = vars(Plot_Name), rows = vars(var), scales="free_y") +
 #   geom_smooth(aes(color=Year)) +
 #   theme_bw()+
@@ -294,11 +306,11 @@ summary(checkRH)
 # # Changing data to a "long" format that ggplot likes for yearly summary
 # plot.stack <- stack(plot.all[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
 # names(plot.stack) <- c("values", "var")
-# plot.stack[,c("Date_Time")] <- plot.stack[,c("Date_Time")]
+# plot.stack[,c("Timestamp")] <- plot.stack[,c("Timestamp")]
 # summary(plot.stack)
 # 
 # #Plot to just view the data as is over one year
-# ggplot(plot.stack, aes(x = Date_Time, y = values)) +
+# ggplot(plot.stack, aes(x = Timestamp, y = values)) +
 #   facet_wrap(~var, scales="free_y") +
 #   geom_line() +
 #   theme_bw()
