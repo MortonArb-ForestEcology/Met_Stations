@@ -88,8 +88,12 @@ for(PLOT in plotsAll){
   plotNew <- combineMetFiles(plotID=PLOT, pathPlot=pathPlotNew, filesPlot=pull.plot)
   summary(plotNew)
   
+  # ---------------
   # Do some data cleaning -- skipping this step for now so we're better capturing what's going on
-  # B127Clean <- cleanMet(metData=plotNew)
+  # ---------------
+  # This is a real ugly way of doing it, but clearly this needs to be fixed at the moment
+  plotNew$Relative_Humidity[!is.na(plotNew$Relative_Humidity) & plotNew$Relative_Humidity<5] <- plotNew$Relative_Humidity[!is.na(plotNew$Relative_Humidity) & plotNew$Relative_Humidity<5]*100
+  # ---------------
   
   # Get rid of any old data
   plotNew <- plotNew[plotNew$Timestamp>end.plot,]
