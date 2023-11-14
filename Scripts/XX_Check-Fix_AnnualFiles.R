@@ -14,7 +14,7 @@ cleanMetFiles <- function(metNow){
   if(length(timeGone)>0) metNow$Timestamp[timeGone] <- metNow$Date_Time[timeGone]
   
   # 2. Set up a place holder for fixed dates
-  fixDates <- as.POSIXct(NA, length=nrow(metNow)) # Use a blank vector otherwise you'll add a column you eventually want to just drop
+  fixDates <- as.POSIXct(rep(NA, length=nrow(metNow))) # Use a blank vector otherwise you'll add a column you eventually want to just drop
   
   # 3. First do any dates with the dash because those are (generally) in the format I want
   rowsDash <- grep("-", metNow$Timestamp)
@@ -23,11 +23,11 @@ cleanMetFiles <- function(metNow){
   dateDashNA <- which(is.na(strptime(metNow$Timestamp[rowsDash], format="%Y-%m-%d %H")))
   metNow$Timestamp[rowsDash[dateDashNA]]<- paste(metNow$Timestamp[rowsDash[dateDashNA]], "0:00")
   
-  fixDates[rowsDash] <- as.POSIXct(strptime(metNow$Timestamp[rowsDash], format="%Y-%m-%d %H")) 
+  fixDates[rowsDash] <- as.POSIXct(strptime(metNow$Timestamp[rowsDash], format="%Y-%m-%d %H"), tz='Etc/GMT+6') 
   
   # 4. Now deal with the slash formats.  They are generally cleaner, but need to be reformatted out of the wonky way Americans write time
   rowsSlash <- grep("/", metNow$Timestamp)
-  fixDates[rowsSlash] <- as.POSIXct(strptime(metNow$Timestamp[rowsSlash], format="%m/%d/%Y %H"), format="%Y-%m-%d %H") 
+  fixDates[rowsSlash] <- as.POSIXct(strptime(metNow$Timestamp[rowsSlash], format="%m/%d/%Y %H"), format="%Y-%m-%d %H", tz='Etc/GMT+6') 
   
   # 5. Now that we have everything in a formatted vector, overwrite the entire column at once; this shoudl cause the weirdness that happened when we tried to fix or work with subsets
   metNow$Timestamp <- fixDates
@@ -53,9 +53,10 @@ cleanMetFiles <- function(metNow){
 # cleanB127 <- dir(file.path(path.in, "B127"), ".csv")
 plotEW <- dir(path.in)
 plotEW <- plotEW[!grepl(".csv", plotEW)]
-
+# rm(list=ls())
 for(PLOT in plotEW){
   fYears <- dir(file.path(path.in, PLOT), ".csv")
+  if(!dir.exists(file.path(path.out, PLOT))) dir.create(file.path(path.out, PLOT), recursive=T)
   for(fNow in fYears){
     print(fNow)
     metNow <- read.csv(file.path(path.in, PLOT, fNow))
@@ -68,10 +69,13 @@ for(PLOT in plotEW){
 
 
 TEST <- read.csv(file.path(path.out, "HH115", "HH115_2017.csv"))
+TEST$Timestamp <- as.POSIXct(TEST$Timestamp, tz='Etc/GMT+6')
 head(TEST)
 tail(TEST)
+summary(TEST)
 
 TEST2 <- read.csv(file.path(path.out, "U134", "U134_2022.csv"))
+TEST2$Timestamp <- as.POSIXct(TEST2$Timestamp, tz='Etc/GMT+6')
 head(TEST2)
 tail(TEST2)
 

@@ -24,10 +24,12 @@ path.in <- paste(path.met, "Data_processed/Clean_data", sep="")
 # Setting up a function for renaming columns
 source("0_MetHelperFunctions.R")
 
-colOrder <- c("Timestamp"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"deg Wind Direction",
-              "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"Relative_Humidity", "kPa Atmospheric Pressure", "deg X-axis Level",
-              "deg Y-axis Level", "mm/h Max Precip Rate", "degC RH Sensor Temp", 
-              "Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "degC Logger Temperature", "Plot_Name")
+# colOrder <- c("Timestamp"	,"Soil_Moisture", "Soil_Temp", "PAR", "mm Precipitation", "Lightning Activity", "km Lightning Distance",	"deg Wind Direction",
+#               "m/s Wind Speed", "m/s Gust Speed",	"Air_Temp",	"Relative_Humidity", "kPa Atmospheric Pressure", "deg X-axis Level",
+#               "deg Y-axis Level", "mm/h Max Precip Rate", "degC RH Sensor Temp", 
+#               "Battery Percent", "mV Battery Voltage", "kPa Reference Pressure", "degC Logger Temperature", "Plot_Name")
+
+cols.final <- c("Plot_Name", "Timestamp", "Date", "Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "km.Lightning.Distance", "deg.Wind.Direction", "m.s.Wind.Speed", "m.s.Gust.Speed", "kPa.Atmospheric.Pressure", "deg.X.axis.Level", "deg.Y.axis.Level", "mm.h.Max.Precip.Rate", "degC.RH.Sensor.Temp", "Battery.Percent", "mV.Battery.Voltage", "kPa.Reference.Pressure", "degC.Logger.Temperature", "SIGFLAG_Soil_Moisture", "SIGFLAG_Soil_Temp", "SIGFLAG_Air_Temp", "SIGFLAG_Relative_Humidity", "SIGFLAG_PAR")
 
 # For when things go weird, we need to . instead of the slashes that were in some old files
 colOrderGood <- gsub(" ", ".", colOrder)
@@ -58,13 +60,14 @@ tail(old.B127)
 
 # 2022 has a mix of year/date foramts!
 # old.B127$Date_Time <- as.POSIXct(strptime(old.B127$Timestamp, format="%Y-%m-%d %H")) # This is causing
-old.B127$Date_Time <- as.POSIXct(old.B127$Timestamp, format="%m/%d/%Y %H") # This is causing
+old.B127$Timestamp <- as.POSIXct(old.B127$Timestamp) # This is causing
+summary(old.B127$Timestamp)
 head(old.B127)
 tail(old.B127)
 dim(old.B127)
 
-head(old.B127[is.na(old.B127$Date_Time),])
-old.B127[9000:9088,c("Timestamp", "Date_Time", "Date")]
+# head(old.B127[is.na(old.B127$Timestamp),])
+# old.B127[9000:9088,c("Timestamp", "Date_Time", "Date")]
 
 summary(old.B127)
 tail(old.B127[is.na(old.B127$Date_Time),])
@@ -90,37 +93,12 @@ pull.B127 <- date.B127[date.B127 > end.B127]
 pull.B127
 
 #Loop for pulling files in case there is more than 1
-B127 <- data.frame()
-for(i in 1:length(pull.B127)){
-  date <- pull.B127[i]
-  fNow <- read.csv(paste0(path.met, "Data_raw/Meter_B127/B127_", date, ".csv"), na.strings=c("#N/A", "NA", ""))
-  
-  #Getting rid of columns without the sensors we want
-  fNow <- fNow[,c(grep("z6", names(fNow)), which(fNow[1,] %in% sensorList))]
-  # head(fNow)
-  
-  
-  #Renaming to harmonize with old data
-  colnames(fNow) <- renameCols(fNow[fNow[grep("z6", names(fNow))] == "Timestamp",])
-  fNow <- fNow[-(grep("Records", fNow$Timestamp)),]
-  fNow <- fNow[-(grep("Timestamp", fNow$Timestamp)),]
-  # head(fNow)
-  
-  # For some reason a column was dropped at some point!  No bueno! need to add that column in
-  if(nrow(B127)>0 & !all(names(B127) %in% names(fNow))){
-    fNow[,names(B127)[!names(B127) %in% names(fNow)]] <- NA
-  }
-  
-  if(nrow(B127)>0){
-    B127 <- rbind(B127, fNow[,names(B127)])
-  } else {
-    B127 <- fNow
-  }
-}
 
 
+summary(B127)
 head(B127)
 tail(B127)
+# B127[is.na(B127$Timestamp2),]
 
 B127.mod <- B127
 
