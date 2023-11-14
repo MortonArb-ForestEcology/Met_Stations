@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------------------------------------------------------------------#
-# Script by : Lucien Fitzpatrick
+# Script by : Lucien Fitzpatrick, Christy Rollinson
 # Project: Met_stations
 # Purpose: To visualize the trends in our sensor data
 # Inputs: Plot csv's created by script 2_Met_Data_Clean.R
