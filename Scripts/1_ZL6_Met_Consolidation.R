@@ -25,12 +25,12 @@ path.raw <- file.path(path.met, "Data_raw")
 # Setting up a function for renaming columns
 source("0_MetHelperFunctions.R")
 
-cols.final <- c("Plot_Name", "Timestamp", "Date", "Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "km.Lightning.Distance", "deg.Wind.Direction", "m.s.Wind.Speed", "m.s.Gust.Speed", "kPa.Atmospheric.Pressure", "deg.X.axis.Level", "deg.Y.axis.Level", "mm.h.Max.Precip.Rate", "degC.RH.Sensor.Temp", "Battery.Percent", "mV.Battery.Voltage", "kPa.Reference.Pressure", "degC.Logger.Temperature", "SIGFLAG_Soil_Moisture", "SIGFLAG_Soil_Temp", "SIGFLAG_Air_Temp", "SIGFLAG_Relative_Humidity", "SIGFLAG_PAR")
-
-# For when things go weird, we need to . instead of the slashes that were in some old files
-colOrderGood <- gsub(" ", ".", colOrder)
-colOrderGood <- gsub("-", ".", colOrderGood)
-colOrderGood <- gsub("/", ".", colOrderGood)
+# cols.final <- c("Plot_Name", "Timestamp", "Date", "Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "km.Lightning.Distance", "deg.Wind.Direction", "m.s.Wind.Speed", "m.s.Gust.Speed", "kPa.Atmospheric.Pressure", "deg.X.axis.Level", "deg.Y.axis.Level", "mm.h.Max.Precip.Rate", "degC.RH.Sensor.Temp", "Battery.Percent", "mV.Battery.Voltage", "kPa.Reference.Pressure", "degC.Logger.Temperature", "SIGFLAG_Soil_Moisture", "SIGFLAG_Soil_Temp", "SIGFLAG_Air_Temp", "SIGFLAG_Relative_Humidity", "SIGFLAG_PAR")
+# 
+# # For when things go weird, we need to . instead of the slashes that were in some old files
+# colOrderGood <- gsub(" ", ".", colOrder)
+# colOrderGood <- gsub("-", ".", colOrderGood)
+# colOrderGood <- gsub("/", ".", colOrderGood)
 
 sensorList <- c("ATMOS 41", "TEROS 11", "Battery", "Barometer")
 
@@ -99,6 +99,8 @@ for(PLOT in plotsAll){
   plotNew <- plotNew[plotNew$Timestamp>end.plot,]
   summary(plotNew)
   
+  
+  # names(plotNew)[!names(plotNew) %in% names(old.plot)]
   # Now combining new files with old files
   if(lubridate::mday(end.plot)=="31" & lubridate::month(end.plot)==12 & lubridate::hour(end.plot)==23){
     plotAll <- plotNew
