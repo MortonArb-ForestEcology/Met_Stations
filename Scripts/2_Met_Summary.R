@@ -29,6 +29,12 @@ path.qaqc <- file.path(path.google, "QAQC_figs")
 source("0_MetHelperFunctions.R")
 
 
+# #######################################################
+# #######################################################
+# Read in and check individual plots ----
+# #######################################################
+# #######################################################
+
 # Seperating by chosen year and month values
 B127All <- dir(file.path(path.out,"B127"))
 plot.B127 <- data.frame()
@@ -42,6 +48,25 @@ for(i in 1:length(B127All)){
   plot.B127 <- rbind(plot.B127, fNow)
 }
 summary(plot.B127)
+# plot.B127$Timestamp[1:30]
+
+
+# ###########
+# ***** IMPORTANT: Check last 30 days - B127 ***** ----
+# ###########
+summary(plot.B127[(nrow(plot.B127)-30*24):nrow(plot.B127),]) # Look for missing values in the last week of data --> weird values of big gaps shoudl spur more investigation
+
+B127stack <- stack(plot.B127[(nrow(plot.B127)-30*24):nrow(plot.B127),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure")])
+B127stack[,c("Plot_Name","Timestamp", "Date")] <- plot.B127[(nrow(plot.B127)-30*24):nrow(plot.B127),c("Plot_Name","Timestamp", "Date")]
+summary(B127stack)
+
+png(filename= file.path(path.qaqc, paste0('LAST_30_DAY_B127.png')), height=8, width=9, units="in", res=220)
+ggplot(data=B127stack[,]) +
+  facet_wrap(~ind, scales="free_y") +
+  geom_line(aes(x = Timestamp, y = values)) +
+  theme_bw()
+dev.off()
+# ###########
 
 
 N115All <- dir(file.path(path.out,"N115"))
@@ -57,6 +82,24 @@ for(i in 1:length(N115All)){
 }
 summary(plot.N115)
 head(plot.N115)
+plot.N115[(nrow(plot.N115)-30):nrow(plot.N115),] # Look for missing values in the past 24ish hours --> should spur more investigation
+
+# ###########
+# ***** IMPORTANT: Check last 30 days - N115 ***** ----
+# ###########
+summary(plot.N115[(nrow(plot.N115)-30*24):nrow(plot.N115),]) # Look for missing values in the last week of data --> weird values of big gaps shoudl spur more investigation
+
+N115stack <- stack(plot.N115[(nrow(plot.N115)-30*24):nrow(plot.N115),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure")])
+N115stack[,c("Plot_Name","Timestamp", "Date")] <- plot.N115[(nrow(plot.N115)-30*24):nrow(plot.N115),c("Plot_Name","Timestamp", "Date")]
+summary(N115stack)
+
+png(filename= file.path(path.qaqc, paste0('LAST_30_DAY_N115.png')), height=8, width=9, units="in", res=220)
+ggplot(data=N115stack[,]) +
+  facet_wrap(~ind, scales="free_y") +
+  geom_line(aes(x = Timestamp, y = values)) +
+  theme_bw()
+dev.off()
+# ###########
 
 
 
@@ -73,6 +116,24 @@ for(i in 1:length(HH115All)){
 }
 summary(plot.HH115)
 head(plot.HH115)
+plot.HH115[(nrow(plot.HH115)-30):nrow(plot.HH115),] # Look for missing values in the past 24ish hours --> should spur more investigation
+
+# ###########
+# ***** IMPORTANT: Check last 30 days - HH115 ***** ----
+# ###########
+summary(plot.HH115[(nrow(plot.HH115)-30*24):nrow(plot.HH115),]) # Look for missing values in the last week of data --> weird values of big gaps shoudl spur more investigation
+
+HH115stack <- stack(plot.HH115[(nrow(plot.HH115)-30*24):nrow(plot.HH115),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure")])
+HH115stack[,c("Plot_Name","Timestamp", "Date")] <- plot.HH115[(nrow(plot.HH115)-30*24):nrow(plot.HH115),c("Plot_Name","Timestamp", "Date")]
+summary(HH115stack)
+
+png(filename= file.path(path.qaqc, paste0('LAST_30_DAY_HH115.png')), height=8, width=9, units="in", res=220)
+ggplot(data=HH115stack[,]) +
+  facet_wrap(~ind, scales="free_y") +
+  geom_line(aes(x = Timestamp, y = values)) +
+  theme_bw()
+dev.off()
+# ###########
 
 
 U134All <- dir(file.path(path.out,"U134"))
@@ -88,8 +149,41 @@ for(i in 1:length(U134All)){
 }
 summary(plot.U134)
 head(plot.U134)
+plot.U134[(nrow(plot.U134)-30):nrow(plot.U134),] # Look for missing values in the past 24ish hours --> should spur more investigation
+
+# ###########
+# ***** IMPORTANT: Check last 30 days - U134 ***** ----
+# ###########
+summary(plot.U134[(nrow(plot.U134)-30*24):nrow(plot.U134),]) # Look for missing values in the last week of data --> weird values of big gaps shoudl spur more investigation
+
+U134stack <- stack(plot.U134[(nrow(plot.U134)-30*24):nrow(plot.U134),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure")])
+U134stack[,c("Plot_Name","Timestamp", "Date")] <- plot.U134[(nrow(plot.U134)-30*24):nrow(plot.U134),c("Plot_Name","Timestamp", "Date")]
+summary(U134stack)
+
+png(filename= file.path(path.qaqc, paste0('LAST_30_DAY_U134.png')), height=8, width=9, units="in", res=220)
+ggplot(data=U134stack[,]) +
+  facet_wrap(~ind, scales="free_y") +
+  geom_line(aes(x = Timestamp, y = values)) +
+  theme_bw()
+dev.off()
+# ###########
+# #######################################################
+# #######################################################
 
 
+
+
+
+
+
+
+
+
+# #######################################################
+# #######################################################
+# Doing some combined and all time plotting -----
+# #######################################################
+# #######################################################
 
 comb <- rbind(plot.B127, plot.N115, plot.HH115, plot.U134)
 # comb$Timestamp <- as.POSIXct(comb$Timestamp)
@@ -133,50 +227,74 @@ plot.roll$year <- year(plot.roll$Timestamp)
 
 #Looks at one variable at all plots
 for(VAR in unique(plot.stack$var)){
-  png(width= 750, filename= file.path(path.qaqc, paste0('All_PLOTS_',VAR,'.png')))
   if(VAR %in% c("PAR", "Air_Temp", "Relative_Humidity")){
   fig <- ggplot() +
     facet_wrap(~Plot_Name, scales="free_y") +
-    geom_line(aes(x = Timestamp, y = values, color = Air.Sensor), data = plot.stack[plot.stack$var == VAR,]) +
+    geom_line(aes(x = Timestamp, y = values, color = Air.Sensor), data = plot.stack[plot.stack$var == VAR,], size=0.5) +
     theme_bw()+
     ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Timestamp)))
-  print(fig)
-  dev.off()
   } else{
   fig <- ggplot() +
     facet_wrap(~Plot_Name, scales="free_y") +
-    geom_line(aes(x = Timestamp, y = values, color = Soil.Sensor), data = plot.stack[plot.stack$var == VAR,]) +
+    geom_line(aes(x = Timestamp, y = values, color = Soil.Sensor), data = plot.stack[plot.stack$var == VAR,], size=0.5) +
     theme_bw()+
     ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Timestamp)))
+  }
+  png(filename= file.path(path.qaqc, paste0('All_PLOTS_',VAR,'.png')), height=8, width=8, units="in", res=220)
   print(fig)
   dev.off()    
-  }
+  
+  yrRange <- unique(plot.stack$year)
+  yrRange <- sort(yrRange, decreasing = T)
+  # test <- paste(yrRange[2])
+  png(filename= file.path(path.qaqc, paste0('All_PLOTS_',VAR,'_DOY.png')), height=8, width=9, units="in", res=220)
+  print(
+    ggplot() +
+      facet_wrap(~Plot_Name, scales="free_y") +
+      geom_line(aes(x = yday, y = values, color = "past", group=year), data = plot.stack[plot.stack$var == VAR & plot.stack$year<yrRange[2],], linewidth=0.2) +
+      geom_line(aes(x = yday, y = values, color = "last year", group=year), data = plot.stack[plot.stack$var == VAR & plot.stack$year==yrRange[2],], linewidth=0.75) +
+      geom_line(aes(x = yday, y = values, color = "this year", group=year), data = plot.stack[plot.stack$var == VAR & plot.stack$year==yrRange[1],], size=1) +
+      # scale_color_manual(values=c("past"="gray30", as.character(yrRange[2])="blue3", as.character(yrRange[1])="orange2")) +
+      scale_color_manual(values=c("past"="gray30", "last year"="dodgerblue2", "this year"="orange2")) +
+      theme_bw()+
+      ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Timestamp)))
+  )
+  dev.off()
 }
 
 
 #Looks at one plot with all variables by year
 for(PLOT in unique(plot.roll$Plot_Name)){
-  png(width= 750, filename= file.path(path.qaqc, paste0('PLOT_', PLOT, '_All_VARS_by_year','.png')))
-  fig <- ggplot() +
-    facet_wrap(~var, scales="free_y") +
-    geom_line(aes(x = yday, y = VAR_30, color = as.character(year)), data = plot.roll[plot.roll$Plot_Name == PLOT,]) +
-    theme_bw()+
-    ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.stack$Timestamp)))+
-    ylab(paste0("30 day rolling average"))
-    print(fig)
+  yrRange <- unique(plot.roll$year)
+  yrRange <- sort(yrRange, decreasing = T)
+  
+  png(filename= file.path(path.qaqc, paste0('PLOT_', PLOT, '_All_VARS_by_year','.png')), height=8, width=9, units="in", res=220)
+  print(
+    ggplot() +
+      facet_wrap(~var, scales="free_y") +
+      geom_line(aes(x = yday, y = VAR_30, color = "past", group=year), data = plot.roll[plot.roll$Plot_Name == PLOT & plot.roll$year<yrRange[2],], linewidth=0.2) +
+      geom_line(aes(x = yday, y = VAR_30, color = "last year"), data = plot.roll[plot.roll$Plot_Name == PLOT & plot.roll$year==yrRange[2],], linewidth=0.5) +
+      geom_line(aes(x = yday, y = VAR_30, color = "this year"), data = plot.roll[plot.roll$Plot_Name == PLOT & plot.roll$year==yrRange[1],]) +
+      scale_color_manual(values=c("past"="gray30", "last year"="dodgerblue2", "this year"="orange2")) +
+      ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.stack$Timestamp))) +
+      ylab(paste0("30 day rolling average")) +
+      theme_bw()+
+      theme(legend.position=c(0.85, 0.25))
+  )
   dev.off()
 }
 
 #Looks at one plot with all variables through time
 for(PLOT in unique(plot.roll$Plot_Name)){
-  png(width= 750, filename= file.path(path.qaqc, paste0('PLOT_', PLOT, '_All_VARS_time_series','.png')))
-  fig <- ggplot() +
-    facet_wrap(~var, scales="free_y") +
-    geom_line(aes(x = Timestamp, y = VAR_30), data = plot.roll[plot.roll$Plot_Name == PLOT,]) +
-    theme_bw()+
-    ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.roll$Timestamp)))+
-    ylab(paste0("30 day rolling average"))
-  print(fig)
+  png(filename= file.path(path.qaqc, paste0('PLOT_', PLOT, '_All_VARS_time_series','.png')), height=6, width=9, units="in", res=220)
+  print(
+    ggplot() +
+      facet_wrap(~var, scales="free_y") +
+      geom_line(aes(x = Timestamp, y = VAR_30), data = plot.roll[plot.roll$Plot_Name == PLOT,], linewidth=0.2) +
+      ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.roll$Timestamp)))+
+      ylab(paste0("30 day rolling average")) +
+      theme_bw()
+  )
   dev.off()
 }
 
@@ -190,187 +308,7 @@ ggplot(data=checkRH) +
   geom_line(aes(x = Timestamp, y = Relative_Humidity)) +
   theme_bw()
 summary(checkRH)
+# #######################################################
+# #######################################################
 
-##################################################################
-##################################################################
-## THE FOLLOWING HAS NOT BEEN CHECKED, SO RUN WITH CARE AND BE PREPARED FOR HEAVY DEBUGGING
-##################################################################
-##################################################################
 
-# #---------------------------#
-# #---------------------------#
-# #Summary of all plots
-# 
-# #Creating a dataframe of all plots combined
-# all_plots <- bind_rows(plot.B127, plot.N115, plot.HH115, plot.U134)
-# 
-# str(all_plots)
-# all_plots$Timestamp <- as.POSIXct(all_plots$Timestamp)
-# summary(all_plots)
-# 
-# #Making a list of NA values so we know missing dates
-# Dates.missing <- all_plots[is.na(all_plots$Plot_Name),]
-# 
-# #Creating year column so years can be compared
-# all_plots <- all_plots %>% mutate(Year = as.character(year(Timestamp)))
-# 
-# # Changing data to a "long" format that ggplot likes
-# met.stack <- stack(all_plots[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
-# names(met.stack) <- c("values", "var")
-# met.stack[,c("Plot_Name", "Timestamp")] <- all_plots[,c("Plot_Name", "Timestamp")]
-# summary(met.stack)
-# 
-# #Initial plot 
-# path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/PAR and SOIL Summary"
-# png(width= 750, filename= file.path(path.figures, paste0('All_Vars','.png')))
-# ggplot(met.stack[met.stack$var == "Soil_Moisture",], aes(x = Timestamp, y = values)) +
-#   geom_smooth(aes(color=Plot_Name)) +
-#   theme_bw()+
-#   ggtitle("Met Stations Soil Moisture")
-# dev.off()
-# #---------------------------#
-# #Summaries of one plot across years
-# 
-# 
-# all_plots <- all_plots[!is.na(all_plots$Plot_Name),]
-# #Incomplete year so we don't include it
-# all_plots <- all_plots[all_plots$Year != "2017",]
-# sumtab <- list()
-# for(PLOT in unique(all_plots$Plot_Name)){
-#   plot.df <- all_plots[all_plots$Plot_Name == PLOT,]
-#   for(YR in unique(plot.df$Year)){
-#     temp <- plot.df[plot.df$Year == YR,]
-#     sumtab[[paste(PLOT, YR, sep="-")]]$plot <- PLOT
-#     sumtab[[paste(PLOT, YR, sep="-")]]$year <- YR
-#     sumtab[[paste(PLOT, YR, sep="-")]]$soiltemp <- paste0(round(median(temp$Soil_Temp, na.rm =T), digits = 2), " (", round(min(temp$Soil_Temp, na.rm =T), digits = 2), "-", round(max(temp$Soil_Temp , na.rm =T), digits = 2), ")")
-#     sumtab[[paste(PLOT, YR, sep="-")]]$soilmoist <- paste0(round(median(temp$Soil_Moisture, na.rm =T), digits = 4), " (", round(min(temp$Soil_Moisture, na.rm =T), digits = 4), "-", round(max(temp$Soil_Moisture , na.rm =T), digits = 4), ")")
-#     #PAR IS MEAN NOT MEDIAN
-#     sumtab[[paste(PLOT, YR, sep="-")]]$PAR <- paste0(round(mean(temp$PAR, na.rm =T), digits = 4), " (", round(min(temp$PAR, na.rm =T), digits = 4), "-", round(max(temp$PAR , na.rm =T), digits = 4), ")")
-#   }
-# }
-# sumfin <- dplyr::bind_rows(sumtab)
-# write.csv(sumfin, file.path(path.figures, "PAR and SOIL Summary.csv"), row.names = F)
-# 
-# 
-# #Changing data to a "long" format that ggplot likes for total summary
-# plot.allstack <- stack(all_plots[,c( "PAR", "Soil_Moisture", "Soil_Temp")])
-# names(plot.allstack) <- c("values", "var")
-# plot.allstack[,c("Year", "Timestamp", "Plot_Name")] <- all_plots[,c("Year", "Timestamp", "Plot_Name")]
-# summary(plot.allstack)
-# 
-# plot.allstack$Yday <- lubridate::yday(plot.allstack$Timestamp)
-# 
-# #Plot to compare years
-# png(width= 750, filename= file.path(path.figures, paste0('Continous_timeseries','.png')))
-# ggplot(plot.allstack, aes(x = Timestamp, y = values)) +
-#   facet_grid(cols = vars(Plot_Name), rows = vars(var), scales="free_y") +
-#   geom_smooth(aes(color=Year)) +
-#   theme_bw()+
-#   ggtitle(Plot.title)
-# dev.off()
-# 
-# #Looking at PAR specifically (interested in post 2020 derecho storm effect)
-# #path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/figures"
-# if(!dir.exists(path.figures)) dir.create(path.figures)
-# png(width= 750, filename= file.path(path.figures, paste0('Yearly_PAR','.png')))
-# plot.PAR <- plot.allstack[plot.allstack$var == "PAR" & !is.na(plot.allstack$Plot_Name),]
-# ggplot(plot.PAR, aes(x = Yday, y = values)) +
-#   facet_wrap(~Plot_Name, scales="free_y") +
-#   geom_smooth(aes(color=Year)) +
-#   theme_bw()+
-#   ggtitle("PAR")
-# dev.off()
-# 
-# 
-# #Looking at Soil_Moisture specifically (interested in post 2020 derecho storm effect)
-# #path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/figures"
-# if(!dir.exists(path.figures)) dir.create(path.figures)
-# png(width= 750, filename= file.path(path.figures, paste0('Yearly_Soil_Moisture','.png')))
-# plot.Soil_Moisture <- plot.allstack[plot.allstack$var == "Soil_Moisture" & !is.na(plot.allstack$Plot_Name) & plot.allstack$Year != 2017 ,]
-# ggplot(plot.Soil_Moisture, aes(x = Yday, y = values)) +
-#   facet_wrap(~Plot_Name, scales="free_y") +
-#   geom_smooth(aes(color=Year)) +
-#   theme_bw()+
-#   ggtitle("Soil_Moisture")
-# dev.off()
-# 
-# 
-# #------------------------------------#
-# #Summaries of one year for one plot
-# 
-# #Creats a short table of Date and Temp to be checked for first and last frost
-# frost.check <- subset(plot.2019, select = c(2,7))
-# frost.check <- subset(frost.check, frost.check$Air_Temp <=0.5 & frost.check$Air_Temp >= -10)
-# #View(frost.check)
-# 
-# # Changing data to a "long" format that ggplot likes for yearly summary
-# plot.stack <- stack(plot.all[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
-# names(plot.stack) <- c("values", "var")
-# plot.stack[,c("Timestamp")] <- plot.stack[,c("Timestamp")]
-# summary(plot.stack)
-# 
-# #Plot to just view the data as is over one year
-# ggplot(plot.stack, aes(x = Timestamp, y = values)) +
-#   facet_wrap(~var, scales="free_y") +
-#   geom_line() +
-#   theme_bw()
-# 
-# 
-# #-------------------------------------------------#
-# #DERECHO STORM WEATHER EVENT SPECIFIC GRAPHS
-# #-------------------------------------------------#
-# 
-# #Looking at PAR specifically (interested in post 2020 derecho storm effect)
-# path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/figures"
-# if(!dir.exists(path.figures)) dir.create(path.figures)
-# png(width= 750, filename= file.path(path.figures, paste0('Post-Derecho Par','.png')))
-# plot.PAR <- plot.allstack[plot.allstack$var == "PAR" & !is.na(plot.allstack$Plot_Name),]
-# ggplot(plot.PAR, aes(x = Yday, y = values)) +
-#   facet_wrap(~Plot_Name, scales="free_y") +
-#   geom_smooth(aes(color=Year)) +
-#   geom_vline(aes(xintercept = lubridate::yday(as.Date("2020-08-10"))))+
-#   theme_bw()+
-#   ggtitle("Post-Derecho East woods PAR")
-# dev.off()
-# 
-# 
-# #Looking at PAR specifically (interested in post 2020 derecho storm effect)
-# png(width= 750, filename= file.path(path.figures, paste0('Post-Derecho Par Zoom 2020','.png')))
-# plot.PAR <- plot.allstack[plot.allstack$var == "PAR" & !is.na(plot.allstack$Plot_Name) & plot.allstack$Year == 2020,]
-# ggplot(plot.PAR, aes(x = Yday, y = values)) +
-#   facet_wrap(~Plot_Name, scales="free_y") +
-#   geom_point(aes(color=Year)) +
-#   geom_vline(aes(xintercept = lubridate::yday(as.Date("2020-08-10"))))+
-#   theme_bw()+
-#   xlim(210, 240)+
-#   ylim(0, 500)+
-#   ggtitle("Post-Derecho East woods PAR")
-# dev.off()
-# 
-# 
-# #Looking at Soil_Moisture specifically (interested in post 2020 derecho storm effect)
-# path.figures <- "G:/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/figures"
-# if(!dir.exists(path.figures)) dir.create(path.figures)
-# png(width= 750, filename= file.path(path.figures, paste0('Post-Derecho Soil_Moisture','.png')))
-# plot.Soil_Moisture <- plot.allstack[plot.allstack$var == "Soil_Moisture" & !is.na(plot.allstack$Plot_Name) & plot.allstack$Year != 2017 ,]
-# ggplot(plot.Soil_Moisture, aes(x = Yday, y = values)) +
-#   facet_wrap(~Plot_Name, scales="free_y") +
-#   geom_smooth(aes(color=Year)) +
-#   geom_vline(aes(xintercept = lubridate::yday(as.Date("2020-08-10"))))+
-#   theme_bw()+
-#   ggtitle("Post-Derecho East woods Soil_Moisture")
-# dev.off()
-# 
-# 
-# #Looking at Soil_Moisture specifically (interested in post 2020 derecho storm effect)
-# png(width= 750, filename= file.path(path.figures, paste0('Post-Derecho Soil_Moisture Zoom 2020','.png')))
-# plot.Soil_Moisture <- plot.allstack[plot.allstack$var == "Soil_Moisture" & !is.na(plot.allstack$Plot_Name) & plot.allstack$Year == 2020,]
-# ggplot(plot.Soil_Moisture, aes(x = Yday, y = values)) +
-#   facet_wrap(~Plot_Name, scales="free_y") +
-#   geom_point(aes(color=Year)) +
-#   geom_vline(aes(xintercept = lubridate::yday(as.Date("2020-08-10"))))+
-#   theme_bw()+
-#   xlim(210, 240)+
-#   ylim(-.5, .5)+
-#   ggtitle("Post-Derecho East woods Soil_Moisture")
-# dev.off()
