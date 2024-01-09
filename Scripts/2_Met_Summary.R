@@ -205,40 +205,42 @@ for(PLOT in unique(comb$Plot_Name)){
 }
 
 #Organizing data into long form for easier graphing
-agg.stack <- aggregate(cbind(Soil_Temp, Soil_Moisture, PAR, Air_Temp, Relative_Humidity)~Plot_Name+Timestamp+Air.Sensor+Soil.Sensor, data = plot.comb, FUN = median, na.action = NULL)
+agg.stack <- aggregate(cbind(Soil_Temp, Soil_Moisture, PAR, Air_Temp, Relative_Humidity)~Plot_Name+Date+Air.Sensor+Soil.Sensor, data = plot.comb, FUN = mean, na.action = NULL)
 
 plot.stack <- stack(agg.stack[,c("Soil_Temp", "Soil_Moisture", "PAR", "Air_Temp", "Relative_Humidity")])
 names(plot.stack) <- c("values", "var")
-plot.stack[,c("Plot_Name", "Timestamp", "Air.Sensor", "Soil.Sensor")] <- agg.stack[,c("Plot_Name", "Timestamp", "Air.Sensor", "Soil.Sensor")]
-plot.stack$yday <- yday(plot.stack$Timestamp)
-plot.stack$year <- year(plot.stack$Timestamp)
+plot.stack[,c("Plot_Name", "Date", "Air.Sensor", "Soil.Sensor")] <- agg.stack[,c("Plot_Name", "Date", "Air.Sensor", "Soil.Sensor")]
+plot.stack$yday <- yday(plot.stack$Date)
+plot.stack$year <- year(plot.stack$Date)
 
-#Creating a rolling average
+#Creating a rolling average # # NOte: this was
 plot.roll <- plot.stack %>%
+  dplyr::arrange(desc(Date)) %>% 
   dplyr::arrange(desc(Plot_Name)) %>% 
-  dplyr::group_by(Plot_Name, var) %>% 
+  dplyr::group_by(Plot_Name, var) %>%
   dplyr::mutate(VAR_07 = zoo::rollmean(values, k = 7, fill = NA),
                 VAR_15 = zoo::rollmean(values, k = 15, fill = NA),
                 VAR_30 = zoo::rollmean(values, k = 30, fill = NA)) %>% 
   dplyr::ungroup()
 
-plot.roll$yday <- yday(plot.roll$Timestamp)
-plot.roll$year <- year(plot.roll$Timestamp)
+plot.roll$yday <- yday(plot.roll$Date)
+plot.roll$year <- year(plot.roll$Date)
+summary(plot.roll)
 
 #Looks at one variable at all plots
 for(VAR in unique(plot.stack$var)){
   if(VAR %in% c("PAR", "Air_Temp", "Relative_Humidity")){
   fig <- ggplot() +
     facet_wrap(~Plot_Name, scales="free_y") +
-    geom_line(aes(x = Timestamp, y = values, color = Air.Sensor), data = plot.stack[plot.stack$var == VAR,], size=0.5) +
+    geom_line(aes(x = Date, y = values, color = Air.Sensor), data = plot.stack[plot.stack$var == VAR,], size=0.5) +
     theme_bw()+
-    ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Timestamp)))
+    ggtitle(paste0(VAR, " Yearly Time Series using daily mean upto ", max(plot.stack$Date)))
   } else{
   fig <- ggplot() +
     facet_wrap(~Plot_Name, scales="free_y") +
-    geom_line(aes(x = Timestamp, y = values, color = Soil.Sensor), data = plot.stack[plot.stack$var == VAR,], size=0.5) +
+    geom_line(aes(x = Date, y = values, color = Soil.Sensor), data = plot.stack[plot.stack$var == VAR,], size=0.5) +
     theme_bw()+
-    ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Timestamp)))
+    ggtitle(paste0(VAR, " Yearly Time Series using daily mean upto ", max(plot.stack$Date)))
   }
   png(filename= file.path(path.qaqc, paste0('All_PLOTS_',VAR,'.png')), height=8, width=8, units="in", res=220)
   print(fig)
@@ -257,7 +259,7 @@ for(VAR in unique(plot.stack$var)){
       # scale_color_manual(values=c("past"="gray30", as.character(yrRange[2])="blue3", as.character(yrRange[1])="orange2")) +
       scale_color_manual(values=c("past"="gray30", "last year"="dodgerblue2", "this year"="orange2")) +
       theme_bw()+
-      ggtitle(paste0(VAR, " Yearly Time Series using daily median upto ", max(plot.stack$Timestamp)))
+      ggtitle(paste0(VAR, " Yearly Time Series using daily mean upto ", max(plot.stack$Date)))
   )
   dev.off()
 }
@@ -272,11 +274,11 @@ for(PLOT in unique(plot.roll$Plot_Name)){
   print(
     ggplot() +
       facet_wrap(~var, scales="free_y") +
-      geom_line(aes(x = yday, y = VAR_30, color = "past", group=year), data = plot.roll[plot.roll$Plot_Name == PLOT & plot.roll$year<yrRange[2],], linewidth=0.2) +
-      geom_line(aes(x = yday, y = VAR_30, color = "last year"), data = plot.roll[plot.roll$Plot_Name == PLOT & plot.roll$year==yrRange[2],], linewidth=0.5) +
-      geom_line(aes(x = yday, y = VAR_30, color = "this year"), data = plot.roll[plot.roll$Plot_Name == PLOT & plot.roll$year==yrRange[1],]) +
+      geom_line(aes(x = yday, y = VAR_07, color = "past", group=year), data = plot.roll[plot.roll$Plot_Name == PLOT & plot.roll$year<yrRange[2],], linewidth=0.2) +
+      geom_line(aes(x = yday, y = VAR_07, color = "last year"), data = plot.roll[plot.roll$Plot_Name == PLOT & plot.roll$year==yrRange[2],], linewidth=0.5) +
+      geom_line(aes(x = yday, y = VAR_07, color = "this year"), data = plot.roll[plot.roll$Plot_Name == PLOT & plot.roll$year==yrRange[1],]) +
       scale_color_manual(values=c("past"="gray30", "last year"="dodgerblue2", "this year"="orange2")) +
-      ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.stack$Timestamp))) +
+      ggtitle(paste0(PLOT, " Yearly Time Series using daily mean and 7-day rolling average up to ", max(plot.stack$Date))) +
       ylab(paste0("30 day rolling average")) +
       theme_bw()+
       theme(legend.position=c(0.85, 0.25))
@@ -290,8 +292,8 @@ for(PLOT in unique(plot.roll$Plot_Name)){
   print(
     ggplot() +
       facet_wrap(~var, scales="free_y") +
-      geom_line(aes(x = Timestamp, y = VAR_30), data = plot.roll[plot.roll$Plot_Name == PLOT,], linewidth=0.2) +
-      ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 30 day rolling average upto ", max(plot.roll$Timestamp)))+
+      geom_line(aes(x = Date, y = VAR_07), data = plot.roll[plot.roll$Plot_Name == PLOT,], linewidth=0.2) +
+      ggtitle(paste0(PLOT, " Yearly Time Series using daily median and 7-day rolling average upto ", max(plot.roll$Timestamp)))+
       ylab(paste0("30 day rolling average")) +
       theme_bw()
   )
