@@ -56,7 +56,7 @@ summary(plot.B127)
 # ###########
 summary(plot.B127[(nrow(plot.B127)-30*24):nrow(plot.B127),]) # Look for missing values in the last week of data --> weird values of big gaps shoudl spur more investigation
 
-B127stack <- stack(plot.B127[(nrow(plot.B127)-30*24):nrow(plot.B127),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure")])
+B127stack <- stack(plot.B127[(nrow(plot.B127)-30*24):nrow(plot.B127),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure", "Battery.Percent", "degC.Logger.Temperature")])
 B127stack[,c("Plot_Name","Timestamp", "Date")] <- plot.B127[(nrow(plot.B127)-30*24):nrow(plot.B127),c("Plot_Name","Timestamp", "Date")]
 summary(B127stack)
 
@@ -89,7 +89,7 @@ plot.N115[(nrow(plot.N115)-30):nrow(plot.N115),] # Look for missing values in th
 # ###########
 summary(plot.N115[(nrow(plot.N115)-30*24):nrow(plot.N115),]) # Look for missing values in the last week of data --> weird values of big gaps shoudl spur more investigation
 
-N115stack <- stack(plot.N115[(nrow(plot.N115)-30*24):nrow(plot.N115),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure")])
+N115stack <- stack(plot.N115[(nrow(plot.N115)-30*24):nrow(plot.N115),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure", "Battery.Percent", "degC.Logger.Temperature")])
 N115stack[,c("Plot_Name","Timestamp", "Date")] <- plot.N115[(nrow(plot.N115)-30*24):nrow(plot.N115),c("Plot_Name","Timestamp", "Date")]
 summary(N115stack)
 
@@ -123,7 +123,7 @@ plot.HH115[(nrow(plot.HH115)-30):nrow(plot.HH115),] # Look for missing values in
 # ###########
 summary(plot.HH115[(nrow(plot.HH115)-30*24):nrow(plot.HH115),]) # Look for missing values in the last week of data --> weird values of big gaps shoudl spur more investigation
 
-HH115stack <- stack(plot.HH115[(nrow(plot.HH115)-30*24):nrow(plot.HH115),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure")])
+HH115stack <- stack(plot.HH115[(nrow(plot.HH115)-30*24):nrow(plot.HH115),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure", "Battery.Percent", "degC.Logger.Temperature")])
 HH115stack[,c("Plot_Name","Timestamp", "Date")] <- plot.HH115[(nrow(plot.HH115)-30*24):nrow(plot.HH115),c("Plot_Name","Timestamp", "Date")]
 summary(HH115stack)
 
@@ -156,7 +156,7 @@ plot.U134[(nrow(plot.U134)-30):nrow(plot.U134),] # Look for missing values in th
 # ###########
 summary(plot.U134[(nrow(plot.U134)-30*24):nrow(plot.U134),]) # Look for missing values in the last week of data --> weird values of big gaps shoudl spur more investigation
 
-U134stack <- stack(plot.U134[(nrow(plot.U134)-30*24):nrow(plot.U134),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure")])
+U134stack <- stack(plot.U134[(nrow(plot.U134)-30*24):nrow(plot.U134),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure", "Battery.Percent", "degC.Logger.Temperature")])
 U134stack[,c("Plot_Name","Timestamp", "Date")] <- plot.U134[(nrow(plot.U134)-30*24):nrow(plot.U134),c("Plot_Name","Timestamp", "Date")]
 summary(U134stack)
 
