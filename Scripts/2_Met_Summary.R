@@ -293,7 +293,7 @@ for(PLOT in unique(plot.roll$Plot_Name)){
     ggplot() +
       facet_wrap(~var, scales="free_y") +
       geom_line(aes(x = Date, y = VAR_07), data = plot.roll[plot.roll$Plot_Name == PLOT,], linewidth=0.2, size=0.2) +
-      ggtitle(paste0(PLOT, " Yearly Time Series using daily mean and 7-day rolling average upto ", max(plot.roll$Date)))+
+      ggtitle(paste0(PLOT, " Yearly Time Series using daily mean and 7-day rolling average up to ", max(plot.roll$Date)))+
       ylab(paste0("30 day rolling average")) +
       theme_bw()
   )
