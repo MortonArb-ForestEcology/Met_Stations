@@ -55,10 +55,22 @@ summary(plot.B127)
 # ***** IMPORTANT: Check last 30 days - B127 ***** ----
 # ###########
 summary(plot.B127[(nrow(plot.B127)-30*24):nrow(plot.B127),]) # Look for missing values in the last week of data --> weird values of big gaps shoudl spur more investigation
+#Checking for instances where there is no date or timestamp present
+nodate <- plot.B127[is.na(plot.B127$Date), ]
+print(nodate)
+noTime <- plot.B127[is.na(plot.B127$Timestamp), ]
+print(noTime)
 
 B127stack <- stack(plot.B127[(nrow(plot.B127)-30*24):nrow(plot.B127),c("Soil_Moisture", "Soil_Temp", "Air_Temp", "Relative_Humidity", "PAR", "mm.Precipitation", "Lightning.Activity", "m.s.Wind.Speed", "kPa.Atmospheric.Pressure", "Battery.Percent", "degC.Logger.Temperature")])
 B127stack[,c("Plot_Name","Timestamp", "Date")] <- plot.B127[(nrow(plot.B127)-30*24):nrow(plot.B127),c("Plot_Name","Timestamp", "Date")]
 summary(B127stack)
+
+#Checking for instances where there is no date or timestamp present
+nodate <- B127stack[is.na(B127stack$Date), ]
+print(nodate)
+noTime <- B127stack[is.na(B127stack$Timestamp), ]
+print(noTime)
+
 
 png(filename= file.path(path.qaqc, paste0('LAST_30_DAY_B127.png')), height=8, width=9, units="in", res=220)
 ggplot(data=B127stack[,]) +
@@ -313,4 +325,18 @@ summary(checkRH)
 # #######################################################
 # #######################################################
 
+# Add a new column to distinguish between B127 and H115
+B127stack$Source <- "B127"
+HH115stack$Source <- "H115"
 
+# Combine the datasets
+combstack <- rbind(B127stack, HH115stack)
+
+# Plot the combined data
+png(filename= file.path(path.qaqc, paste0('LAST_30_DAY_COMPARISON.png')), height=8, width=9, units="in", res=220)
+ggplot(data=combstack) +
+  facet_wrap(~ind, scales="free_y") +
+  geom_line(aes(x = Timestamp, y = values, color = Source, alpha =0.5)) +
+  theme_bw() +
+  labs(title = "30 day Comparison of B127 and HH115 ", color = "Source")
+dev.off()
