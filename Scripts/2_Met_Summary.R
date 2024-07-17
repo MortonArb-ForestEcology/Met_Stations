@@ -315,10 +315,11 @@ summary(checkRH)
 
 # Add a new column to distinguish between B127 and H115
 B127stack$Source <- "B127"
-HH115stack$Source <- "H115"
-
+HH115stack$Source <- "HH115"
+U134stack$Source <-"U134"
+N115stack$Source <-"N115"
 # Combine the datasets
-combstack <- rbind(B127stack, HH115stack)
+combstack <- rbind(B127stack, HH115stack, U134stack, N115stack)
 
 # Plot the combined data
 png(filename= file.path(path.qaqc, paste0('LAST_30_DAY_COMPARISON.png')), height=8, width=9, units="in", res=220)
