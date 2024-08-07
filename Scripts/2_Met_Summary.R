@@ -18,7 +18,7 @@ library(ggplot2)
 library(plotly)
 
 #setting paths
-# path.met <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+#path.google <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/"
 path.google <- "~/Google Drive/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations"
 path.met <- file.path(path.google, "Single_Plots")
 
