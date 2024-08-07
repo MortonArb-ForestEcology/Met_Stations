@@ -16,7 +16,7 @@ library(tidyr)
 
 
 #Setting File paths
-# path.met <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
+#path.met <- "G:/.shortcut-targets-by-id/0B_Fbr697pd36TkVHdDNJQ1dJU1E/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots/"
 path.met <- "~/Google Drive/My Drive/East Woods/Rollinson_Monitoring/Data/Met Stations/Single_Plots"
 path.clean <- file.path(path.met, "Data_processed/Clean_data")
 path.raw <- file.path(path.met, "Data_raw")
