@@ -327,5 +327,5 @@ ggplot(data=combstack) +
   facet_wrap(~ind, scales="free_y") +
   geom_line(aes(x = Timestamp, y = values, color = Source, alpha =0.5)) +
   theme_bw() +
-  labs(title = "30 day Comparison of B127 and HH115 ", color = "Source")
+  labs(title = "30 day Comparison of Plots ", color = "Source")
 dev.off()
