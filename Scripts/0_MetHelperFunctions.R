@@ -90,7 +90,10 @@ combineMetFiles <- function(plotID, pathPlot, filesPlot){
     
     # 4. Now deal with the slash formats.  They are generally cleaner, but need to be reformatted out of the wonky way Americans write time
     rowsSlash <- grep("/", fNow$Timestamp)
-    fixDates[rowsSlash] <- as.POSIXct(strptime(fNow$Timestamp[rowsSlash], format="%m/%d/%Y %H"), format="%Y-%m-%d %H", tz='Etc/GMT+6') 
+    datSlash <- as.POSIXct(strptime(fNow$Timestamp[rowsSlash], format="%m/%d/%Y %H"), format="%Y-%m-%d %H", tz='Etc/GMT+6') 
+    if(max(lubridate::year(datSlash))<1000) datSlash <- as.POSIXct(strptime(fNow$Timestamp[rowsSlash], format="%m/%d/%y %H"), format="%Y-%m-%d %H", tz='Etc/GMT+6') 
+    
+    fixDates[rowsSlash] <- datSlash
     
     # 5. Now that we have everything in a formatted vector, overwrite the entire column at once; this shoudl cause the weirdness that happened when we tried to fix or work with subsets
     # fixDates[(length(fixDates)-48):length(fixDates)]
