@@ -48,4 +48,88 @@ ggplot(midday.par, aes(x = DOY, y = max.par)) +
        x = "Day of Year",
        y = "Max PAR",) +
   theme_minimal()
+###########################
+# Filtering for Precipitation, parsing for time stamp
+prcp.dat <- N115 %>%
+  mutate(
+    Timestamp = ymd_hms(Timestamp), 
+    Date = as.Date(Timestamp),       
+    Month = month(Timestamp),
+    DOY = yday(Timestamp),
+    Hour = hour(Timestamp)
+  ) %>%
+  filter(!is.na(mm.Precipitation))
 
+# Extracting  mean and max precipitation for this period
+prcp.dat <- prcp.dat %>%
+  group_by(Date, DOY, Month) %>%
+  summarise(
+    max.prcp = max(mm.Precipitation, na.rm = TRUE),
+    mean.prcp = mean(mm.Precipitation, na.rm = TRUE),
+    n_obs = n(),
+    .groups = 'drop'
+  ) 
+
+
+# Visualization mean precip
+ggplot(prcp.dat, aes(x = DOY, y = mean.prcp)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = TRUE) +
+  labs(title = "Mean mm Preciptation throughout 2023",
+       subtitle = "Plot N115",
+       x = "Day of Year",
+       y = "Mean mm precipitation",) +
+  theme_minimal()
+
+# Visualization mean precip
+ggplot(prcp.dat, aes(x = DOY, y = max.prcp)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = TRUE) +
+  labs(title = "Max mm Preciptation throughout 2023",
+       subtitle = "Plot N115",
+       x = "Day of Year",
+       y = "Max mm precipitation",) +
+  theme_minimal()
+################
+#lightening activity, this is a dumb way to look at this
+# Filtering for lighting activity, parsing for time stamp
+LA.dat <- N115 %>%
+  mutate(
+    Timestamp = ymd_hms(Timestamp), 
+    Date = as.Date(Timestamp),       
+    Month = month(Timestamp),
+    DOY = yday(Timestamp),
+    Hour = hour(Timestamp)
+  ) %>%
+  filter(!is.na(Lightning.Activity))
+
+# Extracting  mean and max precipitation for this period
+LA.dat <- LA.dat %>%
+  group_by(Date, DOY, Month) %>%
+  summarise(
+    max.LA = max(Lightning.Activity, na.rm = TRUE),
+    mean.LA = mean(Lightning.Activity, na.rm = TRUE),
+    n_obs = n(),
+    .groups = 'drop'
+  ) 
+
+
+# Visualization mean precip
+ggplot(LA.dat, aes(x = DOY, y = mean.LA)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = TRUE) +
+  labs(title = "Mean Lightneing Activity throughout 2023",
+       subtitle = "Plot N115",
+       x = "Day of Year",
+       y = "Mean Lightening Activity",) +
+  theme_minimal()
+
+# Visualization mean precip
+ggplot(LA.dat, aes(x = DOY, y = max.LA)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = TRUE) +
+  labs(title = "Max Lightneing Activity throughout 2023",
+       subtitle = "Plot N115",
+       x = "Day of Year",
+       y = "Max mm Lighting Activity",) +
+  theme_minimal()
