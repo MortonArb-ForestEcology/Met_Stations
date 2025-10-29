@@ -17,7 +17,7 @@ par.dat <- N115 %>%
   ) %>%
   filter(!is.na(PAR))
 
-# Extracting midday PAR (11:00-14:00)
+# Extracting midday PAR (11:00-14:00) as mean and max par for this period
 midday.par <- par.dat %>%
   filter(Hour >= 11 & Hour <= 14) %>%
   group_by(Date, DOY, Month) %>%
@@ -39,7 +39,7 @@ ggplot(midday.par, aes(x = DOY, y = mean.par)) +
        y = "Mean PAR",) +
   theme_minimal()
 
-# Visualization mean par
+# Visualization max par
 ggplot(midday.par, aes(x = DOY, y = max.par)) +
   geom_point(alpha = 0.5) +
   geom_smooth(se = TRUE) +
