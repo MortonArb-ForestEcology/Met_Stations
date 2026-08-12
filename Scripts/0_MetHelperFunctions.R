@@ -83,6 +83,7 @@ combineMetFiles <- function(plotID, pathPlot, filesPlot){
     colnames(fNow) <- renameCols(fNow[fNow[grep("z6", names(fNow))] == "Timestamp",])
     fNow <- fNow[-(grep("Records", fNow$Timestamp)),]
     fNow <- fNow[-(grep("Timestamp", fNow$Timestamp)),]
+    fNow <- collapseDupCols(fNow)
     # head(fNow)
     
     
