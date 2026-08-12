@@ -47,6 +47,20 @@ renameCols <- function(x){
   return(vecCols)
 }
 
+#Fix column name duplication that arises when a sensor is moved from one port to another
+collapseDupCols <- function(df){
+  dupNames <- unique(names(df)[duplicated(names(df))])
+  for(nm in dupNames){
+    idxCols <- which(names(df) == nm)
+    combined <- df[[idxCols[1]]]
+    for(i in idxCols[-1]){
+      combined <- ifelse(is.na(combined) | combined == "", df[[i]], combined)
+    }
+    df[[idxCols[1]]] <- combined
+    df <- df[, -idxCols[-1]]
+  }
+  return(df)
+}
 
 
 # Function to append new files to each other ----
